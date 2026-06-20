@@ -1,0 +1,28 @@
+{
+  "name": "lemma-core",
+  "version": "3.1.1",
+  "description": "Lemma MCP core (TypeScript) — entry point, shared utilities, and adapters.",
+  "private": true,
+  "license": "BSD-4-Clause",
+  "type": "module",
+  "main": "./dist/mcp/server.js",
+  "bin": {
+    "lemma-mcp": "./dist/mcp/server.js"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p .",
+    "test": "node --test 'dist/**/*.test.js'",
+    "watch": "tsc -watch -p .",
+    "start": "node dist/mcp/server.js"
+  },
+  "dependencies": {
+    "@jupyter/ydoc": "^4.0.0",
+    "@jupyterlab/services": "^7.6.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "y-websocket": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}

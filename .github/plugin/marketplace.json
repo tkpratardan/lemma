@@ -1,0 +1,20 @@
+{
+  "name": "lemma",
+  "description": "Senior data-scientist mode + live-notebook tools for AI agents.",
+  "owner": {
+    "name": "tkpratardan",
+    "url": "https://github.com/tkpratardan"
+  },
+  "plugins": [
+    {
+      "name": "lemma",
+      "description": "Makes the agent a rigorous data scientist (frame, look, leakage-check, baseline, honest validation) and drives live Jupyter/JupyterLab/editor notebooks.",
+      "source": "./",
+      "category": "data-science",
+      "tags": ["data-science", "notebook", "jupyter", "eda", "leakage", "baseline"],
+      "skills": "skills/",
+      "mcpServers": "./.github/plugin/mcp.json",
+      "hooks": "hooks/copilot-hooks.json"
+    }
+  ]
+}

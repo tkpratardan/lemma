@@ -1,0 +1,92 @@
+{
+  "name": "lemma-datascience",
+  "displayName": "Lemma: Live Notebook Tools",
+  "description": "Lets AI agents edit and execute the notebook open in your VS Code editor, natively.",
+  "version": "1.2.12",
+  "publisher": "tkpratardan",
+  "license": "BSD-4-Clause",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkpratardan/lemma.git",
+    "directory": "extensions/vscode"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "AI",
+    "Notebooks",
+    "Data Science"
+  ],
+  "activationEvents": [
+    "onNotebook:jupyter-notebook"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Lemma",
+      "properties": {
+        "lemma.confirmEdits": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Gate every AI edit to the notebook behind a diff view with Accept / Always Allow / Discard buttons rendered on the diff itself (editor title bar and top-of-diff links). The MCP tool call blocks until you decide, so this is the single permission gate regardless of which agent is driving. Disable for zero-friction flow (use Cmd+Z to undo instead). \"Always Allow\" suppresses this for the rest of the current editor session only — it does not change this setting."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "lemma.acceptEdit",
+        "title": "Accept AI Edit",
+        "category": "Lemma",
+        "icon": "$(check)",
+        "enablement": "resourceScheme == lemma-diff"
+      },
+      {
+        "command": "lemma.alwaysAllowEdits",
+        "title": "Always Allow AI Edits (This Session)",
+        "category": "Lemma",
+        "icon": "$(check-all)",
+        "enablement": "resourceScheme == lemma-diff"
+      },
+      {
+        "command": "lemma.discardEdit",
+        "title": "Discard AI Edit",
+        "category": "Lemma",
+        "icon": "$(close)",
+        "enablement": "resourceScheme == lemma-diff"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "lemma.acceptEdit",
+          "when": "resourceScheme == lemma-diff",
+          "group": "navigation@1"
+        },
+        {
+          "command": "lemma.alwaysAllowEdits",
+          "when": "resourceScheme == lemma-diff",
+          "group": "navigation@2"
+        },
+        {
+          "command": "lemma.discardEdit",
+          "when": "resourceScheme == lemma-diff",
+          "group": "navigation@3"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p ./ --noEmit",
+    "compile": "npm run typecheck && node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.4.0"
+  }
+}

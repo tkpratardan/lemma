@@ -1,0 +1,62 @@
+{
+  "name": "@tkpratardan/lemma",
+  "version": "3.1.1",
+  "description": "Senior data-scientist mode + live-notebook MCP tools for AI agents. Install once, every detected host gets the persona and the tools.",
+  "homepage": "https://github.com/tkpratardan/lemma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkpratardan/lemma.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tkpratardan/lemma/issues"
+  },
+  "license": "BSD-4-Clause",
+  "keywords": [
+    "data-science",
+    "notebook",
+    "jupyter",
+    "eda",
+    "mcp",
+    "agent",
+    "leakage",
+    "baseline"
+  ],
+  "private": false,
+  "bin": {
+    "lemma": "./bin/install.js",
+    "lemma-mcp": "./src/dist/mcp/server.js"
+  },
+  "files": [
+    "bin/",
+    "hooks/",
+    "skills/",
+    "src/dist/",
+    "src/package.json",
+    "AGENTS.md",
+    "docs/CHANGELOG.md",
+    "LICENSE",
+    "gemini-extension.json",
+    ".mcp.json",
+    "assets/lemma_icon.png",
+    ".claude-plugin/",
+    ".codex-plugin/",
+    ".github/plugin/",
+    ".openclaw/",
+    ".opencode/"
+  ],
+  "dependencies": {
+    "@jupyter/ydoc": "^4.0.0",
+    "@jupyterlab/services": "^7.6.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "y-websocket": "^3.0.0"
+  },
+  "scripts": {
+    "prepare": "cd src && npm install && npm run build"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

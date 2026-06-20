@@ -1,0 +1,20 @@
+{
+  "name": "lemma",
+  "version": "3.1.1",
+  "description": "Senior data-scientist mode for AI agents, plus live-notebook tools. Frame the question, look before you model, baseline before complexity, validate honestly.",
+  "keywords": [
+    "data-science",
+    "notebook",
+    "jupyter",
+    "eda",
+    "skills",
+    "mcp"
+  ],
+  "license": "BSD-4-Clause",
+  "author": {
+    "name": "tkpratardan",
+    "url": "https://github.com/tkpratardan"
+  },
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
