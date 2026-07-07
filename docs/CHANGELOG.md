@@ -21,3 +21,15 @@ First release.
 - A `vscode_*` auto-allow list on hosts that support one (Claude Code, Cursor, Codex, opencode, Windsurf, Claude Desktop), so the editor's own confirm-diff gate is the only prompt for that surface instead of a redundant second one from the host.
 - A human-in-the-loop permission gate in VS Code/Cursor: every AI edit renders as a diff with Accept / Always Allow / Discard controls (editor-title-bar buttons and status bar items), so the agent can act autonomously without acting unsupervised.
 - `lemma_skill(name)`: an MCP tool returning one skill's full ruleset, so hosts with no native skill support can still pull the mode rulesets the persona routes to.
+- `lemma-model` skill: final-modeling rigor once the baseline and features are locked, rounding the routing table out to 9 modes.
+- Production rigor added to every skill: renaming uninferrable columns from data dictionaries, join-introduced silent failure checks, reusable feature logic instead of ad-hoc columns, guardrail metrics on causal claims, a leakage correlation threshold, a join time-travel check, and a shared rule against inventing business figures that aren't backed by data or user input.
+- Claude Code, Codex, Copilot, Antigravity, and OpenClaw now install as a plugin pointed at the published GitHub repo instead of a local copy, so a git push is what ships an update. Claude Code and Gemini CLI auto-update in the background; the rest use the host's own update command instead of lemma's installer.
+
+### Fixed
+
+- Missing `owner` field in the Claude Code marketplace manifest, which made `claude plugin marketplace add` fail outright.
+- Wrong CLI verbs for Codex (`install`/`uninstall` instead of `add`/`remove`) and Copilot (`remove` instead of `uninstall`).
+- Copilot was delivering the persona twice, once through its session-start hook and once through MCP instructions.
+- MCP server paths in plugin manifests now use `${CLAUDE_PLUGIN_ROOT}` / `${PLUGIN_ROOT}` instead of a bare relative path, which only worked by coincidence.
+- `bin/install.js` could write an incomplete `extraKnownMarketplaces` entry to `~/.claude/settings.json` when `marketplace add` failed, breaking the whole settings file.
+- VS Code/Cursor status bar buttons for the accept/discard gate collided with built-in items; moved them to the left-aligned, high-priority group.
