@@ -12,6 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const readline = require('readline');
 const { spawnSync } = require('child_process');
 
 // ---- helpers ----------------------------------------------------------------
@@ -199,6 +200,17 @@ function log(msg) { console.log(msg); }
 function ok(name) { console.log(`✓ ${name}`); }
 function skip(name, reason) { console.log(`– ${name}: ${reason}`); }
 
+function askYesNo(question) {
+  if (DRY_RUN || !process.stdin.isTTY) return Promise.resolve(false);
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise((resolve) => {
+    rl.question(`${question} (y/n) `, (answer) => {
+      rl.close();
+      resolve(/^y/i.test(answer.trim()));
+    });
+  });
+}
+
 // ---- resolve lemma-mcp command ---------------------------------------------
 
 function lemmaMcpCommand() {
@@ -262,6 +274,21 @@ function uninstallCodexPlugin() {
   log(`  codex plugin marketplace remove ${CODEX_MARKETPLACE_NAME}`);
   if (!DRY_RUN) {
     spawnSync(cli, ['plugin', 'marketplace', 'remove', CODEX_MARKETPLACE_NAME], { encoding: 'utf8', timeout: 60000 });
+  }
+  removeCodexHookTrustState();
+}
+
+function removeCodexHookTrustState() {
+  const file = codexConfigTomlPath();
+  let content;
+  try { content = fs.readFileSync(file, 'utf8'); } catch { return; }
+  const selector = codexPluginSelector().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`\\[hooks\\.state\\."${selector}:[^\\]]*"\\]\\n(?:[^\\n[][^\\n]*\\n)*\\n?`, 'g');
+  const stripped = content.replace(pattern, '');
+  if (stripped === content) return;
+  log(`  remove hook-trust state for ${codexPluginSelector()} from ${file}`);
+  if (!DRY_RUN) {
+    fs.writeFileSync(file, stripped);
   }
 }
 
@@ -541,10 +568,7 @@ function makeProviders(cmd) {
       id: 'claude-code',
       label: 'Claude Code',
       detect: () => Boolean(which('claude')),
-      // No skillsDir: skills/persona/hooks/MCP now all arrive through the
-      // plugin bundle (.claude-plugin/) instead of a direct copy — a raw
-      // ~/.claude/skills copy alongside it would double up the same skills.
-      install() {
+      async install() {
         // Old direct-write config from before the plugin-route switch —
         // clean it up so it can't linger alongside the new plugin install.
         removeFromJson(path.join(HOME, '.claude.json'), 'mcpServers.lemma');
@@ -584,12 +608,25 @@ function makeProviders(cmd) {
             extraKnownMarketplaces: { lemma: { autoUpdate: true } },
           });
         }
+        let pluginInstalled = DRY_RUN;
         log(`  claude plugin install lemma@lemma`);
         if (!DRY_RUN) {
           const installed = spawnSync(cli, ['plugin', 'install', 'lemma@lemma'], { encoding: 'utf8', timeout: 60000 });
           if (installed.status !== 0 || installed.error) {
             const reason = (installed.stderr || installed.stdout || installed.error?.message || 'unknown').trim();
             log(`  warning: claude plugin install failed: ${reason}`);
+          } else {
+            pluginInstalled = true;
+          }
+        }
+
+        if (!marketplaceAdded || !pluginInstalled) {
+          const fallback = await askYesNo('  Plugin install failed. Fall back to a direct config write (skills/MCP/hooks, no auto-update)?');
+          if (fallback) {
+            log('  falling back to direct config write');
+            writeJsonMerge(path.join(HOME, '.claude.json'), { mcpServers: { lemma: mcpEntry } });
+            copySkillsTo(path.join(HOME, '.claude', 'skills'));
+            installHooks();
           }
         }
       },
@@ -603,6 +640,7 @@ function makeProviders(cmd) {
         }
         removeFromJson(path.join(HOME, '.claude', 'settings.json'), 'extraKnownMarketplaces.lemma');
         removeFromJson(path.join(HOME, '.claude.json'), 'mcpServers.lemma');
+        removeSkillsFrom(path.join(HOME, '.claude', 'skills'));
         // `claude plugin marketplace remove` (above) can leave a vestigial
         // empty `"extraKnownMarketplaces": {}` behind (confirmed this
         // session) — same cleanup as uninstallHooks/uninstallPermissions.
@@ -639,6 +677,7 @@ function makeProviders(cmd) {
       id: 'codex',
       label: 'Codex CLI / IDE extension / app',
       detect: () => Boolean(codexCli()) || appExists('Codex') || vscodeExtInstalled('openai.chatgpt'),
+      postInstallNote: 'run /hooks to review and trust lemma\'s lifecycle hooks (Codex skips them until reviewed)',
       install() {
         installCodexPlugin();
         installCodexTomlPermissions();
@@ -783,9 +822,9 @@ function makeProviders(cmd) {
         // paths (the same values install() wrote) — leaves any other entry
         // untouched, instead of the old "leave it all in" workaround.
         const agentsPath = path.join(REPO_ROOT, 'AGENTS.md');
-        const pluginPath = path.join(REPO_ROOT, '.opencode', 'plugins', 'lemma.mjs');
+        const pluginSuffix = path.join('.opencode', 'plugins', 'lemma.mjs');
         removeFromArrayInJson(configFile, 'instructions', (v) => v === agentsPath);
-        removeFromArrayInJson(configFile, 'plugin', (v) => v === pluginPath);
+        removeFromArrayInJson(configFile, 'plugin', (v) => v.endsWith(pluginSuffix));
         uninstallOpencodePermissions();
       },
     },
@@ -805,14 +844,11 @@ function makeProviders(cmd) {
   ];
 }
 
-// ---- hooks (always global — persona applies everywhere) ---------------------
+// ---- hooks (fallback path when the plugin install fails) -------------------
 
 function installHooks() {
   const hooksSource = path.join(__dirname, '..', 'hooks', 'hooks.json');
   if (!fs.existsSync(hooksSource)) return;
-  // ${CLAUDE_PLUGIN_ROOT} is only set when running as a plugin (claude plugin
-  // install). In global ~/.claude/settings.json, it's undefined — substitute
-  // the actual absolute path to this repo's hooks directory.
   const rawConfig = fs.readFileSync(hooksSource, 'utf8')
     .replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, REPO_ROOT);
   const hooksConfig = JSON.parse(rawConfig);
@@ -903,13 +939,7 @@ function removeSkillsFrom(destRoot) {
   }
 }
 
-// ---- permissions (claude-code only: vscode_* tools are pre-approved) --------
-//
-// The vscode_* tools are already gated by the in-editor diff/accept-discard
-// flow (lemma.confirmEdits) — a second manual permission prompt on top of that
-// is redundant friction. Only vscode_* is pre-approved: pycharm_* and
-// jupyterlab_* have no equivalent in-editor gate, so they keep the normal
-// permission prompt.
+// ---- permissions (Claude Code's global settings) ----------------------------
 
 const VSCODE_TOOL_NAMES = [
   'vscode_status', 'vscode_read_notebook', 'vscode_get_state', 'vscode_execute_cell',
@@ -1090,6 +1120,14 @@ function uninstallExtension() {
       spawnSync(cli, ['--uninstall-extension', EXTENSION_ID], { encoding: 'utf8', timeout: 60000 });
     }
   }
+  for (const dir of [path.join(HOME, '.vscode', 'extensions'), path.join(HOME, '.cursor', 'extensions')]) {
+    let entries = [];
+    try { entries = fs.readdirSync(dir); } catch { continue; }
+    for (const name of entries.filter((n) => n.startsWith(`${EXTENSION_ID}-`))) {
+      log(`  remove ${path.join(dir, name)}`);
+      if (!DRY_RUN) fs.rmSync(path.join(dir, name), { recursive: true, force: true });
+    }
+  }
 }
 
 // ---- help -------------------------------------------------------------------
@@ -1153,7 +1191,7 @@ ${formatColumns(HELP_EXAMPLES, '  ')}
 
 // ---- main -------------------------------------------------------------------
 
-function main() {
+async function main() {
   if (HELP) {
     printHelp();
     return;
@@ -1183,6 +1221,7 @@ function main() {
   }
 
   let count = 0;
+  const postInstallNotes = [];
   for (const provider of targets) {
     if (!provider.detect()) {
       skip(provider.label, 'not detected');
@@ -1193,16 +1232,19 @@ function main() {
       provider.uninstall();
       if (provider.skillsDir) removeSkillsFrom(provider.skillsDir);
     } else {
-      provider.install();
+      await provider.install();
       if (provider.skillsDir) copySkillsTo(provider.skillsDir);
+      if (provider.postInstallNote) postInstallNotes.push(`${provider.label}: ${provider.postInstallNote}`);
     }
     ok(provider.label);
     count++;
   }
 
   if (!ONLY || ONLY === 'claude-code') {
-    log(`\n${UNINSTALL ? 'Removing' : 'Installing'} hooks (global):`);
-    if (UNINSTALL) { uninstallHooks(); } else { installHooks(); }
+    if (UNINSTALL) {
+      log('\nRemoving hooks (global):');
+      uninstallHooks();
+    }
 
     log(`\n${UNINSTALL ? 'Removing' : 'Installing'} vscode_* permission allow-list (global):`);
     if (UNINSTALL) { uninstallPermissions(); } else { installPermissions(); }
@@ -1220,6 +1262,14 @@ function main() {
     console.log('No agents detected. Use --only <id> to force-install.');
     console.log(`Available: ${providers.map((p) => p.id).join(', ')}`);
   }
+  if (!UNINSTALL && count > 0) {
+    console.log('\nVerify hooks actually fire before relying on them (start a fresh session and confirm the persona loads):');
+    for (const note of postInstallNotes) console.log(`  - ${note}`);
+    if (postInstallNotes.length === 0) console.log('  - no extra steps known for the agents just configured');
+  }
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
