@@ -68,9 +68,8 @@ export function registerNotebookTools(server: McpServer, surfaces: NotebookSurfa
     'notebook_read_cell_output',
     {
       description:
-        "Cell's full stored output: text paged via `offset` (4000 chars/call) + plot images. " +
-        'Use when truncated output or an "[image output …]" placeholder isn\'t enough. Does not ' +
-        're-run.',
+        "Full stored output for one cell: text paged via `offset`, plus images. Use past a " +
+        'truncated or placeholder output. Does not re-run.',
       inputSchema: {
         surface: surfaceParam,
         index: z.number().int().describe(CELL_INDEX_DESC),
@@ -83,9 +82,7 @@ export function registerNotebookTools(server: McpServer, surfaces: NotebookSurfa
   server.registerTool(
     'notebook_edit_and_run',
     {
-      description:
-        "Replace a cell's source and run it in one call. Prefer over edit+run for immediate " +
-        'execution.',
+      description: "Replaces and runs a cell's source in one call. Prefer over edit+run.",
       inputSchema: {
         surface: surfaceParam,
         index: z.number().int().describe(CELL_INDEX_DESC),
@@ -98,9 +95,7 @@ export function registerNotebookTools(server: McpServer, surfaces: NotebookSurfa
   server.registerTool(
     'notebook_run_all_cells',
     {
-      description:
-        'Run all code cells top to bottom, stop at first error. Use after a kernel restart or ' +
-        'to verify end-to-end.',
+      description: 'Runs all cells top to bottom, stops at the first error. For post-restart or end-to-end checks.',
       inputSchema: { surface: surfaceParam },
     },
     async ({ surface }) => handlersFor(surface).runAllCells()
@@ -156,7 +151,7 @@ export function registerNotebookTools(server: McpServer, surfaces: NotebookSurfa
   server.registerTool(
     'notebook_clear_notebook',
     {
-      description: 'Delete all cells. Irreversible: only when the user explicitly asks to clear/reset.',
+      description: 'Deletes all cells. Irreversible, only on an explicit clear/reset request.',
       inputSchema: { surface: surfaceParam },
     },
     async ({ surface }) => handlersFor(surface).clearNotebook()
@@ -174,7 +169,7 @@ export function registerNotebookTools(server: McpServer, surfaces: NotebookSurfa
   server.registerTool(
     'notebook_save_notebook',
     {
-      description: 'Save the notebook (no-op on pycharm — it writes to disk on every edit).',
+      description: 'Saves the notebook. No-op on pycharm, it writes to disk on every edit.',
       inputSchema: { surface: surfaceParam },
     },
     async ({ surface }) => handlersFor(surface).saveNotebook()

@@ -8,11 +8,11 @@
 
 ## JupyterLab (`jupyterlab_connect`) and PyCharm (`pycharm_connect`, `pycharm_status`)
 
-`jupyter-collaboration` must be installed on the server for JupyterLab. `server_url` is required; a pasted `?token=` URL is accepted.
+`jupyter-collaboration` must be installed on the server for JupyterLab. A pasted `?token=` URL is accepted for `server_url`. If `server_url` is omitted (and `LEMMA_JUPYTER_URL` isn't set), `jupyterlab_connect` tries to auto-discover a local server, see [Requirements](../README.md#requirements) for when that applies and when it doesn't.
 
 | Tool | What it does |
 |---|---|
-| `jupyterlab_connect(server_url, notebook_path?)` | Connect to a running JupyterLab server |
+| `jupyterlab_connect(server_url?, token?, notebook_path?)` | Connect to a running JupyterLab server, or auto-discover one locally |
 | `pycharm_connect(server_url, notebook_file[, notebook_path])` | Attach the kernel + target the on-disk notebook |
 | `pycharm_status()` | Check that the kernel + file are connected |
 
@@ -20,7 +20,7 @@ Every other jupyterlab/pycharm verb — read, edit, run, delete, etc. — is a s
 
 ## VS Code / Cursor (`vscode_*`)
 
-Requires the [Lemma VS Code extension](../extensions/vscode/README.md).
+Requires the [Lemma VS Code extension](../extensions/vscode/README.md). Every tool below except `vscode_status` also takes `path` (the `.ipynb`, absolute or workspace-relative), omitted from the table for brevity.
 
 | Tool | What it does |
 |---|---|

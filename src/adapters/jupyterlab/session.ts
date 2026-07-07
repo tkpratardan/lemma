@@ -119,33 +119,39 @@ async function getJson(url: string, token: string, init?: RequestInit): Promise<
   return res.json();
 }
 
-// Resolve the jupyter-collaboration room for `path`, then build its
-// websocket URL. Protocol confirmed by reading jupyter_nbmodel_client's
-// actual source: PUT
-// /api/collaboration/session/<path> -> {format, type, fileId, sessionId}
-// -> room_id = "{format}:{type}:{fileId}" -> ws://.../api/collaboration/room/{room_id}?sessionId=...&token=...
+// Two RTC backends, same room-id scheme, different fileId lookup: plain
+// jupyter-collaboration's session endpoint 404s under jupyter_server_documents
+// (Jupyter AI's newer backend), which resolves fileId via /api/fileid/index
+// instead and ignores sessionId entirely.
 async function resolveCollaborationRoom(
   serverUrl: string,
   token: string,
   path: string
 ): Promise<{ wsBase: string; roomId: string; sessionId: string }> {
-  // ServerConnection.makeSettings() normalizes baseUrl with a trailing
-  // slash (confirmed in @jupyterlab/coreutils' URLExt.normalize): strip
-  // it before concatenating, or this becomes a double-slash path that
-  // jupyter-server's router 404s on.
   const base = serverUrl.replace(/\/+$/, '');
-  const raw = await getJson(
-    `${base}/api/collaboration/session/${encodeURIComponent(path.replace(/^\/+/, ''))}`,
-    token,
-    {
+  const cleanPath = path.replace(/^\/+/, '');
+  const wsBase = `${base.replace(/^http/, 'ws')}/api/collaboration/room`;
+  const encodedPath = cleanPath.split('/').map(encodeURIComponent).join('/');
+
+  try {
+    const raw = (await getJson(`${base}/api/collaboration/session/${encodedPath}`, token, {
       method: 'PUT',
       body: JSON.stringify({ format: 'json', type: 'notebook' }),
       headers: { 'Content-Type': 'application/json' },
+    })) as { format: string; type: string; fileId: string; sessionId: string };
+    return { wsBase, roomId: `${raw.format}:${raw.type}:${raw.fileId}`, sessionId: raw.sessionId };
+  } catch (e) {
+    if (!(e instanceof Error) || e.message !== 'HTTP 404') {
+      throw e;
     }
-  ) as { format: string; type: string; fileId: string; sessionId: string };
-  const roomId = `${raw.format}:${raw.type}:${raw.fileId}`;
-  const wsBase = `${base.replace(/^http/, 'ws')}/api/collaboration/room`;
-  return { wsBase, roomId, sessionId: raw.sessionId };
+  }
+
+  const raw = (await getJson(`${base}/api/fileid/index`, token, {
+    method: 'POST',
+    body: `path=${encodeURIComponent(cleanPath)}`,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  })) as { id: string; path: string };
+  return { wsBase, roomId: `json:notebook:${raw.id}`, sessionId: '' };
 }
 
 export interface ConnectOptions {

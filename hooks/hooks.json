@@ -25,7 +25,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "mcp__lemma__vscode_.*",
+        "matcher": "mcp__(lemma|plugin_lemma_lemma)__.*",
         "hooks": [
           {
             "type": "command",

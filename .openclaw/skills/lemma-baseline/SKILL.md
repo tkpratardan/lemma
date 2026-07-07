@@ -2,53 +2,62 @@
 name: lemma-baseline
 description: "Establish a dumb baseline and an honest validation harness before any real model, so every later number means something."
 homepage: https://github.com/tkpratardan/lemma
-license: BSD-4-Clause
+license: MIT
 ---
 
-# Baseline & Feature Engineering — establishing the floor and finding signal
+# Baseline & feature engineering
 
-A model without a baseline is a story; a metric from a bad split is a lie. Build the baseline on raw features first, then earn your complexity through rigorous feature engineering. 
+A model without a baseline is a story. A metric from a bad split is a lie.
+The goal cell states what's predicted and what score would move a
+decision. Work through the chapters below, each closed with a one-line
+finding.
 
-In the notebook, open with the fixed scaffold — `#` goal (what's being predicted, and what score changes a decision), `## Imports` (seed + key library versions noted here), `## Load data`. Then execute the sequence below as `##` chapters, each closed with a one-line markdown finding.
+## Match the split to deployment
 
-## 1. Pick the split that matches deployment
+The split has to mirror how the model will actually see new data, or the
+validation score measures a different problem than production will ask.
 
-- **Temporal data** (any date/time meaning) → **time-ordered split**: train on the past, validate on the future. A random split here is look-ahead leakage.
-- **Grouped data** (multiple rows per user/store/patient) → **group split**: no group appears in both train and validation.
-- **Classification** → **stratify** so class ratios match across train and validation.
-- **Otherwise** → a random split (or k-fold). Set a seed.
+- Temporal data → time-ordered split. A random split here is look-ahead leakage.
+- Grouped data (multiple rows per user/store/patient) → group split, no group
+  in both train and validation.
+- Classification → stratify so class ratios match across splits.
+- Otherwise → random split or k-fold, seeded.
 
-Hold out a **test set you touch once, at the very end.** Tune on validation only.
+Hold out a test set you touch once, at the end. Tune on validation only.
 
-## 2. Fit transforms on train only
+## Fit transforms on train only
 
-Imputers, scalers, encoders, target stats — `fit` on train, `transform` on validation. Fitting on the full data before splitting leaks the validation distribution into training.
+Imputers, scalers, encoders, target stats: fit on train, transform validation.
+Fitting on the full data first leaks the validation distribution into training.
 
-## 3. The dumb baseline (The Floor)
+## Set the floor before building anything
 
-- Regression → predict the **train mean/median**. Metric: MAE or RMSE.
-- Classification → predict the **majority class**, and report the **base rate**. Metric: PR-AUC or recall@k for imbalance — never raw accuracy on a skewed set.
-- Time series → **last value** or **seasonal naive**.
+The dumb baseline is the number every later model has to beat.
 
-Score it on validation. This number is the absolute floor.
+- Regression → predict the train mean/median. Score MAE or RMSE.
+- Classification → predict the majority class, report the base rate. Score
+  PR-AUC or recall@k, never raw accuracy on a skewed set.
+- Time series → last value or seasonal naive.
 
-## 4. The simple reference model
+Score it on validation. Then add one honest reference model (linear/logistic,
+or a shallow tree) on the features as they already exist, no engineering yet.
+This tells you how much signal the raw data already carries before spending
+any effort building more.
 
-The dumb baseline is the floor; add **one simple, honest** model (linear/logistic regression, or a shallow tree) using *only the raw features* as a second reference point. The distance from dumb-baseline to simple-model tells you how much signal exists before feature engineering begins.
+## Feature engineering is a cost, not a default
 
-## 5. The Feature Engineering Loop
+A new feature isn't free: it adds pipeline complexity and a new place for
+leakage to hide. Only build one that tests a specific hypothesis EDA
+raised, not because more features are cheap to add. Iterate: engineer the
+feature using the repo's own transform mechanism if it has one, not a
+one-off column, add it to the reference model, and check the lift on
+validation. Then ask whether that lift is real, bootstrap the metric or
+read the spread across CV folds. A lift inside that spread is noise, and
+the feature isn't worth its cost. Keep only what clears the bar, and stop
+once the hypotheses from EDA are exhausted.
 
-This is where the real work happens. Do not jump to a final complex model. Instead, iterate on features:
-1. Engineer a new feature or set of features based on the signals identified in EDA, using the repo's existing transform mechanism if it has one — reusable, not a one-off `df['col'] = ...`.
-2. Add them to the simple reference model.
-3. Check the validation score.
-4. **The noise floor check:** Does this new feature actually provide lift, or is it noise? Bootstrap the validation metric (resample 30+ times) or read the spread across CV folds. If the lift falls inside that spread, the feature is discarded.
+## Report the score, the gap, and what's left
 
-Iterate until you have exhausted the hypotheses generated during EDA and established a strong, signal-rich feature set.
-
-## 6. Report — score, gap, and final signal set
-
-One markdown line: split type, metric, dumb baseline score, and final engineered baseline score.
-Then check the gap: Report **train and validation** score, not just validation. A large train–validation gap is overfitting, not skill.
-
-Once the feature set and baseline are rock solid, and only then, hand off to `lemma-model` to explore complex architectures.
+One line: split type, metric, dumb baseline, final engineered score. Report
+both train and validation. A large gap between them is overfitting, not
+skill. Once the feature set and baseline hold, hand off to `lemma-model`.

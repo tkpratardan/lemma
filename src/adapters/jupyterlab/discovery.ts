@@ -1,6 +1,9 @@
-// Connection resolution for the JupyterLab adapter. Lemma never discovers
-// a running Jupyter server itself: server_url/token must be supplied
-// explicitly by the caller.
+// Connection resolution for the JupyterLab adapter. server_url/token can be
+// passed explicitly, or left out for discoverNotebooks() to find a local
+// server itself (only valid when lemma runs colocated with it).
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import type { JupyterSession } from '../../utils/jupyterApi.js';
 
 export interface JupyterServer {
@@ -64,9 +67,17 @@ async function reachable(server: JupyterServer): Promise<boolean> {
   }
 }
 
+function encodeContentsPath(path: string): string {
+  return path
+    .replace(/^\/+/, '')
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/');
+}
+
 export async function notebookExists(server: JupyterServer, path: string): Promise<boolean> {
   try {
-    await getJson(`${server.url}/api/contents/${encodeURIComponent(path.replace(/^\/+/, ''))}?content=0`, server.token);
+    await getJson(`${server.url}/api/contents/${encodeContentsPath(path)}?content=0`, server.token);
     return true;
   } catch {
     return false;
@@ -144,4 +155,74 @@ export async function resolveConnection(
     kernelName: top.kernel?.name,
     sessionModel: top,
   };
+}
+
+function runtimeDirs(): string[] {
+  if (process.env.JUPYTER_RUNTIME_DIR) {
+    return [process.env.JUPYTER_RUNTIME_DIR];
+  }
+  const home = os.homedir();
+  if (process.platform === 'darwin') {
+    return [path.join(home, 'Library', 'Jupyter', 'runtime')];
+  }
+  if (process.platform === 'win32') {
+    return [path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'jupyter', 'runtime')];
+  }
+  const dirs = [];
+  if (process.env.XDG_RUNTIME_DIR) {
+    dirs.push(path.join(process.env.XDG_RUNTIME_DIR, 'jupyter'));
+  }
+  dirs.push(path.join(process.env.XDG_DATA_HOME || path.join(home, '.local', 'share'), 'jupyter', 'runtime'));
+  return dirs;
+}
+
+function localServers(): JupyterServer[] {
+  const found: JupyterServer[] = [];
+  for (const dir of runtimeDirs()) {
+    let entries: string[];
+    try {
+      entries = fs.readdirSync(dir);
+    } catch {
+      continue;
+    }
+    for (const name of entries) {
+      if (!/^(jp|nb)server-.*\.json$/.test(name)) continue;
+      try {
+        const data = JSON.parse(fs.readFileSync(path.join(dir, name), 'utf8'));
+        if (data.url) found.push({ url: String(data.url).replace(/\/+$/, ''), token: data.token ?? '' });
+      } catch {
+        continue;
+      }
+    }
+  }
+  return found;
+}
+
+export interface DiscoveredNotebook {
+  server: JupyterServer;
+  notebookPath: string;
+  kernelId?: string;
+  kernelName?: string;
+  sessionModel?: JupyterSession;
+}
+
+// One-shot local lookup so the agent doesn't need to probe `jupyter server
+// list` + status + sessions itself. Only meaningful when lemma runs
+// colocated with the server.
+export async function discoverNotebooks(): Promise<DiscoveredNotebook[]> {
+  const results: DiscoveredNotebook[] = [];
+  for (const server of localServers()) {
+    if (!(await reachable(server))) continue;
+    for (const s of await listNotebookSessions(server)) {
+      if (!s.path) continue;
+      results.push({
+        server,
+        notebookPath: s.path,
+        kernelId: s.kernel?.id,
+        kernelName: s.kernel?.name,
+        sessionModel: s,
+      });
+    }
+  }
+  return results;
 }

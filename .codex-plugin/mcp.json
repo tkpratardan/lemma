@@ -2,7 +2,8 @@
   "mcpServers": {
     "lemma": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/src/dist/mcp/server.js"],
+      "args": ["bin/lemma-mcp.mjs"],
+      "cwd": ".",
       "env": { "LEMMA_NO_MCP_INSTRUCTIONS": "1" }
     }
   }

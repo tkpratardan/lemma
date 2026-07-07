@@ -25,8 +25,8 @@ const NO_EDITOR =
   'notebook use pycharm_*.)';
 
 const PATH_DESC =
-  'Path to the .ipynb (absolute or workspace-relative). Auto-opens if not already open — name ' +
-  "the exact notebook, don't guess.";
+  "Path to the .ipynb, absolute or workspace-relative. Auto-opens if needed; name the exact " +
+  "notebook, don't guess.";
 
 async function requireEditor(): Promise<Editor | string> {
   const ed = await findEditor();
@@ -96,11 +96,11 @@ export function registerVscodeTools(server: McpServer): void {
   server.registerTool(
     'vscode_probe',
     {
-      // Implemented as create+execute+delete under the hood — nothing
+      // Implemented as create+execute+delete under the hood: nothing
       // persists in the notebook either way.
       description:
-        'Run code and return output without adding a cell. For environment probing only ' +
-        '(os.getcwd(), ls, versions) — a real result belongs in add_and_run.',
+        'Runs code, returns output, no cell added. Environment checks only (paths, versions); ' +
+        'real results go in add_and_run.',
       inputSchema: {
         path: z.string().describe(PATH_DESC),
         code: z.string().describe('Code to execute and discard.'),
@@ -154,9 +154,8 @@ export function registerVscodeTools(server: McpServer): void {
     'vscode_read_cell_output',
     {
       description:
-        "Cell's full stored output: text paged via `offset` (4000 chars/call) + plot images. " +
-        'Use when truncated output or an "[image output …]" placeholder isn\'t enough. Does not ' +
-        're-run.',
+        "Full stored output for one cell: text paged via `offset`, plus images. Use past a " +
+        'truncated or placeholder output. Does not re-run.',
       inputSchema: {
         path: z.string().describe(PATH_DESC),
         index: z.number().int().describe(CELL_INDEX_DESC),
@@ -199,9 +198,7 @@ export function registerVscodeTools(server: McpServer): void {
   server.registerTool(
     'vscode_run_all_cells',
     {
-      description:
-        'Run all code cells top to bottom, stop at first error. Use after a kernel restart or ' +
-        'to verify end-to-end.',
+      description: 'Runs all cells top to bottom, stops at the first error. For post-restart or end-to-end checks.',
       inputSchema: { path: z.string().describe(PATH_DESC) },
     },
     async ({ path }) => {
@@ -240,9 +237,7 @@ export function registerVscodeTools(server: McpServer): void {
   server.registerTool(
     'vscode_edit_and_run',
     {
-      description:
-        "Replace a cell's source and run it in one call. Prefer over edit+run for immediate " +
-        'execution.',
+      description: "Replaces and runs a cell's source in one call. Prefer over edit+run.",
       inputSchema: {
         path: z.string().describe(PATH_DESC),
         index: z.number().int().describe(CELL_INDEX_DESC),
@@ -261,7 +256,7 @@ export function registerVscodeTools(server: McpServer): void {
   server.registerTool(
     'vscode_insert_cell',
     {
-      description: 'Insert a code cell without running it. Use vscode_add_and_run to add+execute in one step.',
+      description: "Inserts a code cell, doesn't run it. See vscode_add_and_run to add+execute together.",
       inputSchema: {
         path: z.string().describe(PATH_DESC),
         index: z.number().int().describe('0-based position to insert at.'),
@@ -348,7 +343,7 @@ export function registerVscodeTools(server: McpServer): void {
   server.registerTool(
     'vscode_clear_notebook',
     {
-      description: 'Delete all cells. Irreversible: only when the user explicitly asks to clear/reset.',
+      description: 'Deletes all cells. Irreversible, only on an explicit clear/reset request.',
       inputSchema: { path: z.string().describe(PATH_DESC) },
     },
     async ({ path }) => {

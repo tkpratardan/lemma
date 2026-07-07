@@ -270,9 +270,8 @@ export function registerPyCharmTools(server: McpServer, kernel: PyCharmKernel): 
     'pycharm_connect',
     {
       description:
-        'Connect to a notebook open in PyCharm/DataSpell: attach its Jupyter kernel and ' +
-        'target its .ipynb on disk. Only if open in PyCharm/DataSpell specifically — try ' +
-        'vscode_status, then jupyterlab_connect, first.',
+        "Connects to a notebook open in PyCharm/DataSpell: attaches its Jupyter kernel, " +
+        "targets its .ipynb on disk.",
       inputSchema: {
         server_url: z.string().describe('Jupyter server base URL the kernel runs on, e.g. http://localhost:8888'),
         notebook_file: z.string().describe('Absolute path to the .ipynb on disk that PyCharm has open.'),
@@ -290,9 +289,7 @@ export function registerPyCharmTools(server: McpServer, kernel: PyCharmKernel): 
   server.registerTool(
     'pycharm_status',
     {
-      description:
-        'PyCharm/DataSpell connection status. Try vscode_status, then jupyterlab_connect, ' +
-        'first — only use PyCharm once those are ruled out.',
+      description: 'PyCharm/DataSpell connection status.',
       inputSchema: {},
     },
     () => h.status()
@@ -311,8 +308,8 @@ export function registerPyCharmTools(server: McpServer, kernel: PyCharmKernel): 
     'pycharm_probe',
     {
       description:
-        'Run code and return output without adding a cell. For environment probing only ' +
-        '(os.getcwd(), versions) — a real result belongs in add_and_run.',
+        'Runs code, returns output, no cell added. Environment checks only (paths, versions); ' +
+        'real results go in add_and_run.',
       inputSchema: { code: z.string().describe('Code to execute and discard.') },
     },
     ({ code }) => h.probe({ code })
@@ -321,8 +318,7 @@ export function registerPyCharmTools(server: McpServer, kernel: PyCharmKernel): 
   server.registerTool(
     'pycharm_insert_cell',
     {
-      description:
-        'Insert a code cell at a position without running it. Use notebook_add_and_run to add+run in one step.',
+      description: "Inserts a code cell at a position, doesn't run it. Use notebook_add_and_run to add+run together.",
       inputSchema: {
         index: z.number().int().describe('0-based position to insert at.'),
         source: z.string().describe('Source for the new cell.'),

@@ -68,23 +68,27 @@ read the installed npm package directly).
    `node scripts/build-rule-copies.js`.
 4. If any `skills/*/SKILL.md` changed, regenerate the OpenClaw copies:
    `node scripts/build-openclaw-skills.js`.
-5. Build and rebuild the committed compiled server — `src/dist/` is tracked
-   in git (not just shipped in the npm tarball) specifically so a plugin
-   fetched straight from this repo has a working MCP server with no build
-   step of its own:
+5. Rebuild `bin/lemma-mcp.mjs`, the committed, dependency-free bundle every
+   plugin-route host actually runs. A plugin fetched straight from git gets
+   no `node_modules` (it's never committed), so the MCP server has to carry
+   its own dependencies inline rather than `import`ing them at runtime:
 
    ```bash
-   cd src && npm run build && npm test
+   cd src && npm run bundle && npm test
    ```
 
-6. Publish to npm by hand (for the legacy/non-plugin install paths):
+6. Publish to npm by hand (for the legacy/non-plugin install paths), from
+   the repo root, not `src/` (`src/package.json` is `lemma-core`, the
+   internal, unpublished TypeScript package; `@tkpratardan/lemma` at the
+   root is the one that actually ships):
 
    ```bash
-   cd src && npm publish
+   npm publish --dry-run
+   npm publish
    ```
 
-7. Commit (including the rebuilt `src/dist/`), then tag and push — the tag
-   push is what every plugin-route host actually picks up:
+7. Commit (including the rebuilt `bin/lemma-mcp.mjs`), then tag and push,
+   the tag push is what every plugin-route host actually picks up:
 
    ```bash
    git tag vX.Y.Z

@@ -1,8 +1,8 @@
 // Shared lemma mode store for the prompt hooks: parse /lemma commands and
 // persist the mode. The prompt hooks emit context only when the mode
-// changes — per-turn re-injection was retired because UserPromptSubmit
-// context accumulates in the transcript for the rest of the session, while
-// SessionStart already re-fires on compaction and covers drift.
+// changes: UserPromptSubmit context accumulates in the transcript for the
+// rest of the session, so emitting it every turn would compound. SessionStart
+// already re-fires on compaction and covers drift on its own.
 'use strict';
 
 const fs = require('fs');

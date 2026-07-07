@@ -20,9 +20,13 @@ import { registerNotebookTools } from '../adapters/notebook/tools.js';
 // across that boundary for a five-line file read.
 function lemmaRoot(): string {
   if (process.env.CLAUDE_PLUGIN_ROOT) return process.env.CLAUDE_PLUGIN_ROOT;
-  // Compiled to dist/mcp/server.js; the repo root is three levels up.
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  return path.resolve(here, '..', '..', '..');
+  if (process.env.PLUGIN_ROOT) return process.env.PLUGIN_ROOT;
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 6; i++) {
+    if (fs.existsSync(path.join(dir, 'AGENTS.md'))) return dir;
+    dir = path.dirname(dir);
+  }
+  return path.dirname(fileURLToPath(import.meta.url));
 }
 
 function readPersona(): string | undefined {
@@ -36,8 +40,8 @@ function readPersona(): string | undefined {
 const PERSONA = readPersona();
 
 // LEMMA_NO_MCP_INSTRUCTIONS is set by the installer for hosts whose bundle
-// already delivers the persona natively (Codex/Copilot session-start hook,
-// Gemini contextFileName, opencode plugin), so it isn't sent twice.
+// already delivers the persona natively (Copilot session-start hook, Gemini
+// contextFileName, opencode plugin).
 const SEND_INSTRUCTIONS = PERSONA && !process.env.LEMMA_NO_MCP_INSTRUCTIONS;
 
 const server = new McpServer(
@@ -63,6 +67,7 @@ if (PERSONA) {
 const SKILL_NAMES = [
   'lemma-eda',
   'lemma-baseline',
+  'lemma-model',
   'lemma-describe',
   'lemma-inference',
   'lemma-causal',
@@ -72,22 +77,21 @@ const SKILL_NAMES = [
 ] as const;
 
 // Pull path for the mode rulesets on hosts with no native skill support
-// (VS Code, Windsurf, Claude Desktop): the persona's routing table
-// names these skills, and this tool is how such hosts fetch one.
+// (VS Code, Windsurf, Claude Desktop): AGENTS.md's routing table names
+// these skills, and this tool is how such hosts fetch one.
 server.registerTool(
   'lemma_skill',
   {
     description:
-      'Return one lemma skill ruleset (the full SKILL.md). Invoke before the matching analysis ' +
-      'when the host lacks native skill support: eda (fresh dataset), baseline, describe, ' +
-      'inference, causal, unsupervised, leakage, review.',
+      "Returns one lemma skill's full ruleset. Invoke before the matching analysis on a host " +
+      'with no native skill support.',
     inputSchema: { name: z.enum(SKILL_NAMES) },
   },
   ({ name }) => {
     try {
       return text(fs.readFileSync(path.join(lemmaRoot(), 'skills', name, 'SKILL.md'), 'utf8'));
     } catch {
-      return text(`skill ${name} not found — is the lemma install complete?`);
+      return text(`skill ${name} not found, is the lemma install complete?`);
     }
   }
 );
@@ -106,8 +110,8 @@ function getKernel(): IKernelClient | string {
 
 // --surface=vscode|pycharm|jupyter, written into that host's launch config by
 // `lemma --configure <surface>` (bin/install.js), narrows registration to one
-// surface. Decided once here at spawn, never toggled at runtime — unlike the
-// removed SurfaceGate, so there's no tools/list_changed for a client to miss.
+// surface. Decided once here at spawn and never toggled at runtime, so
+// there's no tools/list_changed for a client to miss.
 const surfaceArg = process.argv.find((a) => a.startsWith('--surface='))?.slice('--surface='.length);
 
 if (!surfaceArg || surfaceArg === 'vscode') {

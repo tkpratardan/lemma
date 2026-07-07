@@ -7,7 +7,7 @@
     "lemma": {
       "command": "node",
       "args": [
-        "${extensionPath}${/}src${/}dist${/}mcp${/}server.js"
+        "${extensionPath}${/}bin${/}lemma-mcp.mjs"
       ],
       "env": {
         "LEMMA_NO_MCP_INSTRUCTIONS": "1"

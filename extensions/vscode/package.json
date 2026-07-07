@@ -4,7 +4,7 @@
   "description": "Lets AI agents edit and execute the notebook open in your VS Code editor, natively.",
   "version": "1.2.13",
   "publisher": "tkpratardan",
-  "license": "BSD-4-Clause",
+  "license": "MIT",
   "icon": "icon.png",
   "repository": {
     "type": "git",

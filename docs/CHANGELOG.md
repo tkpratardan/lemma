@@ -8,7 +8,7 @@ pushing the tag runs the publish workflow (see CONTRIBUTING.md). Add entries to
 
 ## [Unreleased]
 
-## [3.1.1] - 2026-07-05
+## [3.1.2] - 2026-07-09
 
 First release.
 
@@ -33,3 +33,5 @@ First release.
 - MCP server paths in plugin manifests now use `${CLAUDE_PLUGIN_ROOT}` / `${PLUGIN_ROOT}` instead of a bare relative path, which only worked by coincidence.
 - `bin/install.js` could write an incomplete `extraKnownMarketplaces` entry to `~/.claude/settings.json` when `marketplace add` failed, breaking the whole settings file.
 - VS Code/Cursor status bar buttons for the accept/discard gate collided with built-in items; moved them to the left-aligned, high-priority group.
+- Claude Code's vscode_* permission allow-list and hook cleanup lived in a separate step gated only by `--only`, not by whether Claude Code was actually detected — so a full install on a machine with no `claude` CLI still wrote to `~/.claude/settings.json`. Moved both into the Claude Code provider's own install/uninstall, matching every other host; the allow-list also now only writes when lemma was actually registered (plugin install or fallback), not unconditionally.
+- Every plugin-route host (Claude Code, Codex, Copilot, Antigravity, Gemini CLI) installs via a git fetch with no `node_modules`, so the compiled MCP server crashed on startup and registered no tools at all. `zod` was also never declared as its own dependency. Fixed by bundling the server into a dependency-free `bin/lemma-mcp.mjs`; every plugin manifest and `bin/install.js`'s local-install fallback now point at that instead of `src/dist/`.

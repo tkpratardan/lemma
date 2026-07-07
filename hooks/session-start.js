@@ -13,16 +13,12 @@ const { readMode } = require('./lib/activation.js');
 const { getFullPersona } = require('./lib/instructions.js');
 const { isCodex, writeSessionStartOutput } = require('./lib/host.js');
 
-// Claude Code surfaces the lemma MCP server's initialize.instructions (the
-// same AGENTS.md) on every request, so injecting here too would deliver the
-// persona twice. Codex is excluded: whether it surfaces MCP instructions is
-// unconfirmed, so its hook copy stays.
+// Whether a client actually surfaces MCP instructions can't be observed
+// from here, for any host, so only skip when a direct (non-plugin) config
+// confirms the server is registered.
 function mcpDeliversPersona() {
-  if (isCodex) {
+  if (isCodex || process.env.CLAUDE_PLUGIN_ROOT) {
     return false;
-  }
-  if (process.env.CLAUDE_PLUGIN_ROOT) {
-    return true;
   }
   try {
     const cfg = JSON.parse(fs.readFileSync(path.join(os.homedir(), '.claude.json'), 'utf8'));

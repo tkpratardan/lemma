@@ -5,13 +5,13 @@
 <h1 align="center">Lemma</h1>
 
 <p align="center">
-  <em>Methodological, reproducible and stateful execution harness for AI-driven data science</em>
+  <em>Savvy, stateful, and reproducible.</em>
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@tkpratardan/lemma"><img src="https://img.shields.io/npm/v/@tkpratardan/lemma?style=flat-square&color=111111&label=npm" alt="npm"></a>
   <a href="https://github.com/tkpratardan/lemma/releases"><img src="https://img.shields.io/github/v/release/tkpratardan/lemma?style=flat-square&color=111111&label=release" alt="Release"></a>
-  <img src="https://img.shields.io/badge/license-BSD--4--Clause-111111?style=flat-square" alt="BSD 4-Clause license">
+  <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
 </p>
 
 
@@ -23,18 +23,16 @@
 
 ---
 
-## The Challenge
 
-Point a standard coding agent at a dataset and it writes plausible code against a kernel it cannot see. It parses the `.ipynb` file, not the live session, so it trusts its memory of what a cell printed three steps ago or re-runs code just to rediscover state. Its failures are silent: nothing crashes when a random split leaks future rows into training or a scaler is fit before the split, the score just comes out inflated. And the deliverable is a chat transcript plus a pile of one-off scripts, not an artifact anyone can re-run next quarter and get the same numbers.
+You know her. Hand her a notebook and she looks before she types: what the data says, why it matters, what to try next. Her notebooks read like a story: clear, reproducible, the same every time you run them.
 
-## The Solution
+Build her into your agent.
 
-Lemma is like a seasoned data scientist. You know her. She asks what decision this analysis feeds before she reads a single column. She checks the shape after every join. She sees your 0.99 AUC and asks what leaked. Her notebooks read like reports and re-run top to bottom, a year later, same numbers.
+* **After Lemma:** You agent works with notebook hosted in a live Jupyter kernel, probes the data state in real-time, sets seeds, validates assumptions, and produces an ordered, re-runnable notebook artifact.
 
-Lemma puts her inside your AI agent.
+**Where Lemma Fits?**
 
-* **Before Lemma:** The AI writes raw Python scripts, guesses at variable states, and frequently makes methodological errors.
-* **After Lemma:** The AI connects to a live Jupyter kernel, probes the data state in real-time, sets seeds, validates assumptions, and produces an ordered, re-runnable notebook artifact.
+Lemma is host-agnostic: any client that speaks MCP can run her. She fits right into the data science and modeling workflow you already have, editor, terminal, or a notebook hosted in a managed environment (see [Requirements](#requirements) for caveats), showing up as your agent's MCP server and working the same way in each one. Agents that also support hooks and skills get her full persona and skill set built in, not just the tools.
 
 ## Installation
 
@@ -56,7 +54,6 @@ lemma --help                    # List every option and its supported values
 ```
 
 ### Manual MCP Configuration
-
 `npm install -g @tkpratardan/lemma` (above) also installs `lemma-mcp` on your PATH. If your client isn't one of the auto-configured hosts, skip running `lemma` and point the client's own config at the binary directly:
 
 ```json
@@ -69,11 +66,11 @@ lemma --help                    # List every option and its supported values
 
 ## What Ships
 
-One command puts her everywhere you work. Ten hosts in a single pass: Claude Code, Cursor, VS Code, Windsurf, Claude Desktop, Codex, GitHub Copilot CLI, Antigravity / Gemini CLI, opencode, and OpenClaw. Each one gets three things:
+One command brings her everywhere you work. Ten hosts in a single pass: Claude Code, Cursor, VS Code, Windsurf, Claude Desktop, Codex, GitHub Copilot CLI, Antigravity / Gemini CLI, opencode, and OpenClaw. Each one gets three things:
 
 1.  **The Persona:** Her judgment rides into every host through whichever channel it honors natively (MCP instructions, session-start hook, context file, or steering file). Every session starts with a seasoned data scientist already in the room.
 2.  **Stateful Interfaces:** She looks instead of guessing. MCP tools drive a live notebook across three surfaces (VS Code/Cursor via extension; PyCharm/DataSpell via disk and kernel, no plugin needed; JupyterLab via real-time collaboration), so the agent reads what is actually in the kernel, not what it remembers a cell printing.
-3.  **Specialized Skills:** She matches the rigor to the question. "What happened", "is this difference real", and "did the change cause it" are three different questions, and she works each one differently: eight skills, one per kind of question an analysis can actually be, from the first look at a fresh dataset to the review of someone else's result.
+3.  **Specialized Skills:** She matches the rigor to the question. "What happened", "is this difference real", and "did the change cause it" are three different questions, and she works each one differently: nine skills, one per kind of question an analysis can actually be, from the first look at a fresh dataset to the review of someone else's result.
 
 
 ### Strengthening the Persona on Instruction-Only Hosts
@@ -99,8 +96,11 @@ Ensure your environment meets the prerequisites for your chosen surface:
 | **`vscode_*`** | Lemma VS Code extension installed (automatic via `lemma` installer) |
 | **`pycharm_*`** | A PyCharm/DataSpell-open notebook on disk and its active Jupyter kernel |
 
+> **Note:** `jupyterlab_*` and `pycharm_*` are both still naive. `pycharm_*` needs a connection URL and writes to disk instead of live-editing, since PyCharm has no live-edit API; it relies on PyCharm's own reload-on-change. `jupyterlab_*` needs a server URL and token too, Lemma can't discover them on its own, with one hack, not a guarantee: as a subprocess of Jupyter AI's own chat (which spawns agents alongside [`jupyter-server-mcp`](https://github.com/jupyter-ai-contrib/jupyter-server-mcp), its own in-process MCP server), Lemma scans the local Jupyter runtime directory for a running server instead of asking, since that subprocess is guaranteed to be colocated with it. It isn't foolproof: more than one local notebook, or none found, falls back to asking the user or to Jupyter AI's own tools.
+
 *For complete tool references, see [docs/tools.md](docs/tools.md).*
 *For system architecture, see [docs/architecture.md](docs/architecture.md).*
+
 
 ## Contributing
 
@@ -108,4 +108,4 @@ We welcome contributions. Please review [CONTRIBUTING.md](CONTRIBUTING.md) for g
 
 ## License
 
-BSD 4-Clause
+MIT

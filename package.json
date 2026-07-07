@@ -1,6 +1,6 @@
 {
   "name": "@tkpratardan/lemma",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Senior data-scientist mode + live-notebook MCP tools for AI agents. Install once, every detected host gets the persona and the tools.",
   "homepage": "https://github.com/tkpratardan/lemma",
   "repository": {
@@ -10,7 +10,7 @@
   "bugs": {
     "url": "https://github.com/tkpratardan/lemma/issues"
   },
-  "license": "BSD-4-Clause",
+  "license": "MIT",
   "keywords": [
     "data-science",
     "notebook",
@@ -24,13 +24,12 @@
   "private": false,
   "bin": {
     "lemma": "./bin/install.js",
-    "lemma-mcp": "./src/dist/mcp/server.js"
+    "lemma-mcp": "./bin/lemma-mcp.mjs"
   },
   "files": [
     "bin/",
     "hooks/",
     "skills/",
-    "src/dist/",
     "src/package.json",
     "AGENTS.md",
     "docs/CHANGELOG.md",
@@ -48,10 +47,11 @@
     "@jupyter/ydoc": "^4.0.0",
     "@jupyterlab/services": "^7.6.0",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "y-websocket": "^3.0.0"
+    "y-websocket": "^3.0.0",
+    "zod": "^4.4.3"
   },
   "scripts": {
-    "prepare": "cd src && npm install && npm run build"
+    "prepare": "cd src && npm install && npm run build && npm run bundle"
   },
   "engines": {
     "node": ">=18"

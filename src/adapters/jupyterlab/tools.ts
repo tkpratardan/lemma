@@ -1,11 +1,12 @@
-// JupyterLab live-edit MCP tools. Lemma never discovers the Jupyter server
-// itself: server_url (or LEMMA_JUPYTER_URL) is required.
+// JupyterLab live-edit MCP tools. Without a server_url (or LEMMA_JUPYTER_URL),
+// falls back to discoverNotebooks() for a local server.
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import {
   NotebookNotFound,
   ServerUnreachable,
   resolveConnection,
+  discoverNotebooks,
 } from './discovery.js';
 import { JupyterLabSession } from './session.js';
 import { notebookSummary, renderForAgent, pagedCellOutput, formatRunAll, truncate } from '../../utils/render.js';
@@ -198,29 +199,33 @@ export function registerJupyterlabTools(server: McpServer): JupyterlabHandlers {
     'jupyterlab_connect',
     {
       description:
-        'Connect to the notebook open in a running JupyterLab (RTC live-edit). Lemma does not ' +
-        'discover the server itself — find one first (`jupyter server list` or ask the user), ' +
-        'then pass server_url (a full pasted URL with ?token= works) and token. Leave ' +
-        'notebook_path empty for the most-recently-active notebook.',
+        'Connects to the notebook open in a running JupyterLab (RTC live-edit). Omit ' +
+        'server_url to auto-discover a local server. Leave notebook_path empty for the ' +
+        'most-recently-active notebook.',
       inputSchema: {
-        server_url: z.string().optional().describe('Server URL; required unless LEMMA_JUPYTER_URL is set.'),
-        token: z.string().optional().describe('Server auth token; empty for a token-less server.'),
-        notebook_path: z
-          .string()
-          .optional()
-          .describe('Notebook path; empty for the most-recently-active notebook.'),
+        server_url: z.string().optional().describe('Server URL; omit to auto-discover locally.'),
+        token: z.string().optional().describe('Auth token; empty if none.'),
+        notebook_path: z.string().optional().describe('Notebook path; empty for most-recently-active.'),
       },
     },
     async ({ server_url, notebook_path, token }) => {
-      const url = server_url || process.env.LEMMA_JUPYTER_URL || '';
-      const tok = token || process.env.LEMMA_JUPYTER_TOKEN || '';
-      const nbPath = notebook_path || process.env.LEMMA_JUPYTER_NOTEBOOK || '';
+      let url = server_url || process.env.LEMMA_JUPYTER_URL || '';
+      let tok = token || process.env.LEMMA_JUPYTER_TOKEN || '';
+      let nbPath = notebook_path || process.env.LEMMA_JUPYTER_NOTEBOOK || '';
       if (!url) {
-        return text(
-          'no server_url given (and LEMMA_JUPYTER_URL is not set). Lemma does not discover ' +
-            'a running Jupyter server itself: find one yourself first (e.g. `jupyter server ' +
-            'list`), then pass its URL (and token, if any) explicitly.'
-        );
+        const found = await discoverNotebooks();
+        if (found.length === 1) {
+          url = found[0].server.url;
+          tok = found[0].server.token;
+          nbPath = nbPath || found[0].notebookPath;
+        } else if (found.length > 1) {
+          return text(
+            'found more than one local notebook, specify which:\n' +
+              found.map((f) => `- ${f.notebookPath} on ${f.server.url}`).join('\n')
+          );
+        } else {
+          return text('no local server found. Ask the user for the server URL (and token, if any).');
+        }
       }
       let conn;
       try {

@@ -1,10 +1,10 @@
 {
   "name": "lemma",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Senior data-scientist mode for AI agents, plus live-notebook tools. Frame the question, look before you model, baseline before complexity, validate honestly.",
   "homepage": "https://github.com/tkpratardan/lemma",
   "repository": "https://github.com/tkpratardan/lemma",
-  "license": "BSD-4-Clause",
+  "license": "MIT",
   "keywords": [
     "data-science",
     "notebook",
@@ -18,6 +18,8 @@
   "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "Lemma",
+    "composerIcon": "./assets/lemma_icon.png",
+    "logo": "./assets/lemma_icon.png",
     "shortDescription": "Senior data-scientist mode + live-notebook tools",
     "longDescription": "Frame the question, look at the data before modeling, baseline before complexity, validate honestly with a deployment-shaped split. Drives a live Jupyter kernel instead of hand-editing .ipynb JSON.",
     "developerName": "tkpratardan",

@@ -1,6 +1,6 @@
 {
   "name": "lemma",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Senior data-scientist mode for AI agents, plus live-notebook tools. Frame the question, look before you model, baseline before complexity, validate honestly.",
   "keywords": [
     "data-science",
@@ -10,7 +10,7 @@
     "skills",
     "mcp"
   ],
-  "license": "BSD-4-Clause",
+  "license": "MIT",
   "author": {
     "name": "tkpratardan",
     "url": "https://github.com/tkpratardan"

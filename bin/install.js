@@ -46,6 +46,34 @@ function pluginSource() {
 }
 
 const HELP = ARGS.flags.has('help') || process.argv.includes('-h');
+const PACKAGE_VERSION = require(path.join(REPO_ROOT, 'package.json')).version;
+
+function isNewerVersion(a, b) {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const diff = (pa[i] || 0) - (pb[i] || 0);
+    if (diff !== 0) return diff > 0;
+  }
+  return false;
+}
+
+async function checkForUpdate() {
+  try {
+    const res = await fetch('https://registry.npmjs.org/@tkpratardan/lemma/latest', {
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!res.ok) return;
+    const { version: latest } = await res.json();
+    if (latest && isNewerVersion(latest, PACKAGE_VERSION)) {
+      console.log(
+        `Update available: ${PACKAGE_VERSION} → ${latest}. Run \`npm install -g @tkpratardan/lemma@latest\` to update.\n`
+      );
+    }
+  } catch {
+    // offline or registry unreachable — never blocks the install
+  }
+}
 
 function parseArgs(argv) {
   const flags = new Set();
@@ -214,13 +242,11 @@ function askYesNo(question) {
 // ---- resolve lemma-mcp command ---------------------------------------------
 
 function lemmaMcpCommand() {
-  // Prefer a globally-installed lemma-mcp binary on PATH.
   const onPath = which('lemma-mcp');
   if (onPath) return ['lemma-mcp'];
-  // Fall back to running the compiled server.js from this repo (dev install).
-  const serverJs = path.resolve(__dirname, '..', 'src', 'dist', 'mcp', 'server.js');
-  if (fs.existsSync(serverJs)) return ['node', serverJs];
-  return ['lemma-mcp']; // user must have it on PATH
+  const bundled = path.join(__dirname, 'lemma-mcp.mjs');
+  if (fs.existsSync(bundled)) return ['node', bundled];
+  return ['lemma-mcp'];
 }
 
 // ---- Codex plugin install ---------------------------------------------------
@@ -620,6 +646,7 @@ function makeProviders(cmd) {
           }
         }
 
+        let fallbackUsed = false;
         if (!marketplaceAdded || !pluginInstalled) {
           const fallback = await askYesNo('  Plugin install failed. Fall back to a direct config write (skills/MCP/hooks, no auto-update)?');
           if (fallback) {
@@ -627,7 +654,14 @@ function makeProviders(cmd) {
             writeJsonMerge(path.join(HOME, '.claude.json'), { mcpServers: { lemma: mcpEntry } });
             copySkillsTo(path.join(HOME, '.claude', 'skills'));
             installHooks();
+            fallbackUsed = true;
           }
+        }
+
+        // Only when lemma is actually registered one way or the other —
+        // otherwise there's nothing here to allow-list.
+        if (pluginInstalled || fallbackUsed) {
+          installPermissions();
         }
       },
       uninstall() {
@@ -641,6 +675,19 @@ function makeProviders(cmd) {
         removeFromJson(path.join(HOME, '.claude', 'settings.json'), 'extraKnownMarketplaces.lemma');
         removeFromJson(path.join(HOME, '.claude.json'), 'mcpServers.lemma');
         removeSkillsFrom(path.join(HOME, '.claude', 'skills'));
+        uninstallHooks();
+        uninstallPermissions();
+        // `claude plugin uninstall` doesn't clear these — a leftover cache/flag
+        // makes an already-running session look like the plugin never left.
+        for (const stale of [
+          path.join(HOME, '.claude', '.lemma-active'),
+          path.join(HOME, '.claude', 'plugins', 'cache', 'lemma'),
+          path.join(HOME, '.claude', 'plugins', 'marketplaces', 'lemma'),
+        ]) {
+          if (!fs.existsSync(stale)) continue;
+          log(`  remove ${stale}`);
+          if (!DRY_RUN) fs.rmSync(stale, { recursive: true, force: true });
+        }
         // `claude plugin marketplace remove` (above) can leave a vestigial
         // empty `"extraKnownMarketplaces": {}` behind (confirmed this
         // session) — same cleanup as uninstallHooks/uninstallPermissions.
@@ -819,8 +866,8 @@ function makeProviders(cmd) {
         removeFromJson(configFile, 'mcp.lemma');
         // `instructions`/`plugin` are shared top-level arrays the user may
         // have added their own entries to, so filter out only lemma's exact
-        // paths (the same values install() wrote) — leaves any other entry
-        // untouched, instead of the old "leave it all in" workaround.
+        // paths (the same values install() wrote), leaving any other entry
+        // untouched.
         const agentsPath = path.join(REPO_ROOT, 'AGENTS.md');
         const pluginSuffix = path.join('.opencode', 'plugins', 'lemma.mjs');
         removeFromArrayInJson(configFile, 'instructions', (v) => v === agentsPath);
@@ -932,6 +979,7 @@ function removeSkillsFrom(destRoot) {
   // user's other skills living in the same directory.
   for (const name of lemmaSkillNames()) {
     const dest = path.join(destRoot, name);
+    if (!fs.existsSync(dest)) continue;
     log(`  remove ${dest}`);
     if (!DRY_RUN) {
       fs.rmSync(dest, { recursive: true, force: true });
@@ -949,16 +997,24 @@ const VSCODE_TOOL_NAMES = [
   'vscode_clear_notebook', 'vscode_save_notebook',
 ];
 
+// Claude Code names a plugin-installed server's tools
+// mcp__plugin_<plugin>_<marketplace>__<tool>, not the plain mcp__lemma__<tool>
+// the direct-config-write fallback uses. Both are written, since either
+// registration path might be the one active.
+const CLAUDE_MCP_PREFIXES = ['lemma', 'plugin_lemma_lemma'];
+
 function installPermissions() {
   const globalSettings = path.join(HOME, '.claude', 'settings.json');
   log(`  allow-list vscode_* tools → ${globalSettings} (global)`);
-  addToArrayInJson(globalSettings, 'permissions.allow',
-    VSCODE_TOOL_NAMES.map((name) => `mcp__lemma__${name}`));
+  const entries = CLAUDE_MCP_PREFIXES.flatMap((prefix) =>
+    VSCODE_TOOL_NAMES.map((name) => `mcp__${prefix}__${name}`));
+  addToArrayInJson(globalSettings, 'permissions.allow', entries);
 }
 
 function uninstallPermissions() {
   const globalSettings = path.join(HOME, '.claude', 'settings.json');
-  const lemmaVscodeTools = new Set(VSCODE_TOOL_NAMES.map((name) => `mcp__lemma__${name}`));
+  const lemmaVscodeTools = new Set(
+    CLAUDE_MCP_PREFIXES.flatMap((prefix) => VSCODE_TOOL_NAMES.map((name) => `mcp__${prefix}__${name}`)));
   removeFromArrayInJson(globalSettings, 'permissions.allow', (item) => lemmaVscodeTools.has(item));
   // Drop a vestigial empty `"permissions": {}` left behind when allow was the
   // only key present (mirrors uninstallHooks' equivalent cleanup).
@@ -1197,6 +1253,10 @@ async function main() {
     return;
   }
 
+  if (!UNINSTALL) {
+    await checkForUpdate();
+  }
+
   console.log(`\nLemma installer${DRY_RUN ? ' (dry-run)' : ''}${UNINSTALL ? ' — uninstalling' : ''}\n`);
 
   if (CONFIGURE && !CONFIGURE_SURFACES.includes(CONFIGURE)) {
@@ -1238,16 +1298,6 @@ async function main() {
     }
     ok(provider.label);
     count++;
-  }
-
-  if (!ONLY || ONLY === 'claude-code') {
-    if (UNINSTALL) {
-      log('\nRemoving hooks (global):');
-      uninstallHooks();
-    }
-
-    log(`\n${UNINSTALL ? 'Removing' : 'Installing'} vscode_* permission allow-list (global):`);
-    if (UNINSTALL) { uninstallPermissions(); } else { installPermissions(); }
   }
 
   // The editor extension is per-editor, not per-agent: run it on a full install

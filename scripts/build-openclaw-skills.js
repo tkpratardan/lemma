@@ -46,7 +46,7 @@ function render(name) {
     throw new Error(`description for ${name} must be one line, no quotes, under 160 chars`);
   }
   const frontmatter =
-    `---\nname: ${name}\ndescription: "${desc}"\nhomepage: ${HOMEPAGE}\nlicense: BSD-4-Clause\n---\n`;
+    `---\nname: ${name}\ndescription: "${desc}"\nhomepage: ${HOMEPAGE}\nlicense: MIT\n---\n`;
   return frontmatter + sourceBody(name);
 }
 
