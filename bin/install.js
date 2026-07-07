@@ -563,20 +563,27 @@ function makeProviders(cmd) {
         // entry present. The real subprocess call is what actually populates
         // that registry (and, as a side effect, extraKnownMarketplaces too).
         log(`  claude plugin marketplace add ${pluginSource()}`);
+        let marketplaceAdded = DRY_RUN;
         if (!DRY_RUN) {
           const added = spawnSync(cli, ['plugin', 'marketplace', 'add', pluginSource()], { encoding: 'utf8', timeout: 60000 });
           if (added.status !== 0 || added.error) {
             const reason = (added.stderr || added.stdout || added.error?.message || 'unknown').trim();
             log(`  warning: claude plugin marketplace add failed: ${reason}`);
+          } else {
+            marketplaceAdded = true;
           }
         }
         // `marketplace add` doesn't expose an --auto-update flag, so layer the
         // opt-in on top of whatever it just wrote (confirmed real field/path
         // this session: extraKnownMarketplaces.lemma.autoUpdate in settings.json;
-        // off by default for a non-official marketplace).
-        writeJsonMerge(path.join(HOME, '.claude', 'settings.json'), {
-          extraKnownMarketplaces: { lemma: { autoUpdate: true } },
-        });
+        // off by default for a non-official marketplace). Only when the add
+        // above actually succeeded — otherwise this writes an entry with no
+        // `source` field, which fails settings.json's own schema entirely.
+        if (marketplaceAdded) {
+          writeJsonMerge(path.join(HOME, '.claude', 'settings.json'), {
+            extraKnownMarketplaces: { lemma: { autoUpdate: true } },
+          });
+        }
         log(`  claude plugin install lemma@lemma`);
         if (!DRY_RUN) {
           const installed = spawnSync(cli, ['plugin', 'install', 'lemma@lemma'], { encoding: 'utf8', timeout: 60000 });

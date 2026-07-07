@@ -73,9 +73,9 @@ function resolveConfirm(uri: vscode.Uri | undefined, decision: Decision): void {
 // gate shouldn't do. The status bar is a separate surface, unaffected by that.
 let statusBarItems: vscode.StatusBarItem[] = [];
 
-// Priorities near the ~100 range collide with VS Code's own built-in items
-// (cursor position, indentation, language mode), splitting the group apart.
-// A far higher priority clears all of that, keeping the three adjacent.
+// Left-aligned + high priority anchors these at the bar's true left edge
+// (further out than even git branch, ~100000), which survives narrowing;
+// Right-aligned at high priority sits by the shrinking middle gap instead.
 const STATUS_BAR_BASE_PRIORITY = 1_000_000;
 
 // backgroundColor only accepts errorBackground/warningBackground (VS Code
@@ -88,7 +88,7 @@ function showConfirmStatusBar(uri: vscode.Uri): void {
     ['$(close) Discard', 'lemma.discardEdit', 'Discard this AI edit', undefined, new vscode.ThemeColor('statusBarItem.errorBackground')],
   ];
   statusBarItems = spec.map(([text, command, tooltip, color, background], i) => {
-    const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, STATUS_BAR_BASE_PRIORITY - i);
+    const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, STATUS_BAR_BASE_PRIORITY - i);
     item.text = text;
     item.tooltip = tooltip;
     item.color = color;
