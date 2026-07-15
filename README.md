@@ -23,6 +23,7 @@
 
 ---
 
+## Why Lemma?
 
 You know her. Hand her a notebook and she looks before she types: what the data says, why it matters, what to try next. Her notebooks read like a story: clear, reproducible, the same every time you run them.
 
@@ -64,9 +65,21 @@ lemma --help                    # List every option and its supported values
 }
 ```
 
+## Benchmarks
+
+Headless Claude Code on [DSAEval](https://github.com/AMA-CMFAI/DSAEval): the same agent, with and without her. Real questions, real Kaggle datasets, and DSAEval's own judge rubric (Haiku), untouched. DSAEval wires its own agents with custom notebook-editing tools; those aren't used here.
+
+<p align="center">
+  <img src="assets/benchmark-dsaeval.svg" width="970" alt="Bar chart comparing baseline and Lemma on accuracy, confident-wrong rate, cost per task, and time per task">
+</p>
+
+Take the hardest task from every DSAEval task type and domain: baseline is confidently wrong more than half the time. Lemma cuts that to 1 in 7, for 1.23x the cost. Time doesn't cost extra: infact a touch faster here despite doing more work. Give both arms a clean single-answer question instead, one with no room for rigor to pay off, and they tie at 100%. Her overhead buys nothing there.
+
+Every script, every model answer, and the judge's full verdict on every task sits in [`evals/`](evals/). Evaluate on [`run_dsaeval_hard.py`](evals/run_dsaeval_hard.py) or a simpler tasks in [`evals/run_dsaeval.py`](evals/run_dsaeval.py).
+
 ## What Ships
 
-One command brings her everywhere you work. Ten hosts in a single pass: Claude Code, Cursor, VS Code, Windsurf, Claude Desktop, Codex, GitHub Copilot CLI, Antigravity / Gemini CLI, opencode, and OpenClaw. Each one gets three things:
+One command brings her everywhere you work. Configure in a single pass: Claude Code, Cursor, VS Code, Windsurf, Claude Desktop, Codex, GitHub Copilot CLI, Antigravity / Gemini CLI, opencode, and OpenClaw. Each one gets three things:
 
 1.  **The Persona:** Her judgment rides into every host through whichever channel it honors natively (MCP instructions, session-start hook, context file, or steering file). Every session starts with a seasoned data scientist already in the room.
 2.  **Stateful Interfaces:** She looks instead of guessing. MCP tools drive a live notebook across three surfaces (VS Code/Cursor via extension; PyCharm/DataSpell via disk and kernel, no plugin needed; JupyterLab via real-time collaboration), so the agent reads what is actually in the kernel, not what it remembers a cell printing.
@@ -86,33 +99,6 @@ Some hosts have no global config path for an always-on ruleset, and MCP alone do
 
 Each file is the same persona, generated verbatim from `AGENTS.md` with only host-specific frontmatter. Copy it as-is; hand edits are overwritten the next time the copies are regenerated (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-## Numbers
-
-Headless Claude Code (Sonnet 5, subscription auth, no API key) on [DSAEval](https://github.com/AMA-CMFAI/DSAEval), baseline (no skill) vs Lemma, none of DSAEval's own harness used — real questions, real Kaggle datasets, judged by DSAEval's own unmodified rubric (Haiku).
-
-<p align="center">
-  <img src="assets/benchmark-dsaeval.svg" width="860" alt="Baseline vs Lemma on 34 hard DSAEval tasks: accuracy 44.1% baseline vs 84.8% lemma, confident-wrong rate 55.9% baseline vs 15.2% lemma, cost per task $0.50 baseline vs $0.62 lemma (1.23x)">
-</p>
-
-| | easy set (9 tasks) | hard set (34 tasks) |
-| :--- | ---: | ---: |
-| baseline / lemma accuracy | 100% / 100% | 44.1% / **84.8%** |
-| baseline / lemma confident-wrong | 0% / 0% | 55.9% / **15.2%** |
-| baseline / lemma $/task | $0.155 / $0.576 | $0.504 / $0.621 |
-
-On the hardest task from every DSAEval task type and domain, baseline gives a confidently wrong answer more than half the time; Lemma about 1 in 7, at 1.23x the cost. On clean single-answer questions with no room for rigor to pay off, both tie at 100% and Lemma's overhead is pure cost.
-
-No curated writeup — the raw artifacts are the source of truth:
-
-* [`evals/run_dsaeval.py`](evals/run_dsaeval.py) / [`evals/run_dsaeval_hard.py`](evals/run_dsaeval_hard.py) — the eval scripts, questions and ground truth inline (`run_dsaeval.py`) or in [`evals/dsaeval_hard_tasks.json`](evals/dsaeval_hard_tasks.json) (question, DSAEval's reasoning + answer, dataset, category)
-* [`evals/runs/results.jsonl`](evals/runs/results.jsonl) — every run's actual model answer (`pred`), cost, tokens, turns (filter `benchmark: dsaeval` / `dsaeval-hard`)
-* [`evals/runs/dsaeval_hard_scores.jsonl`](evals/runs/dsaeval_hard_scores.jsonl) — the full judge verdict per task: `ReasoningProcess`/`CodeSteps`/`FinalResults`/`Consistency` scores plus its written `Analysis`
-
-```bash
-cd evals
-python3 run_dsaeval.py --arm both && python3 run_dsaeval_hard.py --arm both --max-turns 40
-python3 report.py --benchmark dsaeval-hard
-```
 
 ## Requirements
 
@@ -124,7 +110,7 @@ Ensure your environment meets the prerequisites for your chosen surface:
 | **VS Code / Cursor** | Lemma VS Code extension installed (automatic via `lemma` installer) |
 | **PyCharm / DataSpell** | An open notebook on disk and its active Jupyter kernel |
 
-> **Note:** The agent always sees the same five analysis actions. Normal actions attach lazily to the preferred surface. `connect(surface=...)` can switch among VS Code, PyCharm, and JupyterLab during the same session without resetting the selected kernel; `reset_kernel=true` makes a restart explicit. Internally, PyCharm needs a connection URL and writes through the on-disk notebook because it has no live-edit API. JupyterLab accepts a URL and token or attempts local auto-discovery; multiple or missing local notebooks are reported instead of guessed.
+> **Note:** The agent always sees the same five analysis actions. Normal actions attach lazily to the preferred surface. `connect(surface=...)` can switch among VS Code, PyCharm, and JupyterLab during the same session without resetting the selected kernel; `reset_kernel=true` makes a restart explicit. PyCharm has no live-edit API, so it needs a connection URL and reads and writes through the notebook file on disk. JupyterLab connects live over real-time collaboration: give it a URL and token, or let it auto-discover a local server. If auto-discovery finds more than one local notebook, it lists them instead of guessing.
 
 *For complete tool references, see [docs/tools.md](docs/tools.md).*
 *For system architecture, see [docs/architecture.md](docs/architecture.md).*
