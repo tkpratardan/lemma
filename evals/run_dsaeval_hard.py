@@ -44,6 +44,7 @@ for "correct, baseline quality").
 """
 
 import argparse
+import contextlib
 import datetime
 import json
 import pathlib
@@ -66,6 +67,37 @@ from evaluation import (  # noqa: E402  (DSAEval's own evaluator, unmodified)
     notebook_to_eval_inputs,
     clean_json_string,
 )
+
+# Files that carry ground-truth answers (or prior model answers/judge
+# verdicts) reachable from the same machine the agent's Bash tool runs on.
+# Found the hard way: a baseline agent that got confused about where its
+# data was ran `find ~` / `grep -r ~/src`, located dsaeval_hard_tasks.json,
+# and printed the matching task's answer/reasoning fields verbatim into its
+# own "analysis" (tasks 2699, 2700). Bash has no sandboxing -- --add-dir and
+# friends only govern Claude's own Read/Write tools, not what a spawned
+# shell process can reach -- so the only reliable guard is making these
+# files physically unreadable for the duration of the agent's run.
+GROUND_TRUTH_FILES = [
+    TASKS_FILE,
+    DSA_EVAL_REPO / 'dsaeval.json',
+    common.RUNS / 'results.jsonl',
+    SCORES_FILE,
+]
+
+
+@contextlib.contextmanager
+def _hidden_from_agent():
+    saved_modes = {}
+    for f in GROUND_TRUTH_FILES:
+        if f.exists():
+            saved_modes[f] = f.stat().st_mode
+            f.chmod(0o000)
+    try:
+        yield
+    finally:
+        for f, mode in saved_modes.items():
+            f.chmod(mode)
+
 
 GENERIC_CLOSING = 'Give your complete analysis and final answer.'
 DEFAULT_JUDGE_MODEL = 'haiku'
@@ -190,8 +222,9 @@ def main() -> None:
                     env = {'LEMMA_JUPYTER_URL': jupyter['url'],
                            'LEMMA_JUPYTER_TOKEN': jupyter['token'],
                            'LEMMA_JUPYTER_NOTEBOOK': jupyter['notebook']}
-                res = common.run_claude(ws, prompt, arm, args.model,
-                                        args.max_turns, env=env)
+                with _hidden_from_agent():
+                    res = common.run_claude(ws, prompt, arm, args.model,
+                                            args.max_turns, env=env)
                 predicted_reasoning_answer = res.get('result', '')
 
                 notebook = ws / 'analysis.ipynb'

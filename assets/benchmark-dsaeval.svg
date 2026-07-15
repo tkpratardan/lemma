@@ -19,13 +19,13 @@
   <text x="73" y="104" font-size="11" fill="#8b949e" text-anchor="end">100%</text>
 
   <!-- Accuracy group -->
-  <rect x="120" y="245" width="34" height="115" rx="2" fill="#8b949e"/><text x="137" y="240" font-size="11" fill="#8b949e" text-anchor="middle">44.1%</text>
+  <rect x="120" y="261" width="34" height="99" rx="2" fill="#8b949e"/><text x="137" y="256" font-size="11" fill="#8b949e" text-anchor="middle">38.2%</text>
   <rect x="160" y="140" width="34" height="220" rx="2" fill="#008300"/><text x="177" y="135" font-size="11" font-weight="600" fill="#008300" text-anchor="middle">84.8%</text>
   <text x="157" y="380" font-size="12" fill="#8b949e" text-anchor="middle">Accuracy</text>
   <text x="157" y="395" font-size="10" fill="#8b949e" opacity="0.8" text-anchor="middle">higher is better</text>
 
   <!-- Confident-wrong group -->
-  <rect x="290" y="215" width="34" height="145" rx="2" fill="#8b949e"/><text x="307" y="210" font-size="11" fill="#8b949e" text-anchor="middle">55.9%</text>
+  <rect x="290" y="199" width="34" height="161" rx="2" fill="#8b949e"/><text x="307" y="194" font-size="11" fill="#8b949e" text-anchor="middle">61.8%</text>
   <rect x="330" y="321" width="34" height="39" rx="2" fill="#008300"/><text x="347" y="316" font-size="11" font-weight="600" fill="#008300" text-anchor="middle">15.2%</text>
   <text x="327" y="380" font-size="12" fill="#8b949e" text-anchor="middle">Confident-wrong</text>
   <text x="327" y="395" font-size="10" fill="#8b949e" opacity="0.8" text-anchor="middle">lower is better</text>
@@ -40,10 +40,10 @@
   <text x="533" y="234" font-size="11" fill="#8b949e" text-anchor="end">$0.35</text>
   <text x="533" y="104" font-size="11" fill="#8b949e" text-anchor="end">$0.70</text>
 
-  <rect x="580" y="173" width="34" height="187" rx="2" fill="#8b949e"/><text x="597" y="168" font-size="11" fill="#8b949e" text-anchor="middle">$0.50</text>
+  <rect x="580" y="182" width="34" height="178" rx="2" fill="#8b949e"/><text x="597" y="177" font-size="11" fill="#8b949e" text-anchor="middle">$0.48</text>
   <rect x="630" y="129" width="34" height="231" rx="2" fill="#008300"/><text x="647" y="124" font-size="11" font-weight="600" fill="#008300" text-anchor="middle">$0.62</text>
   <text x="613" y="380" font-size="12" fill="#8b949e" text-anchor="middle">Cost / task</text>
-  <text x="613" y="395" font-size="10" fill="#8b949e" opacity="0.8" text-anchor="middle">1.23x baseline</text>
+  <text x="613" y="395" font-size="10" fill="#8b949e" opacity="0.8" text-anchor="middle">1.30x baseline</text>
 
   <line x1="730" y1="70" x2="730" y2="395" stroke="#8b949e" stroke-opacity="0.25"/>
 
@@ -55,10 +55,10 @@
   <text x="763" y="234" font-size="11" fill="#8b949e" text-anchor="end">100s</text>
   <text x="763" y="104" font-size="11" fill="#8b949e" text-anchor="end">200s</text>
 
-  <rect x="810" y="166" width="34" height="194" rx="2" fill="#8b949e"/><text x="827" y="161" font-size="11" fill="#8b949e" text-anchor="middle">149s</text>
+  <rect x="810" y="176" width="34" height="184" rx="2" fill="#8b949e"/><text x="827" y="171" font-size="11" fill="#8b949e" text-anchor="middle">141s</text>
   <rect x="860" y="182" width="34" height="178" rx="2" fill="#008300"/><text x="877" y="177" font-size="11" font-weight="600" fill="#008300" text-anchor="middle">137s</text>
   <text x="843" y="380" font-size="12" fill="#8b949e" text-anchor="middle">Time / task</text>
-  <text x="843" y="395" font-size="10" fill="#8b949e" opacity="0.8" text-anchor="middle">0.92x baseline</text>
+  <text x="843" y="395" font-size="10" fill="#8b949e" opacity="0.8" text-anchor="middle">0.97x baseline</text>
 
   <text x="485" y="418" font-size="10.5" fill="#8b949e" opacity="0.85" text-anchor="middle">n=34, Sonnet 5, LLM judge (Haiku), correct = FinalResults&#8805;5 AND code-answer Consistency</text>
 </svg>
