@@ -5,52 +5,28 @@ homepage: https://github.com/tkpratardan/lemma
 license: MIT
 ---
 
-# Final modeling: earning the complexity
+# Final modeling
 
-A gradient-boosted ensemble that barely beats logistic regression is
-complexity that isn't earning its keep. This assumes `lemma-baseline`
-already set the split, the noise floor, and the feature set. Load them
-exactly as they were, and restate the baseline score at the top of the
-notebook. Every model here is measured against that number.
+## Deliver
 
-## Add complexity incrementally, not all at once
+Provide a comparison against the baseline, the selected model and threshold,
+stability and subgroup evidence, a locked final evaluation, and operational
+limitations.
 
-Start with a standard implementation of a strong algorithm (XGBoost,
-LightGBM, Random Forest) rather than jumping straight to the most elaborate
-option. Tune on the validation set only, and log hyperparameters and
-scores per trial into a table, not print statements.
+## Check
 
-## Audit the overfitting gap before declaring a winner
+- Keep one validation design and decision metric across candidates.
+- Compare a small motivated model set; keep preprocessing and tuning within
+  training data and set fixed seeds.
+- Diagnose train-validation gaps, fold or temporal stability, calibration,
+  subgroup behavior, latency, and interpretability.
+- Challenge the most fragile feature or assumption with an ablation, shifted
+  window, or leakage audit.
+- Lock the pipeline and threshold before touching the final test set once.
 
-A high validation score sitting on a big train-validation gap is a
-fragile model, not a good one. If it's overfit, regularize (raise
-`min_child_weight`, lower `max_depth`, raise `alpha`/`lambda`) before
-accepting the result.
+Do not tune against the test set, change metrics mid-search, compare different
+splits, omit the baseline, or hide subgroup regressions behind an aggregate
+gain.
 
-## Justify the complexity against the baseline
-
-Compare the tuned model to the simple reference model from `lemma-baseline`.
-If a 1000-tree ensemble beats logistic regression by 0.001 AUC, the
-complexity isn't earning its keep. Say so, and let simplicity win the tie.
-
-## Touch the test set once
-
-Only after tuning is done, features are locked, and the architecture is
-chosen: evaluate on the hold-out test set, exactly once. A test score well
-below validation means validation was overfit. Report that. Don't go back
-and tune again.
-
-## Save the artifact
-
-Persist the model and its exact preprocessing with the repo's own
-serialization convention (`joblib` if there isn't one), plus a short
-manifest: features, split, metric, seed.
-
-## Close: the deployment report
-
-End with an executive summary: the final test metric, the lift over both
-the dumb baseline and the simple reference model, the top features
-driving predictions (SHAP or permutation importance) tying back to what
-EDA found, and any known failure regions. Translate the metric into a
-business number only as far as the data supports. Don't invent a dollar
-figure.
+For tuning and error-analysis detail, read
+[references/deep-guide.md](references/deep-guide.md).

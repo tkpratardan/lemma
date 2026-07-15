@@ -1,21 +1,33 @@
-// Shared lemma persona reader — single source of truth for "what to say",
-// kept separate from "where/when to say it" (that part is each hook's job).
-// Used today by hooks/session-start.js (Claude Code). src/mcp/server.ts's
-// MCP-level fallback (the `instructions` field + `lemma_persona` prompt)
-// deliberately does NOT import this: it lives in a separately-built TS
-// package, so it carries its own small reader instead of reaching across
-// the hooks/ <-> compiled-src/ runtime boundary.
+// Shared persona reader for the hooks. src/mcp/server.ts deliberately does
+// NOT import this: it's a separately-built TS package, so it carries its own
+// small reader rather than reach across the hooks/compiled-src boundary.
 'use strict';
 
 const fs = require('fs');
 const path = require('path');
 
+// Developing lemma itself: the plugin-cache copy is frozen at install time,
+// so prefer the working tree's AGENTS.md. Gated on plugin.json's name so a
+// user project with its own AGENTS.md is never hijacked.
+function devRoot() {
+  const cwd = process.cwd();
+  try {
+    const plugin = JSON.parse(
+        fs.readFileSync(path.join(cwd, '.claude-plugin', 'plugin.json'), 'utf8'));
+    if (plugin.name === 'lemma' && fs.existsSync(path.join(cwd, 'AGENTS.md'))) {
+      return cwd;
+    }
+  } catch {
+    // Not the lemma repo.
+  }
+  return null;
+}
+
 function lemmaRoot() {
-  // CLAUDE_PLUGIN_ROOT is set by Claude Code when running as a plugin.
-  // Fall back to this file's repo root (hooks/lib/.. /..) for non-plugin
-  // installs (e.g. bin/install.js's global-hooks path, which substitutes an
-  // absolute path at install time the same way).
-  return process.env.CLAUDE_PLUGIN_ROOT || path.dirname(path.dirname(__dirname));
+  // CLAUDE_PLUGIN_ROOT is only set on plugin installs; non-plugin installs
+  // run from the repo itself, so this file's root is the right fallback.
+  return devRoot() || process.env.CLAUDE_PLUGIN_ROOT ||
+      path.dirname(path.dirname(__dirname));
 }
 
 function getFullPersona() {

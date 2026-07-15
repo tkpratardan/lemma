@@ -11,3 +11,9 @@ node_modules/
 .DS_Store
 /package-lock.json
 /.claude
+bin/lemma-mcp.mjs.map
+/evals/runs/
+/evals/dabstep-data/
+/evals/dsaeval-data/
+/evals/dsaeval-hard-data/
+/evals/.jupyter_ystore.db

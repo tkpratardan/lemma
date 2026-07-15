@@ -1,22 +1,10 @@
 #!/usr/bin/env node
-// Generate the per-host persona rule files from AGENTS.md.
-//
-// Each AI agent reads its always-on rules from a different path and format, so
-// lemma needs a copy of the persona for each. Hand-maintaining six divergent
-// copies is the bug this fixes: they drift the moment AGENTS.md changes (and
-// did). Instead, generate them all from the one source — the AGENTS.md body,
-// verbatim, with only host-specific frontmatter differing. Same drift-proof
-// pattern as scripts/build-openclaw-skills.js. Re-run after any AGENTS.md edit.
-//
-// This requires AGENTS.md to be host-agnostic: no self-reference ("this file
-// is delivered via…") and no per-host plumbing detail, or a verbatim copy
-// would state something false in another host's rule file. That delivery
-// detail lives in docs/architecture.md, not the persona.
-//
-// NOT generated here: .cursor/rules/lemma-notebook.mdc — it mirrors notebook
-// cell-diff guidance, not the persona, so it has its own source.
-//
-// Run:  node scripts/build-rule-copies.js
+// Generate the per-host persona rule files from AGENTS.md (run after any
+// AGENTS.md edit): the body verbatim, only host frontmatter differing, so
+// the copies can't drift. Requires AGENTS.md to stay host-agnostic — no
+// self-reference or per-host plumbing (that lives in docs/architecture.md).
+// .cursor/rules/lemma-notebook.mdc is not generated here; it has its own
+// source.
 
 'use strict';
 
@@ -41,9 +29,31 @@ const TARGETS = [
   ['.cursor/rules/lemma-datascience.mdc', CURSOR_FRONTMATTER],
 ];
 
+const checkOnly = process.argv.includes('--check');
+let drifted = false;
+
 for (const [rel, frontmatter] of TARGETS) {
   const p = path.join(ROOT, rel);
+  const expected = frontmatter + BODY + '\n';
+  if (checkOnly) {
+    let actual = null;
+    try {
+      actual = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n');
+    } catch {
+      // Missing file = drift.
+    }
+    if (actual !== expected) {
+      console.error(`drifted: ${rel} (run node scripts/build-rule-copies.js)`);
+      drifted = true;
+    }
+    continue;
+  }
   fs.mkdirSync(path.dirname(p), { recursive: true });
-  fs.writeFileSync(p, frontmatter + BODY + '\n');
+  fs.writeFileSync(p, expected);
   console.log('wrote', rel);
+}
+
+if (checkOnly) {
+  if (drifted) process.exit(1);
+  console.log(`All ${TARGETS.length} rule copies match AGENTS.md.`);
 }

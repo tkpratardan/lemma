@@ -7,46 +7,26 @@ license: MIT
 
 # Statistical inference
 
-The question is whether an observed difference is signal or noise. The
-failure modes aren't leakage, they're testing too many things, deciding
-the test after seeing the data, and confusing "statistically detectable"
-with "matters". Order the chapters the way the discipline demands: design
-first (hypothesis, test, threshold, n, written before the data is
-touched), then the data behind the test, then effect and interval, then
-assumptions. A design chapter above the results chapter is your
-pre-registration.
+## Deliver
 
-## State the hypothesis and the test before looking
+Report the estimand, effect estimate, uncertainty interval, population and
+denominator, method and assumptions, practical interpretation, and any power
+or multiplicity limitation.
 
-Null and alternative, the test, and the threshold, fixed before you
-compute. Picking the test that gives the answer you want is the oldest
-way to fool yourself. Check power and sample size too: an underpowered
-test that finds "no effect" found nothing, not the absence of an effect.
+## Check
 
-## Effect size and uncertainty, not just the p-value
+- Define the estimand, comparison, smallest meaningful effect, and sampling or
+  assignment process.
+- Preserve pairing, clustering, repeated measures, and temporal dependence.
+- Inspect sample sizes, missingness, imbalance, outliers, and distribution
+  shape.
+- Use robust, clustered, paired, permutation, or bootstrap uncertainty when
+  the design requires it.
+- Separate planned from exploratory tests and account for multiplicity.
+- Stress-test the weakest assumption.
 
-Report the estimate and its confidence (or credible) interval, the size
-of the thing and how sure you are. A p-value alone hides both. At large n
-everything is "significant", a real but trivial effect is still trivial.
-State the effect in units someone can act on.
+Do not equate significance with importance or causality, treat dependent
+observations as independent, or report p-values without effect sizes.
 
-## Multiple comparisons are a silent inflator
-
-Test 20 things at p<0.05 and about one comes up "significant" by chance.
-If you ran many tests (many metrics, subgroups, or variants), correct for
-it (Bonferroni or FDR) or say plainly that you didn't. Peeking and
-stopping when it crosses 0.05 is the same trap: fix n in advance, or use a
-method built for sequential looks.
-
-## Check the assumptions the test makes
-
-Independence, distribution, equal variance: the test is only valid if
-they hold. A plot of the data behind the test catches most violations
-faster than a normality test does. Name which check you used and why.
-
-## Close
-
-State the effect size, its interval, the test and why it fits, n and
-power, and any multiplicity correction. If the user wants to know what
-caused the difference or what to do about it, that's `lemma-causal`, not
-this.
+For method selection and power detail, read
+[references/deep-guide.md](references/deep-guide.md).

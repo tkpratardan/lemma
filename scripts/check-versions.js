@@ -1,11 +1,7 @@
 #!/usr/bin/env node
-// Version-consistency guard. Lemma declares its version in seven files
-// across host ecosystems; every release bumps all of them by hand, which
-// is exactly the kind of thing that quietly drifts (one file forgotten,
-// manifests stay agreeing-but-stale together) unless something checks it.
-// This check closes that gap:
-//   1. every version-bearing file must share one pinned X.Y.Z version, and
-//   2. on a release-tag CI run, that shared version must equal the tag.
+// Version-consistency guard: every version-bearing manifest must share one
+// pinned X.Y.Z, and on a release-tag CI run that version must equal the tag
+// (mutual agreement alone can't catch an un-bumped release).
 
 const fs = require('fs');
 const path = require('path');

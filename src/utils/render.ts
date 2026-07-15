@@ -100,7 +100,7 @@ export interface CellSummary {
   output?: string;
 }
 
-export interface CellImage {
+interface CellImage {
   mime: string;
   base64: string;
 }
@@ -108,7 +108,7 @@ export interface CellImage {
 // Untruncated text + raw image bytes for notebook_read_cell_output — where
 // renderForAgent's "[image output]" placeholder is meant for compact
 // reasoning, this returns the actual bytes for a viewable image block.
-export function fullCellOutput(cell: Cell): { text: string; images: CellImage[] } {
+function fullCellOutput(cell: Cell): { text: string; images: CellImage[] } {
   const parts: string[] = [];
   const images: CellImage[] = [];
   for (const o of cell.outputs) {

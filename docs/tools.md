@@ -1,88 +1,68 @@
 # Tool reference
 
-## Any host
+Lemma exposes one notebook action interface on every surface. The server dispatches these actions to VS Code/Cursor, PyCharm/DataSpell, or JupyterLab internally.
 
-| Tool | What it does |
+| Action | Purpose |
 |---|---|
-| `lemma_skill(name)` | Return one lemma skill ruleset (full SKILL.md) — the pull path for hosts without native skill support |
+| `connect` | Select or switch the notebook surface; optionally reset its kernel |
+| `read` | Read compact state, the notebook, or a full stored cell output |
+| `run` | Append and execute a durable cell, rerun one cell, or run all cells |
+| `edit` | Replace, insert, delete, or add Markdown, optionally executing a code edit |
+| `inspect` | Inspect a variable or one/batched source inventory/schema/head/profile request |
 
-## JupyterLab (`jupyterlab_connect`) and PyCharm (`pycharm_connect`, `pycharm_status`)
+The default server exposes exactly these five analysis actions. Set
+`LEMMA_AUDIT_TOOLS=1` to additionally expose `checkpoint`,
+`verify_clean_run`, and `publish_answer` for workflows that explicitly need an
+evidence ledger UI, a clean-run action, or an audit receipt. Set
+`LEMMA_LEGACY_TOOLS=1` only while migrating a client that still calls
+adapter-prefixed tools.
 
-`jupyter-collaboration` must be installed on the server for JupyterLab. A pasted `?token=` URL is accepted for `server_url`. If `server_url` is omitted (and `LEMMA_JUPYTER_URL` isn't set), `jupyterlab_connect` tries to auto-discover a local server, see [Requirements](../README.md#requirements) for when that applies and when it doesn't.
+## Runtime contract
 
-| Tool | What it does |
-|---|---|
-| `jupyterlab_connect(server_url?, token?, notebook_path?)` | Connect to a running JupyterLab server, or auto-discover one locally |
-| `pycharm_connect(server_url, notebook_file[, notebook_path])` | Attach the kernel + target the on-disk notebook |
-| `pycharm_status()` | Check that the kernel + file are connected |
+Start with the analysis action the work needs. `read`, `run`, `edit`, and
+`inspect` lazily attach to the preferred surface and open a project-scoped
+evidence ledger without resetting the kernel. If the surface or notebook is
+ambiguous, the action returns a bounded recovery message; use `connect` once
+with explicit details. `connect(surface="jupyter|pycharm|vscode")` can switch
+surfaces at any time and preserves the turn's evidence. It preserves kernel
+state by default; set `reset_kernel=true` only when a restart is intended. Its
+optional `begin` metadata starts a separately labeled audit task.
 
-Every other jupyterlab/pycharm verb — read, edit, run, delete, etc. — is a shared `notebook_*` tool; see below.
+Use notebook actions in whatever order the analysis requires. The server
+automatically records notebook identity, inspections, executed cell ids and
+hashes, bounded output summaries, errors, sources, and recognizable artifacts.
+Optional audit metadata can add facts, assumptions, and risks. The server does
+not impose stages, action limits, or a required publication call.
 
-## VS Code / Cursor (`vscode_*`)
+The passive ledger never serializes conversation history or arbitrary kernel
+variables. With audit tools enabled, `checkpoint(record={...})` can preserve
+validated facts with evidence, assumptions, artifact references, open risks, a
+compact source registry, and explicitly resolved error IDs;
+`checkpoint(status={...})` pages through that ledger.
 
-Requires the [Lemma VS Code extension](../extensions/vscode/README.md). Every tool below except `vscode_status` also takes `path` (the `.ipynb`, absolute or workspace-relative), omitted from the table for brevity.
+Every successful `run` or executing `edit` returns a compact delta containing the cell and task revision, status, changed variables, output summary, errors, warnings, and a `read(kind="output")` pointer to the full result. Use `return_output="images"` to attach the first visualization (or select one with `image_index`) in that same execution call; `return_output="full"` explicitly includes stored text and images. The default remains the context-safe summary.
 
-| Tool | What it does |
-|---|---|
-| `vscode_status()` | Check that the extension bridge is reachable |
-| `vscode_execute_cell(code)` | Add and run a cell |
-| `vscode_add_and_run(source, index?)` | Insert + run in one call (preferred over insert then run) |
-| `vscode_probe(code)` | Run code and return output without adding a cell (environment checks) |
-| `vscode_insert_cell(index, source)` | Insert a cell at a position |
-| `vscode_edit_cell(index, source)` | Edit a cell in place |
-| `vscode_edit_and_run(index, source)` | Edit a cell in place and run it |
-| `vscode_run_cell(index)` | Run an existing cell |
-| `vscode_run_all_cells()` | Run every code cell top to bottom, stopping at the first error |
-| `vscode_read_cell_output(index, offset?)` | A cell's stored output at full fidelity: paged text plus plot images, without re-running |
-| `vscode_add_markdown(text)` | Append a markdown cell |
-| `vscode_delete_cell(index)` | Delete a cell |
-| `vscode_clear_notebook()` | Delete all cells (irreversible) |
-| `vscode_read_notebook()` | Full notebook (sources and outputs) |
-| `vscode_get_state()` | Kernel variables and cell outline |
-| `vscode_inspect_variable(name)` | Variable detail |
-| `vscode_save_notebook()` | Save the open notebook |
-| `vscode_restart_kernel()` | Restart the kernel |
+Stored output reads are text-only by default and report whether images are available. Use `read(kind="output", content="images", image_index=0)` to view one image, `content="metadata"` to inventory images without attaching them, or `content="all"` only when the complete stored output is needed.
 
-## PyCharm / DataSpell (`pycharm_*`)
+`inspect(source={...})` supports `inventory`, `schema`, `head`, and `profile`; `source.view="batch"` executes up to eight compatible requests atomically so every file is represented in one balanced response. `inspect(variable={...})` handles existing kernel variables. Spreadsheet requests accept `sheet` and `header_row` (`"auto"`, `"none"`, or a zero-based row); automatic schema inspection returns sheet names, the selected sheet, candidate header rows, and a raw preview. The first source inspection installs one deterministic helper in a durable cell; later cells contain only compact calls to that helper. Inventory is capped and hashing is opt-in; table observations cap rows and columns.
 
-No IDE plugin. PyCharm has no public notebook API, but it reloads an open `.ipynb` when the file changes on disk. These tools drive the notebook over its Jupyter kernel plus read-modify-write of the `.ipynb` file.
+With audit tools enabled, `verify_clean_run(confirm=true)` performs a clean
+top-to-bottom rerun and `publish_answer` stores a result
+hash/shape/evidence receipt after validating cited cells. Neither is the
+user-facing answer or a completion requirement. Unresolved execution errors
+remain mechanically blocking because they make evidence unreliable. On hosts
+with a Stop hook, a missing evidence/chat outcome gets one concise reminder; it
+is not a workflow controller.
 
-| Tool | What it does |
-|---|---|
-| `pycharm_connect(server_url, notebook_file[, notebook_path])` | Attach the kernel + target the on-disk notebook |
-| `pycharm_status()` | Check that the kernel + file are connected |
-| `pycharm_execute_cell(code)` | Append a code cell and run it (alias of `notebook_add_and_run`) |
-| `pycharm_probe(code)` | Run code and return output without adding a cell (environment checks) |
-| `pycharm_insert_cell(index, source)` | Insert a cell at a position without running it |
+## Surface connection arguments
 
-## Notebook — shared pycharm/jupyterlab verbs (`notebook_*`)
+- `--surface` or `LEMMA_SURFACE` sets the lazy-attachment preference; neither restricts later switching.
+- VS Code/Cursor: requires the Lemma extension. Pass `notebook_path` when more than one notebook is open.
+- PyCharm/DataSpell: pass `server_url` and the absolute on-disk `notebook_file`; `notebook_path` may pin the server-side kernel session. Lazy attachment can use `LEMMA_PYCHARM_URL`, `LEMMA_PYCHARM_NOTEBOOK_FILE`, `LEMMA_PYCHARM_NOTEBOOK`, and `LEMMA_PYCHARM_TOKEN`.
+- JupyterLab: pass `server_url`, `token`, and optional `notebook_path`. Omitting `server_url` attempts local auto-discovery; ambiguity is returned instead of guessed.
 
-Every verb pycharm and jupyterlab implement the same way, registered once with a `surface` argument (`pycharm` or `jupyterlab`) instead of twice under separate prefixes.
+JupyterLab token authentication and unauthenticated local servers are supported. Password/cookie authentication is not.
 
-| Tool | What it does |
-|---|---|
-| `notebook_read(surface)` | Full notebook (sources and outputs) |
-| `notebook_get_state(surface)` | Cell outline (plus kernel variables, on jupyterlab) |
-| `notebook_add_and_run(surface, source, index?)` | Add a cell and run it (`index` is pycharm-only; jupyterlab always appends) |
-| `notebook_run_cell(surface, index)` | Run an existing cell |
-| `notebook_run_all_cells(surface)` | Run every code cell top to bottom, stopping at the first error |
-| `notebook_read_cell_output(surface, index, offset?)` | A cell's stored output at full fidelity: paged text plus plot images, without re-running |
-| `notebook_edit_cell(surface, index, source)` | Edit a cell in place |
-| `notebook_edit_and_run(surface, index, source)` | Edit a cell in place and run it |
-| `notebook_delete_cell(surface, index)` | Delete a cell |
-| `notebook_add_markdown(surface, text)` | Append a markdown cell |
-| `notebook_inspect_variable(surface, name)` | Variable detail |
-| `notebook_clear_notebook(surface)` | Delete all cells (irreversible) |
-| `notebook_restart_kernel(surface)` | Restart the kernel |
-| `notebook_save_notebook(surface)` | Save to disk (no-op on pycharm; it writes on every edit) |
+## Progressive skill resources
 
-`lemma --configure vscode\|pycharm\|jupyter` (see [install](../README.md)) restricts a host to one surface. With only one surface configured, `surface`'s enum collapses to that single value rather than disappearing from the schema.
-
-## JupyterLab auth
-
-Token only (`Authorization: token ...`).
-
-- **No auth**: no token needed.
-- **Token required**: pass it explicitly, or paste a `?token=` URL.
-- **JupyterHub**: generate a Hub API token from Control Panel and pass it with your user-server URL.
-- **Password / cookie auth**: not supported. Generate a token instead.
+Hosts with native skills load `skills/lemma-*/SKILL.md` and fetch linked `references/` or `scripts/` only as needed. Other MCP clients can request the `lemma_skill` prompt with `resource="procedure"`, `"reference"`, or `"script"`. This prompt is a knowledge resource and is not part of the action interface.

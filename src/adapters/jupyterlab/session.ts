@@ -281,7 +281,11 @@ export class JupyterLabSession {
   }
 
   // ---- live edits (appear in the user's tab immediately) ----
-  addCodeCell(source: string): number {
+  addCodeCell(source: string, index?: number): number {
+    if (index !== undefined) {
+      this.ynotebook.insertCell(index, { cell_type: 'code', source, metadata: {} });
+      return index;
+    }
     this.ynotebook.addCell({ cell_type: 'code', source, metadata: {} });
     return this.ynotebook.cells.length - 1;
   }
@@ -347,10 +351,10 @@ export class JupyterLabSession {
     cell.setExecutionCount(executionCount);
   }
 
-  async addAndExecute(source: string, timeoutMs = 120000): Promise<number> {
-    const index = this.addCodeCell(source);
-    await this.executeCell(index, timeoutMs);
-    return index;
+  async addAndExecute(source: string, index?: number, timeoutMs = 120000): Promise<number> {
+    const at = this.addCodeCell(source, index);
+    await this.executeCell(at, timeoutMs);
+    return at;
   }
 
   // ---- read full context ----

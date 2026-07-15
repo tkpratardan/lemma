@@ -1,13 +1,7 @@
 #!/usr/bin/env node
-// Generate the OpenClaw skill package (.openclaw/skills/) from the canonical
-// skills/. OpenClaw skills are SKILL.md (frontmatter + body) — same format
-// lemma already uses, with one difference: `description` must be a single
-// line under 160 chars. The canonical descriptions are long (tuned for
-// Claude's skill picker), so each ships a short one here. The body is copied
-// verbatim from skills/<name>/SKILL.md so the ruleset never drifts; only the
-// frontmatter is rewritten.
-//
-// Run:  node scripts/build-openclaw-skills.js
+// Generate .openclaw/skills/ from the canonical skills/. The main body and
+// progressive-disclosure resources are copied verbatim; only SKILL.md
+// frontmatter is rewritten for OpenClaw's single-line description limit.
 
 'use strict';
 
@@ -18,6 +12,8 @@ const ROOT = path.join(__dirname, '..');
 const HOMEPAGE = 'https://github.com/tkpratardan/lemma';
 
 const DESCRIPTIONS = {
+  // Upstream of every track.
+  'lemma-wrangle': 'Assemble a trustworthy working dataset from messy or multiple sources: grain, keys, joins with match rates, extraction checks, lineage.',
   // Predict track.
   'lemma-eda': 'EDA kickoff for a fresh dataset: fixed opening scaffold (goal, imports, load, sanity), then chapters derived from the data; scan leakage, land a baseline.',
   'lemma-baseline': 'Establish a dumb baseline and an honest validation harness before any real model, so every later number means something.',
@@ -54,13 +50,74 @@ function outPath(name) {
   return path.join(ROOT, '.openclaw', 'skills', name, 'SKILL.md');
 }
 
-module.exports = { DESCRIPTIONS, NAMES, render, outPath, sourceBody };
+function resourcePaths(name) {
+  const base = path.join(ROOT, 'skills', name);
+  const found = [];
+  function visit(directory) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const absolute = path.join(directory, entry.name);
+      if (entry.isDirectory()) visit(absolute);
+      else if (entry.isFile() && absolute !== path.join(base, 'SKILL.md')) {
+        found.push(path.relative(base, absolute));
+      }
+    }
+  }
+  visit(base);
+  return found.sort();
+}
+
+function sourceResourcePath(name, relative) {
+  return path.join(ROOT, 'skills', name, relative);
+}
+
+function outResourcePath(name, relative) {
+  return path.join(ROOT, '.openclaw', 'skills', name, relative);
+}
+
+module.exports = {
+  DESCRIPTIONS,
+  NAMES,
+  render,
+  outPath,
+  sourceBody,
+  resourcePaths,
+  sourceResourcePath,
+  outResourcePath,
+};
 
 if (require.main === module) {
+  const checkOnly = process.argv.includes('--check');
+  let drifted = false;
   for (const name of NAMES) {
-    const p = outPath(name);
-    fs.mkdirSync(path.dirname(p), { recursive: true });
-    fs.writeFileSync(p, render(name));
-    console.log('wrote', path.relative(ROOT, p).replace(/\\/g, '/'));
+    const outputs = [
+      { destination: outPath(name), content: Buffer.from(render(name)) },
+      ...resourcePaths(name).map((relative) => ({
+        destination: outResourcePath(name, relative),
+        content: fs.readFileSync(sourceResourcePath(name, relative)),
+      })),
+    ];
+    for (const { destination, content } of outputs) {
+      const rel = path.relative(ROOT, destination).replace(/\\/g, '/');
+      if (checkOnly) {
+        let actual = null;
+        try {
+          actual = fs.readFileSync(destination);
+        } catch {
+          // Missing file = drift.
+        }
+        if (!actual || !actual.equals(content)) {
+          console.error(`drifted: ${rel} (run node scripts/build-openclaw-skills.js)`);
+          drifted = true;
+        }
+        continue;
+      }
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.writeFileSync(destination, content);
+      console.log('wrote', rel);
+    }
+  }
+  if (checkOnly) {
+    if (drifted) process.exit(1);
+    console.log(`All ${NAMES.length} openclaw skills match skills/.`);
   }
 }

@@ -13,6 +13,7 @@ import { renderForAgent, notebookSummary, pagedCellOutput, formatRunAll, truncat
 import type { Cell } from '../../utils/render.js';
 import { errorMessage } from '../../utils/errors.js';
 import { text, jsonText } from '../../utils/response.js';
+import type { NotebookHandlers } from '../notebook/tools.js';
 
 // The subset of the shared kernel client these tools use.
 interface ConnectedKernel {
@@ -29,26 +30,11 @@ export interface PyCharmKernel {
   connect(opts: { serverUrl: string; token: string; notebookPath?: string }): Promise<{ kernelId: string }>;
 }
 
-// Verbs pycharm and jupyterlab share; adapters/notebook/tools.ts registers
-// these once as notebook_* with a surface flag instead of twice.
-export interface PyCharmHandlers {
-  readNotebook(): ReturnType<typeof text>;
-  getState(): ReturnType<typeof text>;
-  addAndRun(args: { source: string; index?: number }): Promise<ReturnType<typeof text>>;
-  runCell(args: { index: number }): Promise<ReturnType<typeof text>>;
-  readCellOutput(args: { index: number; offset?: number }): ReturnType<typeof pagedCellOutput>;
-  editAndRun(args: { index: number; source: string }): Promise<ReturnType<typeof text>>;
-  runAllCells(): Promise<ReturnType<typeof text>>;
-  inspectVariable(args: { name: string }): Promise<ReturnType<typeof text>>;
-  editCell(args: { index: number; source: string }): ReturnType<typeof text>;
-  deleteCell(args: { index: number }): ReturnType<typeof text>;
-  addMarkdown(args: { source: string; index?: number }): ReturnType<typeof text>;
-  clearNotebook(): ReturnType<typeof text>;
-  restartKernel(): Promise<ReturnType<typeof text>>;
-  saveNotebook(): ReturnType<typeof text>;
-}
+// The shared verb contract lives in adapters/notebook/tools.ts, which
+// registers these once as notebook_* with a surface flag instead of twice.
+export type PyCharmHandlers = NotebookHandlers;
 
-interface PyCharmAllHandlers extends PyCharmHandlers {
+export interface PyCharmAllHandlers extends NotebookHandlers {
   connect(args: { server_url: string; notebook_file: string; notebook_path?: string; token?: string }): Promise<ReturnType<typeof text>>;
   status(): ReturnType<typeof text>;
   executeCell(args: { code: string }): Promise<ReturnType<typeof text>>;
@@ -56,7 +42,7 @@ interface PyCharmAllHandlers extends PyCharmHandlers {
   insertCell(args: { index: number; source: string }): ReturnType<typeof text>;
 }
 
-function createPyCharmHandlers(kernel: PyCharmKernel): PyCharmAllHandlers {
+export function createPyCharmHandlers(kernel: PyCharmKernel): PyCharmAllHandlers {
   // The .ipynb currently being driven. Set by pycharm_connect.
   let target: DiskNotebook | undefined;
 

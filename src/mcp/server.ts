@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Lemma MCP server (stdio). Registers jupyterlab_* (RTC live-edit), vscode_*
-// (editor bridge), and pycharm_* (read-modify-write the .ipynb on disk, via
-// the shared kernel-http client; PyCharm reloads on change).
+// Lemma MCP server (stdio). Exposes a small canonical analysis interface and
+// dispatches internally to JupyterLab RTC, the VS Code editor bridge, or
+// PyCharm's disk-backed notebook plus kernel client. Legacy verbs are opt-in.
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as fs from 'fs';
@@ -10,10 +10,20 @@ import { fileURLToPath } from 'url';
 import { z } from 'zod';
 import { text } from '../utils/response.js';
 import { KernelHttpClient } from '../adapters/kernel-http/client.js';
-import { registerJupyterlabTools, shutdownJupyterlabSession } from '../adapters/jupyterlab/tools.js';
+import {
+  createJupyterlabHandlers,
+  registerJupyterlabTools,
+  shutdownJupyterlabSession,
+} from '../adapters/jupyterlab/tools.js';
 import { registerVscodeTools } from '../adapters/vscode/tools.js';
-import { registerPyCharmTools } from '../adapters/pycharm/tools.js';
+import {
+  createPyCharmHandlers,
+  registerPyCharmTools,
+  type PyCharmKernel,
+} from '../adapters/pycharm/tools.js';
 import { registerNotebookTools } from '../adapters/notebook/tools.js';
+import { registerCanonicalTools } from './canonical.js';
+import { resolvePreferredSurface } from './surface.js';
 
 // Duplicated from hooks/lib/instructions.js's getFullPersona(): this package
 // compiles separately from the plain-Node hooks/ scripts, not worth reaching
@@ -56,7 +66,7 @@ if (PERSONA) {
     'lemma_persona',
     {
       title: 'Lemma data-scientist persona',
-      description: 'Senior data-scientist mode: frame, look, leakage-check, baseline, validate honestly.',
+      description: 'Evidence-based data analysis: inspect sources, compute in the notebook, check correctness, and return the requested result.',
     },
     () => ({
       messages: [{ role: 'user', content: { type: 'text', text: PERSONA } }],
@@ -65,6 +75,7 @@ if (PERSONA) {
 }
 
 const SKILL_NAMES = [
+  'lemma-wrangle',
   'lemma-eda',
   'lemma-baseline',
   'lemma-model',
@@ -76,30 +87,67 @@ const SKILL_NAMES = [
   'lemma-review',
 ] as const;
 
-// Pull path for the mode rulesets on hosts with no native skill support
-// (VS Code, Windsurf, Claude Desktop): AGENTS.md's routing table names
-// these skills, and this tool is how such hosts fetch one.
-server.registerTool(
+const LEGACY_TOOLS = process.env.LEMMA_LEGACY_TOOLS === '1';
+
+const SCRIPTS_BY_SKILL: Partial<Record<(typeof SKILL_NAMES)[number], readonly string[]>> = {
+  'lemma-wrangle': ['scripts/source_inventory.py'],
+  'lemma-eda': ['scripts/profile_table.py'],
+  'lemma-review': ['scripts/notebook_integrity.py', 'scripts/verify_clean_run.py'],
+};
+
+function skillResource(
+  name: (typeof SKILL_NAMES)[number],
+  resource: 'procedure' | 'reference' | 'script'
+): string {
+  const relatives = resource === 'procedure'
+    ? ['SKILL.md']
+    : resource === 'reference'
+      ? ['references/deep-guide.md']
+      : SCRIPTS_BY_SKILL[name];
+  if (!relatives) return `skill ${name} has no deterministic script resource.`;
+  try {
+    return relatives
+      .map((relative) => `# ${relative}\n\n${fs.readFileSync(path.join(lemmaRoot(), 'skills', name, relative), 'utf8')}`)
+      .join('\n\n');
+  } catch {
+    return `one or more ${name} ${resource} resources are missing, is the lemma install complete?`;
+  }
+}
+
+// Progressive-disclosure pull path for hosts with no native skill loader.
+// This is an MCP prompt, not a ninth action in the notebook tool interface.
+server.registerPrompt(
   'lemma_skill',
   {
+    title: 'Load a Lemma procedure or resource',
     description:
-      "Returns one lemma skill's full ruleset. Invoke before the matching analysis on a host " +
-      'with no native skill support.',
-    inputSchema: { name: z.enum(SKILL_NAMES) },
+      'Load a compact procedure first; request its reference or script only when the procedure calls for it.',
+    argsSchema: {
+      name: z.enum(SKILL_NAMES),
+      resource: z.enum(['procedure', 'reference', 'script']).default('procedure'),
+    },
   },
-  ({ name }) => {
-    try {
-      return text(fs.readFileSync(path.join(lemmaRoot(), 'skills', name, 'SKILL.md'), 'utf8'));
-    } catch {
-      return text(`skill ${name} not found, is the lemma install complete?`);
-    }
-  }
+  ({ name, resource }) => ({
+    messages: [{ role: 'user', content: { type: 'text', text: skillResource(name, resource) } }],
+  })
 );
+
+// Migration escape hatch only. The default server has exactly the canonical
+// analysis tools; older clients can opt into this auxiliary tool too.
+if (LEGACY_TOOLS) {
+  server.registerTool(
+    'lemma_skill',
+    {
+      description: 'Returns one compact Lemma procedure for a legacy client with no prompt support.',
+      inputSchema: { name: z.enum(SKILL_NAMES) },
+    },
+    ({ name }) => text(skillResource(name, 'procedure'))
+  );
+}
 
 const NO_KERNEL = 'No kernel connection.';
 
-// HTTP client, set by pycharm_connect. Shared with PyCharm's tools so
-// pycharm_* and a future kernel-backed surface would hit one kernel.
+// HTTP client set by the PyCharm backend's canonical connect action.
 let httpClient: KernelHttpClient | undefined;
 
 type IKernelClient = Pick<KernelHttpClient, 'execute' | 'inspectVariable' | 'restart' | 'kill'>;
@@ -108,34 +156,37 @@ function getKernel(): IKernelClient | string {
   return httpClient ?? NO_KERNEL;
 }
 
-// --surface=vscode|pycharm|jupyter, written into that host's launch config by
-// `lemma --configure <surface>` (bin/install.js), narrows registration to one
-// surface. Decided once here at spawn and never toggled at runtime, so
-// there's no tools/list_changed for a client to miss.
-const surfaceArg = process.argv.find((a) => a.startsWith('--surface='))?.slice('--surface='.length);
+// --surface=vscode|pycharm|jupyter is only the lazy-attachment preference.
+// Every adapter stays registered, and connect(surface=...) may switch at any
+// point without changing the stable five-action tool interface.
+const preferredSurface = resolvePreferredSurface();
 
-if (!surfaceArg || surfaceArg === 'vscode') {
-  registerVscodeTools(server);
+function pycharmKernel(): PyCharmKernel {
+  return {
+    current: () => getKernel(),
+    connect: async ({ serverUrl, token, notebookPath }) => {
+      httpClient?.kill();
+      httpClient = await KernelHttpClient.connect({ serverUrl, token, notebookPath });
+      return { kernelId: httpClient.kernelId };
+    },
+  };
 }
 
-// PyCharm path is disk-backed (no IDE plugin): edits write the .ipynb, execution
-// shares this server's kernel client.
-const pycharmHandlers = !surfaceArg || surfaceArg === 'pycharm'
-  ? registerPyCharmTools(server, {
-      current: () => getKernel(),
-      connect: async ({ serverUrl, token, notebookPath }) => {
-        httpClient?.kill();
-        httpClient = await KernelHttpClient.connect({ serverUrl, token, notebookPath });
-        return { kernelId: httpClient.kernelId };
-      },
-    })
-  : undefined;
-
-const jupyterlabHandlers = !surfaceArg || surfaceArg === 'jupyter'
-  ? registerJupyterlabTools(server)
-  : undefined;
-
-registerNotebookTools(server, { pycharm: pycharmHandlers, jupyterlab: jupyterlabHandlers });
+if (LEGACY_TOOLS) {
+  registerVscodeTools(server);
+  const pycharmHandlers = registerPyCharmTools(server, pycharmKernel());
+  const jupyterlabHandlers = registerJupyterlabTools(server);
+  registerNotebookTools(server, { pycharm: pycharmHandlers, jupyterlab: jupyterlabHandlers });
+} else {
+  const pycharmHandlers = createPyCharmHandlers(pycharmKernel());
+  const jupyterlabHandlers = createJupyterlabHandlers();
+  registerCanonicalTools(server, {
+    preferredSurface,
+    pycharm: pycharmHandlers,
+    jupyterlab: jupyterlabHandlers,
+    includeAuditTools: process.env.LEMMA_AUDIT_TOOLS === '1',
+  });
+}
 
 function cleanup(): void {
   httpClient?.kill();

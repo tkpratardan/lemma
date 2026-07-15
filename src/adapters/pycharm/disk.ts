@@ -29,13 +29,6 @@ function srcToStr(source: string | string[] | undefined): string {
   return Array.isArray(source) ? source.join('') : (source ?? '');
 }
 
-export interface CellSummary {
-  index: number;
-  kind: 'code' | 'markdown';
-  source: string;
-  executionCount: number | null;
-}
-
 export class DiskNotebook {
   constructor(readonly path: string) {}
 
@@ -45,8 +38,8 @@ export class DiskNotebook {
     return nb;
   }
 
-  // Match writeNotebookFile's on-disk style (indent 1) so diffs against a
-  // file PyCharm last wrote stay small.
+  // Indent 1 matches what PyCharm itself writes, so diffs against a file it
+  // last saved stay small.
   private write(nb: RawNotebook): void {
     fs.writeFileSync(this.path, JSON.stringify(nb, null, 1));
   }
@@ -81,17 +74,8 @@ export class DiskNotebook {
     return this.read().cells.length;
   }
 
-  summary(): CellSummary[] {
-    return this.read().cells.map((c, i) => ({
-      index: i,
-      kind: c.cell_type === 'code' ? 'code' : 'markdown',
-      source: srcToStr(c.source),
-      executionCount: c.execution_count ?? null,
-    }));
-  }
-
   // Cells with parsed outputs (incl. images) for notebook_read/get_state/
-  // read_cell_output — summary() above only covers the older bare outline.
+  // read_cell_output.
   cells(): Cell[] {
     const nb = this.read();
     return cellsFromNb({ ...nb, metadata: nb.metadata ?? {}, nbformat: nb.nbformat ?? 4, nbformat_minor: nb.nbformat_minor ?? 5 });

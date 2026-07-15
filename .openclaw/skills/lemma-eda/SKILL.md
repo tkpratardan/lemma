@@ -5,67 +5,28 @@ homepage: https://github.com/tkpratardan/lemma
 license: MIT
 ---
 
-# EDA: scaffold first, chapters earned
+# Exploratory data analysis
 
-An EDA notebook is a report someone will read, not a scratchpad. Chapters
-come from this data and this question, planned after looking, never
-copied from a template.
+## Deliver
 
-## Frame before loading anything
+Provide a trustworthy dataset orientation, a short ranked set of findings,
+important limitations, and the next analytical question or baseline suggested
+by the evidence.
 
-Name the question's mode: describe, diagnose, infer, cause, predict, or
-discover. If it's actually causal, inferential, descriptive, or
-unsupervised, bring that skill's rigor into the relevant chapters instead.
-If predicting, ask what decision this informs, what the target is exactly,
-and at what grain. Don't guess a target and explore the wrong thing.
+## Check
 
-## Push the sanity chapter further than usual
+- Establish observation unit, source identity, coverage, candidate identifiers
+  or targets, and a seed for sampled work.
+- Inspect shape, types, ranges, duplicates, missingness, time coverage, and
+  group rates. `scripts/profile_table.py` is available for a deterministic
+  first pass.
+- Explore only patterns that could change a decision or next step.
+- Investigate suspicious quality, leakage, subgroup, or temporal patterns
+  before recommending modeling.
+- State a conclusion for each explored branch.
 
-Beyond the standard checks: missingness and why, plausible ranges and
-units, duplicate rows and ids, and representativeness. Does this sample
-match the population the conclusions are about? A filtered or stale
-sample makes every later claim about the wrong distribution. Large or
-DB-sourced data gets sampled, with a note on where aggregation could move
-upstream. Hand off to `lemma-leakage` if anything looks off.
+Do not generate an indiscriminate chart catalog, silently drop missing rows,
+infer causality, or turn a bounded question into open-ended EDA.
 
-Rename what metadata explains. An uninferrable column (`sensor_12`) gets
-the descriptive name from a data dictionary or README if one exists.
-Without a source, flag it rather than invent a name.
-
-## Derive the chapters after looking, not before
-
-Plan the rest as `##` chapters, each named for a signal the data might
-hold or a question the framing needs answered. This is judgment, not a
-checklist. Chapters that commonly earn their place when the data carries
-the signal: the target's distribution (skew, consider the log), feature-target
-and feature-feature relationships, temporal columns (trend, seasonality,
-drift), geospatial columns (metric by place, location as a proxy for
-hidden variables), and entity structure (rows per entity, cohorts,
-within- vs across-entity variation).
-
-List the planned chapters in the goal cell as a table of contents, and
-keep it honest: update it when a chapter lands, splits, or turns out
-empty.
-
-## If predicting, the leakage scan isn't optional
-
-For each candidate feature: could this encode the target, or information
-from after the prediction moment? Flag ids, post-outcome fields, and
-anything suspiciously correlated with the target. A feature that's "too
-good" is leakage until proven otherwise. Invoke `lemma-leakage` if unsure.
-
-## Close: the findings chapter
-
-End with the goal restated, the 2-3 findings that matter, the risks
-flagged (leakage, quality, representativeness), and the signals
-discovered. Don't start modeling here. Hand off to `lemma-baseline` once
-the signals are validated.
-
-## Avoid
-
-- Reaching for models in EDA. It's about finding signals, not fitting them.
-- Reflexive `dropna()`/`fillna(0)` with no look at the missingness pattern.
-- One mega-cell that loads, cleans, and plots. You can't see where it broke.
-- A correlation or p-value without a plot behind it.
-- Template theater: the same chapters forced onto every dataset, or a
-  table of contents that promises what the notebook never delivers.
+For visualization and chapter patterns, read
+[references/deep-guide.md](references/deep-guide.md).

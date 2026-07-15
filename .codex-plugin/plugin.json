@@ -2,6 +2,10 @@
   "name": "lemma",
   "version": "3.1.2",
   "description": "Senior data-scientist mode for AI agents, plus live-notebook tools. Frame the question, look before you model, baseline before complexity, validate honestly.",
+  "author": {
+    "name": "tkpratardan",
+    "url": "https://github.com/tkpratardan"
+  },
   "homepage": "https://github.com/tkpratardan/lemma",
   "repository": "https://github.com/tkpratardan/lemma",
   "license": "MIT",
@@ -14,7 +18,14 @@
     "mcp"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.codex-plugin/mcp.json",
+  "mcpServers": {
+    "lemma": {
+      "command": "node",
+      "args": ["bin/lemma-mcp.mjs"],
+      "cwd": ".",
+      "env": { "LEMMA_NO_MCP_INSTRUCTIONS": "1" }
+    }
+  },
   "hooks": "./hooks/codex-hooks.json",
   "interface": {
     "displayName": "Lemma",

@@ -2,7 +2,7 @@
   "mcpServers": {
     "lemma": {
       "command": "node",
-      "args": ["${PLUGIN_ROOT}/bin/lemma-mcp.mjs"],
+      "args": ["${PLUGIN_ROOT}/bin/lemma-mcp.mjs", "--surface=vscode"],
       "env": { "LEMMA_NO_MCP_INSTRUCTIONS": "1" }
     }
   }

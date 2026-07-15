@@ -14,7 +14,6 @@ export interface RawOutput {
   traceback?: string[];
   metadata?: Record<string, unknown>;
 }
-
 interface RawCell {
   cell_type: string;
   source: string | string[];
@@ -84,11 +83,6 @@ export function cellsFromNb(nb: RawNotebook): Cell[] {
   });
 }
 
-export function readNotebookFile(path: string): Cell[] {
-  const raw: RawNotebook = JSON.parse(fs.readFileSync(path, 'utf8'));
-  return cellsFromNb(raw);
-}
-
 // Split a string into nbformat's canonical multiline form: an array of lines,
 // each retaining its trailing "\n" (matches Python's splitlines(keepends=True)
 // and what Jupyter/PyCharm write). A trailing newline does not produce a final
@@ -129,28 +123,4 @@ export function toNbOutputs(cell: Cell): RawOutput[] {
       traceback: o.data.traceback,
     };
   });
-}
-
-export function buildNb(cells: Cell[]): RawNotebook {
-  return {
-    cells: cells.map((cell): RawCell => {
-      if (cell.cellType === 'markdown' || cell.cellType === 'raw') {
-        return { cell_type: cell.cellType, source: cell.source, metadata: {} };
-      }
-      return {
-        cell_type: 'code',
-        source: cell.source,
-        execution_count: cell.executionCount,
-        outputs: toNbOutputs(cell),
-        metadata: {},
-      };
-    }),
-    metadata: {},
-    nbformat: 4,
-    nbformat_minor: 5,
-  };
-}
-
-export function writeNotebookFile(path: string, cells: Cell[]): void {
-  fs.writeFileSync(path, JSON.stringify(buildNb(cells), null, 1));
 }

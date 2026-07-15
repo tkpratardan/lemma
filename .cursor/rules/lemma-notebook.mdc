@@ -1,22 +1,16 @@
 ---
-description: Make lemma notebook cell edits visible (show the diff inline)
+description: Use Lemma's canonical notebook edit action and honor editor approval
 alwaysApply: true
 ---
 
-# Lemma notebook edits — show the diff in your reply
+# Lemma notebook edits
 
-This project uses the **lemma** MCP server to drive a live Jupyter/JupyterLab
-notebook. Its cell-mutating tools return a unified `+/-` diff of the change in
-their result, but the chat collapses tool results, so the user can't see it.
+Use Lemma's canonical `edit` action for notebook changes. The VS Code/Cursor
+bridge presents the proposed edit in the editor as the approval surface, so do
+not repeat a second full diff in chat after acceptance.
 
-Whenever you call a lemma tool that changes a cell —
-`notebook_edit_cell`, `notebook_add_and_run`, `notebook_add_markdown`,
-`notebook_delete_cell` — **reproduce the `+/-` diff from the tool result in
-your own reply**, inside a ```diff code block, so the user sees exactly what
-changed without expanding the tool call.
-
-- Keep it to the diff itself plus a one-line summary ("edited cell 3: added the
-  seaborn import"). Don't paste the whole cell when only a few lines changed.
+- If the edit is discarded, stop the turn.
+- Briefly identify the accepted cell change in the final answer when relevant.
 - For data/notebook work, prefer the lemma tools over Bash/`python3` scripts.
 - Build the notebook like a human analyst: one logical step per cell, short
   cells, a markdown heading before each section. Structure lives in markdown

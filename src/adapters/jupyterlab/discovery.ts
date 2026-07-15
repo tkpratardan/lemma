@@ -23,7 +23,6 @@ export interface Connection {
   sessionModel?: JupyterSession;
 }
 
-export class NoServerFound extends Error {}
 export class ServerUnreachable extends Error {}
 export class NotebookNotFound extends Error {}
 
@@ -84,6 +83,20 @@ export async function notebookExists(server: JupyterServer, path: string): Promi
   }
 }
 
+// A notebook with no live session has no kernel to inherit a name from, but
+// it does carry its own preferred kernel in metadata.kernelspec.name (set at
+// creation time). Read that so a fresh notebook starts the kernel its author
+// intended instead of whatever 'python3' happens to resolve to on this
+// machine's shared kernelspec registry.
+async function notebookKernelspecName(server: JupyterServer, path: string): Promise<string | undefined> {
+  try {
+    const content = await getJson(`${server.url}/api/contents/${encodeContentsPath(path)}?content=1`, server.token);
+    return content?.content?.metadata?.kernelspec?.name;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function listNotebookSessions(server: JupyterServer): Promise<JupyterSession[]> {
   let sessions: JupyterSession[];
   try {
@@ -137,7 +150,7 @@ export async function resolveConnection(
       token: server.token,
       notebookPath,
       kernelId: match?.kernel?.id,
-      kernelName: match?.kernel?.name,
+      kernelName: match?.kernel?.name ?? (await notebookKernelspecName(server, notebookPath)),
       sessionModel: match,
     };
   }

@@ -1,0 +1,11 @@
+{
+  "extends": "./src/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./src/dist",
+    "noEmit": true,
+    "typeRoots": ["./src/node_modules/@types"]
+  },
+  "include": ["src/mcp/**/*", "src/utils/**/*", "src/adapters/**/*"],
+  "exclude": ["src/node_modules", "src/dist"]
+}

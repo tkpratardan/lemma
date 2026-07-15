@@ -2992,7 +2992,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve.call(this, root, ref);
+      let _sch = resolve3.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a3 = root.localRefs) === null || _a3 === void 0 ? void 0 : _a3[ref];
         const { schemaId } = this.opts;
@@ -3019,7 +3019,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve(root, ref) {
+    function resolve3(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3237,8 +3237,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path6) {
-      let input = path6;
+    function removeDotSegments(path8) {
+      let input = path8;
       const output = [];
       let nextSlash = -1;
       let len = 0;
@@ -3490,8 +3490,8 @@ var require_schemes = __commonJS({
         wsComponent.secure = void 0;
       }
       if (wsComponent.resourceName) {
-        const [path6, query] = wsComponent.resourceName.split("?");
-        wsComponent.path = path6 && path6 !== "/" ? path6 : void 0;
+        const [path8, query] = wsComponent.resourceName.split("?");
+        wsComponent.path = path8 && path8 !== "/" ? path8 : void 0;
         wsComponent.query = query;
         wsComponent.resourceName = void 0;
       }
@@ -3650,7 +3650,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve(baseURI, relativeURI, options) {
+    function resolve3(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse3(baseURI, schemelessOptions), parse3(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -3908,7 +3908,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve,
+      resolve: resolve3,
       resolveComponent,
       equal,
       serialize,
@@ -6884,12 +6884,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name2}"`);
       return f;
     };
-    function addFormats(ajv, list, fs5, exportName) {
+    function addFormats(ajv, list, fs7, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f of list)
-        ajv.addFormat(f, fs5[f]);
+        ajv.addFormat(f, fs7[f]);
     }
     module2.exports = exports2 = formatsPlugin;
     Object.defineProperty(exports2, "__esModule", { value: true });
@@ -8366,8 +8366,8 @@ var require_index_node = __commonJS({
        * Construct a new promise delegate.
        */
       constructor() {
-        this.promise = new Promise((resolve, reject) => {
-          this._resolve = resolve;
+        this.promise = new Promise((resolve3, reject) => {
+          this._resolve = resolve3;
           this._reject = reject;
         });
       }
@@ -8377,8 +8377,8 @@ var require_index_node = __commonJS({
        * @param value - The value to use for resolving the promise.
        */
       resolve(value) {
-        let resolve = this._resolve;
-        resolve(value);
+        let resolve3 = this._resolve;
+        resolve3(value);
       }
       /**
        * Reject the wrapped promise with the given value.
@@ -8416,15 +8416,15 @@ var require_index_node = __commonJS({
     exports2.Random = void 0;
     (function(Random) {
       Random.getRandomValues = (() => {
-        const crypto = typeof __require !== "undefined" && __require("crypto") || null;
-        if (crypto && typeof crypto.randomFillSync === "function") {
+        const crypto3 = typeof __require !== "undefined" && __require("crypto") || null;
+        if (crypto3 && typeof crypto3.randomFillSync === "function") {
           return function getRandomValues2(buffer) {
-            return crypto.randomFillSync(buffer);
+            return crypto3.randomFillSync(buffer);
           };
         }
-        if (crypto && typeof crypto.randomBytes === "function") {
+        if (crypto3 && typeof crypto3.randomBytes === "function") {
           return function getRandomValues2(buffer) {
-            let bytes = crypto.randomBytes(buffer.length);
+            let bytes = crypto3.randomBytes(buffer.length);
             for (let i = 0, n = bytes.length; i < n; ++i) {
               buffer[i] = bytes[i];
             }
@@ -9363,24 +9363,24 @@ var require_url_parse = __commonJS({
         rest
       };
     }
-    function resolve(relative, base) {
+    function resolve3(relative, base) {
       if (relative === "") return base;
-      var path6 = (base || "/").split("/").slice(0, -1).concat(relative.split("/")), i = path6.length, last2 = path6[i - 1], unshift = false, up = 0;
+      var path8 = (base || "/").split("/").slice(0, -1).concat(relative.split("/")), i = path8.length, last2 = path8[i - 1], unshift = false, up = 0;
       while (i--) {
-        if (path6[i] === ".") {
-          path6.splice(i, 1);
-        } else if (path6[i] === "..") {
-          path6.splice(i, 1);
+        if (path8[i] === ".") {
+          path8.splice(i, 1);
+        } else if (path8[i] === "..") {
+          path8.splice(i, 1);
           up++;
         } else if (up) {
           if (i === 0) unshift = true;
-          path6.splice(i, 1);
+          path8.splice(i, 1);
           up--;
         }
       }
-      if (unshift) path6.unshift("");
-      if (last2 === "." || last2 === "..") path6.push("");
-      return path6.join("/");
+      if (unshift) path8.unshift("");
+      if (last2 === "." || last2 === "..") path8.push("");
+      return path8.join("/");
     }
     function Url(address, location2, parser) {
       address = trimLeft2(address);
@@ -9433,7 +9433,7 @@ var require_url_parse = __commonJS({
       }
       if (parser) url2.query = parser(url2.query);
       if (relative && location2.slashes && url2.pathname.charAt(0) !== "/" && (url2.pathname !== "" || location2.pathname !== "")) {
-        url2.pathname = resolve(url2.pathname, location2.pathname);
+        url2.pathname = resolve3(url2.pathname, location2.pathname);
       }
       if (url2.pathname.charAt(0) !== "/" && isSpecial(url2.protocol)) {
         url2.pathname = "/" + url2.pathname;
@@ -9592,19 +9592,19 @@ var require_url = __commonJS({
         return url2 && parse3(url2).toString();
       }
       URLExt2.normalize = normalize;
-      function join4(...parts) {
+      function join5(...parts) {
         let u = (0, url_parse_1.default)(parts[0], {});
         const isSchemaLess = u.protocol === "" && u.slashes;
         if (isSchemaLess) {
           u = (0, url_parse_1.default)(parts[0], "https:" + parts[0]);
         }
         const prefix = `${isSchemaLess ? "" : u.protocol}${u.slashes ? "//" : ""}${u.auth}${u.auth ? "@" : ""}${u.host}`;
-        const path6 = path_1.posix.join(`${!!prefix && u.pathname[0] !== "/" ? "/" : ""}${u.pathname}`, ...parts.slice(1));
-        return `${prefix}${path6 === "." ? "" : path6}`;
+        const path8 = path_1.posix.join(`${!!prefix && u.pathname[0] !== "/" ? "/" : ""}${u.pathname}`, ...parts.slice(1));
+        return `${prefix}${path8 === "." ? "" : path8}`;
       }
-      URLExt2.join = join4;
+      URLExt2.join = join5;
       function encodeParts(url2) {
-        return join4(...url2.split("/").map(encodeURIComponent));
+        return join5(...url2.split("/").map(encodeURIComponent));
       }
       URLExt2.encodeParts = encodeParts;
       function objectToQueryString(value) {
@@ -9718,19 +9718,19 @@ var require_pageconfig = __commonJS({
       PageConfig.getTreeShareUrl = getTreeShareUrl;
       function getUrl(options) {
         var _a3, _b, _c;
-        let path6 = options.toShare ? getShareUrl() : getBaseUrl();
+        let path8 = options.toShare ? getShareUrl() : getBaseUrl();
         const mode = (_a3 = options.mode) !== null && _a3 !== void 0 ? _a3 : getOption("mode");
         const workspace = (_b = options.workspace) !== null && _b !== void 0 ? _b : getOption("workspace");
         const labOrDoc = mode === "single-document" ? "doc" : "lab";
-        path6 = url_1.URLExt.join(path6, labOrDoc);
+        path8 = url_1.URLExt.join(path8, labOrDoc);
         if (workspace !== PageConfig.defaultWorkspace) {
-          path6 = url_1.URLExt.join(path6, "workspaces", encodeURIComponent(workspace));
+          path8 = url_1.URLExt.join(path8, "workspaces", encodeURIComponent(workspace));
         }
         const treePath = (_c = options.treePath) !== null && _c !== void 0 ? _c : getOption("treePath");
         if (treePath) {
-          path6 = url_1.URLExt.join(path6, "tree", url_1.URLExt.encodeParts(treePath));
+          path8 = url_1.URLExt.join(path8, "tree", url_1.URLExt.encodeParts(treePath));
         }
-        return path6;
+        return path8;
       }
       PageConfig.getUrl = getUrl;
       PageConfig.defaultWorkspace = "default";
@@ -9746,8 +9746,8 @@ var require_pageconfig = __commonJS({
         return url_1.URLExt.normalize(wsUrl);
       }
       PageConfig.getWsUrl = getWsUrl;
-      function getNBConvertURL({ path: path6, format, download }) {
-        const notebookPath = url_1.URLExt.encodeParts(path6);
+      function getNBConvertURL({ path: path8, format, download }) {
+        const notebookPath = url_1.URLExt.encodeParts(path8);
         const url2 = url_1.URLExt.join(getBaseUrl(), "nbconvert", format, notebookPath);
         if (download) {
           return url2 + "?download=true";
@@ -9833,40 +9833,40 @@ var require_path = __commonJS({
     var path_1 = __require("path");
     var PathExt;
     (function(PathExt2) {
-      function join4(...paths) {
-        const path6 = path_1.posix.join(...paths);
-        return path6 === "." ? "" : removeSlash(path6);
+      function join5(...paths) {
+        const path8 = path_1.posix.join(...paths);
+        return path8 === "." ? "" : removeSlash(path8);
       }
-      PathExt2.join = join4;
+      PathExt2.join = join5;
       function joinWithLeadingSlash(...paths) {
-        const path6 = path_1.posix.join(...paths);
-        return path6 === "." ? "" : path6;
+        const path8 = path_1.posix.join(...paths);
+        return path8 === "." ? "" : path8;
       }
       PathExt2.joinWithLeadingSlash = joinWithLeadingSlash;
-      function basename(path6, ext) {
-        return path_1.posix.basename(path6, ext);
+      function basename(path8, ext) {
+        return path_1.posix.basename(path8, ext);
       }
       PathExt2.basename = basename;
-      function dirname2(path6) {
-        const dir = removeSlash(path_1.posix.dirname(path6));
+      function dirname2(path8) {
+        const dir = removeSlash(path_1.posix.dirname(path8));
         return dir === "." ? "" : dir;
       }
       PathExt2.dirname = dirname2;
-      function extname(path6) {
-        return path_1.posix.extname(path6);
+      function extname(path8) {
+        return path_1.posix.extname(path8);
       }
       PathExt2.extname = extname;
-      function normalize(path6) {
-        if (path6 === "") {
+      function normalize(path8) {
+        if (path8 === "") {
           return "";
         }
-        return removeSlash(path_1.posix.normalize(path6));
+        return removeSlash(path_1.posix.normalize(path8));
       }
       PathExt2.normalize = normalize;
-      function resolve(...parts) {
+      function resolve3(...parts) {
         return removeSlash(path_1.posix.resolve(...parts));
       }
-      PathExt2.resolve = resolve;
+      PathExt2.resolve = resolve3;
       function relative(from2, to) {
         return removeSlash(path_1.posix.relative(from2, to));
       }
@@ -9878,11 +9878,11 @@ var require_path = __commonJS({
         return extension;
       }
       PathExt2.normalizeExtension = normalizeExtension;
-      function removeSlash(path6) {
-        if (path6.indexOf("/") === 0) {
-          path6 = path6.slice(1);
+      function removeSlash(path8) {
+        if (path8.indexOf("/") === 0) {
+          path8 = path8.slice(1);
         }
-        return path6;
+        return path8;
       }
       PathExt2.removeSlash = removeSlash;
     })(PathExt || (exports2.PathExt = PathExt = {}));
@@ -12716,7 +12716,7 @@ var require_websocket = __commonJS({
     var http = __require("http");
     var net = __require("net");
     var tls = __require("tls");
-    var { randomBytes, createHash } = __require("crypto");
+    var { randomBytes: randomBytes2, createHash: createHash3 } = __require("crypto");
     var { Duplex, Readable } = __require("stream");
     var { URL: URL2 } = __require("url");
     var PerMessageDeflate = require_permessage_deflate();
@@ -13254,7 +13254,7 @@ var require_websocket = __commonJS({
         }
       }
       const defaultPort = isSecure ? 443 : 80;
-      const key = randomBytes(16).toString("base64");
+      const key = randomBytes2(16).toString("base64");
       const request = isSecure ? https.request : http.request;
       const protocolSet = /* @__PURE__ */ new Set();
       let perMessageDeflate;
@@ -13384,7 +13384,7 @@ var require_websocket = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -13753,7 +13753,7 @@ var require_websocket_server = __commonJS({
     var EventEmitter = __require("events");
     var http = __require("http");
     var { Duplex } = __require("stream");
-    var { createHash } = __require("crypto");
+    var { createHash: createHash3 } = __require("crypto");
     var extension = require_extension();
     var PerMessageDeflate = require_permessage_deflate();
     var subprotocol = require_subprotocol();
@@ -14060,7 +14060,7 @@ var require_websocket_server = __commonJS({
           );
         }
         if (this._state > RUNNING) return abortHandshake(socket, 503);
-        const digest = createHash("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -14935,9 +14935,9 @@ var require_contents = __commonJS({
        * takes precedence over the factory defined on the drive as a whole.
        * Returns `null` if the backend does not provide one.
        */
-      getSharedModelFactory(path6, options) {
+      getSharedModelFactory(path8, options) {
         var _a3, _b;
-        const [drive] = this._driveForPath(path6);
+        const [drive] = this._driveForPath(path8);
         const provider = (_a3 = drive.contentProviderRegistry) === null || _a3 === void 0 ? void 0 : _a3.getProvider(options === null || options === void 0 ? void 0 : options.contentProviderId);
         if (provider === null || provider === void 0 ? void 0 : provider.sharedModelFactory) {
           return provider.sharedModelFactory;
@@ -14952,11 +14952,11 @@ var require_contents = __commonJS({
        *
        * @returns The local part of the path.
        */
-      localPath(path6) {
-        const parts = path6.split("/");
+      localPath(path8) {
+        const parts = path8.split("/");
         const firstParts = parts[0].split(":");
         if (firstParts.length === 1 || !this._additionalDrives.has(firstParts[0])) {
-          return coreutils_12.PathExt.removeSlash(path6);
+          return coreutils_12.PathExt.removeSlash(path8);
         }
         return coreutils_12.PathExt.join(firstParts.slice(1).join(":"), ...parts.slice(1));
       }
@@ -14969,10 +14969,10 @@ var require_contents = __commonJS({
        *
        * @returns The normalized path.
        */
-      normalize(path6) {
-        const parts = path6.split(":");
+      normalize(path8) {
+        const parts = path8.split(":");
         if (parts.length === 1) {
-          return coreutils_12.PathExt.normalize(path6);
+          return coreutils_12.PathExt.normalize(path8);
         }
         return `${parts[0]}:${coreutils_12.PathExt.normalize(parts.slice(1).join(":"))}`;
       }
@@ -14987,10 +14987,10 @@ var require_contents = __commonJS({
        *
        * @returns The normalized path.
        */
-      resolvePath(root, path6) {
+      resolvePath(root, path8) {
         const driveName = this.driveName(root);
         const localPath = this.localPath(root);
-        const resolved = coreutils_12.PathExt.resolve("/", localPath, path6);
+        const resolved = coreutils_12.PathExt.resolve("/", localPath, path8);
         return driveName ? `${driveName}:${resolved}` : resolved;
       }
       /**
@@ -15002,8 +15002,8 @@ var require_contents = __commonJS({
        *
        * @returns The drive name for the path, or the empty string.
        */
-      driveName(path6) {
-        const parts = path6.split("/");
+      driveName(path8) {
+        const parts = path8.split("/");
         const firstParts = parts[0].split(":");
         if (firstParts.length === 1) {
           return "";
@@ -15022,8 +15022,8 @@ var require_contents = __commonJS({
        *
        * @returns A promise which resolves with the file content.
        */
-      get(path6, options) {
-        const [drive, localPath] = this._driveForPath(path6);
+      get(path8, options) {
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.get(localPath, options).then((contentsModel) => {
           const listing = [];
           if (contentsModel.type === "directory" && contentsModel.content) {
@@ -15055,8 +15055,8 @@ var require_contents = __commonJS({
        *
        * The returned URL may include a query parameter.
        */
-      getDownloadUrl(path6) {
-        const [drive, localPath] = this._driveForPath(path6);
+      getDownloadUrl(path8) {
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.getDownloadUrl(localPath);
       }
       /**
@@ -15089,8 +15089,8 @@ var require_contents = __commonJS({
        *
        * @returns A promise which resolves when the file is deleted.
        */
-      delete(path6) {
-        const [drive, localPath] = this._driveForPath(path6);
+      delete(path8) {
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.delete(localPath);
       }
       /**
@@ -15103,8 +15103,8 @@ var require_contents = __commonJS({
        * @returns A promise which resolves with the new file contents model when
        *   the file is renamed.
        */
-      rename(path6, newPath) {
-        const [drive1, path1] = this._driveForPath(path6);
+      rename(path8, newPath) {
+        const [drive1, path1] = this._driveForPath(path8);
         const [drive2, path22] = this._driveForPath(newPath);
         if (drive1 !== drive2) {
           throw Error("ContentsManager: renaming files must occur within a Drive");
@@ -15148,9 +15148,9 @@ var require_contents = __commonJS({
        * #### Notes
        * Ensure that `model.content` is populated for the file.
        */
-      save(path6, options = {}) {
-        const globalPath = this.normalize(path6);
-        const [drive, localPath] = this._driveForPath(path6);
+      save(path8, options = {}) {
+        const globalPath = this.normalize(path8);
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.save(localPath, { ...options, path: localPath }).then((contentsModel) => {
           return {
             ...contentsModel,
@@ -15195,8 +15195,8 @@ var require_contents = __commonJS({
        * @returns A promise which resolves with the new checkpoint model when the
        *   checkpoint is created.
        */
-      createCheckpoint(path6) {
-        const [drive, localPath] = this._driveForPath(path6);
+      createCheckpoint(path8) {
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.createCheckpoint(localPath);
       }
       /**
@@ -15207,8 +15207,8 @@ var require_contents = __commonJS({
        * @returns A promise which resolves with a list of checkpoint models for
        *    the file.
        */
-      listCheckpoints(path6) {
-        const [drive, localPath] = this._driveForPath(path6);
+      listCheckpoints(path8) {
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.listCheckpoints(localPath);
       }
       /**
@@ -15220,8 +15220,8 @@ var require_contents = __commonJS({
        *
        * @returns A promise which resolves when the checkpoint is restored.
        */
-      restoreCheckpoint(path6, checkpointID) {
-        const [drive, localPath] = this._driveForPath(path6);
+      restoreCheckpoint(path8, checkpointID) {
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.restoreCheckpoint(localPath, checkpointID);
       }
       /**
@@ -15233,8 +15233,8 @@ var require_contents = __commonJS({
        *
        * @returns A promise which resolves when the checkpoint is deleted.
        */
-      deleteCheckpoint(path6, checkpointID) {
-        const [drive, localPath] = this._driveForPath(path6);
+      deleteCheckpoint(path8, checkpointID) {
+        const [drive, localPath] = this._driveForPath(path8);
         return drive.deleteCheckpoint(localPath, checkpointID);
       }
       /**
@@ -15265,9 +15265,9 @@ var require_contents = __commonJS({
        * @returns A tuple containing an `IDrive` object for the path,
        * and a local path for that drive.
        */
-      _driveForPath(path6) {
-        const driveName = this.driveName(path6);
-        const localPath = this.localPath(path6);
+      _driveForPath(path8) {
+        const driveName = this.driveName(path8);
+        const localPath = this.localPath(path8);
         if (driveName) {
           return [this._additionalDrives.get(driveName), localPath];
         } else {
@@ -15663,7 +15663,7 @@ var require_contents = __commonJS({
        * Get a REST url for a file given a path.
        */
       _getUrl(...args2) {
-        const parts = args2.map((path6) => coreutils_12.URLExt.encodeParts(path6));
+        const parts = args2.map((path8) => coreutils_12.URLExt.encodeParts(path8));
         const baseUrl = this.serverSettings.baseUrl;
         return coreutils_12.URLExt.join(baseUrl, this._apiEndpoint, ...parts);
       }
@@ -15818,7 +15818,7 @@ var require_contents = __commonJS({
        * Get a REST url for a file given a path.
        */
       _getUrl(...args2) {
-        const parts = args2.map((path6) => coreutils_12.URLExt.encodeParts(path6));
+        const parts = args2.map((path8) => coreutils_12.URLExt.encodeParts(path8));
         const baseUrl = this._options.serverSettings.baseUrl;
         return coreutils_12.URLExt.join(baseUrl, this._options.apiEndpoint, ...parts);
       }
@@ -18845,7 +18845,7 @@ var require_default = __commonJS({
       }
       Private2.handleShellMessage = handleShellMessage;
       function loadObject(name2, moduleName, registry2) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve3, reject) => {
           if (moduleName) {
             if (typeof requirejs === "undefined") {
               throw new Error("requirejs not found");
@@ -18855,12 +18855,12 @@ var require_default = __commonJS({
                 const msg = `Object '${name2}' not found in module '${moduleName}'`;
                 reject(new Error(msg));
               } else {
-                resolve(mod[name2]);
+                resolve3(mod[name2]);
               }
             }, reject);
           } else {
             if (registry2 === null || registry2 === void 0 ? void 0 : registry2[name2]) {
-              resolve(registry2[name2]);
+              resolve3(registry2[name2]);
             } else {
               reject(new Error(`Object '${name2}' not found in registry`));
             }
@@ -19616,10 +19616,10 @@ var require_nbconvert = __commonJS({
        * @param options.exporterOptions.sanitizeHtml - Whether to sanitize HTML in the output. Defaults to false.
        */
       async exportAs(options) {
-        const { format, path: path6 } = options;
+        const { format, path: path8 } = options;
         const { download = false, sanitizeHtml = false } = options.exporterOptions || {};
         const baseUrl = this.serverSettings.baseUrl;
-        const notebookPath = coreutils_12.URLExt.encodeParts(path6);
+        const notebookPath = coreutils_12.URLExt.encodeParts(path8);
         let url2 = coreutils_12.URLExt.join(baseUrl, NBCONVERT_EXPORT_URL, format, notebookPath);
         const params2 = new URLSearchParams();
         if (download) {
@@ -20075,11 +20075,11 @@ var require_default2 = __commonJS({
        * This uses the Jupyter REST API, and the response is validated.
        * The promise is fulfilled on a valid response and rejected otherwise.
        */
-      async setPath(path6) {
+      async setPath(path8) {
         if (this.isDisposed) {
           throw new Error("Session is disposed");
         }
-        await this._patch({ path: path6 });
+        await this._patch({ path: path8 });
       }
       /**
        * Change the session name.
@@ -20385,10 +20385,10 @@ var require_manager3 = __commonJS({
        *
        * @returns A promise that resolves when the relevant sessions are stopped.
        */
-      async stopIfNeeded(path6) {
+      async stopIfNeeded(path8) {
         try {
           const sessions = await this._sessionAPIClient.listRunning();
-          const matches = sessions.filter((value) => value.path === path6);
+          const matches = sessions.filter((value) => value.path === path8);
           if (matches.length === 1) {
             const id2 = matches[0].id;
             await this.shutdown(id2);
@@ -20409,15 +20409,15 @@ var require_manager3 = __commonJS({
       /**
        * Find a session by path.
        */
-      async findByPath(path6) {
+      async findByPath(path8) {
         for (const m of this._models.values()) {
-          if (m.path === path6) {
+          if (m.path === path8) {
             return m;
           }
         }
         await this.refreshRunning();
         for (const m of this._models.values()) {
-          if (m.path === path6) {
+          if (m.path === path8) {
             return m;
           }
         }
@@ -23135,8 +23135,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params2) => {
-  const { data, path: path6, errorMaps, issueData } = params2;
-  const fullPath2 = [...path6, ...issueData.path || []];
+  const { data, path: path8, errorMaps, issueData } = params2;
+  const fullPath2 = [...path8, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath2
@@ -23251,11 +23251,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path6, key) {
+  constructor(parent, value, path8, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path6;
+    this._path = path8;
     this._key = key;
   }
   get path() {
@@ -27175,10 +27175,10 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path6) {
-  if (!path6)
+function getElementAtPath(obj, path8) {
+  if (!path8)
     return obj;
-  return path6.reduce((acc, key) => acc?.[key], obj);
+  return path8.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys2 = Object.keys(promisesObj);
@@ -27587,11 +27587,11 @@ function explicitlyAborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path6, issues) {
+function prefixIssues(path8, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path6);
+    iss.path.unshift(path8);
     return iss;
   });
 }
@@ -27738,16 +27738,16 @@ function flattenError(error51, mapper = (issue2) => issue2.message) {
 }
 function formatError(error51, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error52, path6 = []) => {
+  const processError = (error52, path8 = []) => {
     for (const issue2 of error52.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path6, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path8, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path6, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path6, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else {
-        const fullpath = [...path6, ...issue2.path];
+        const fullpath = [...path8, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
@@ -27774,17 +27774,17 @@ function formatError(error51, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error51, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error52, path6 = []) => {
+  const processError = (error52, path8 = []) => {
     var _a3, _b;
     for (const issue2 of error52.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path6, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path8, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path6, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path6, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path8, ...issue2.path]);
       } else {
-        const fullpath = [...path6, ...issue2.path];
+        const fullpath = [...path8, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -27816,8 +27816,8 @@ function treeifyError(error51, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path6 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path6) {
+  const path8 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path8) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -40942,13 +40942,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path6 = ref.slice(1).split("/").filter(Boolean);
-  if (path6.length === 0) {
+  const path8 = ref.slice(1).split("/").filter(Boolean);
+  if (path8.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path6[0] === defsKey) {
-    const key = path6[1];
+  if (path8[0] === defsKey) {
+    const key = path8[1];
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -44718,7 +44718,7 @@ var Protocol = class {
           return;
         }
         const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
         options?.signal?.throwIfAborted();
       }
     } catch (error51) {
@@ -44735,7 +44735,7 @@ var Protocol = class {
    */
   request(request, resultSchema, options) {
     const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve3, reject) => {
       const earlyReject = (error51) => {
         reject(error51);
       };
@@ -44813,7 +44813,7 @@ var Protocol = class {
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
-            resolve(parseResult.data);
+            resolve3(parseResult.data);
           }
         } catch (error51) {
           reject(error51);
@@ -45074,12 +45074,12 @@ var Protocol = class {
       }
     } catch {
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve3, reject) => {
       if (signal.aborted) {
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
         return;
       }
-      const timeoutId = setTimeout(resolve, interval);
+      const timeoutId = setTimeout(resolve3, interval);
       signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -46179,7 +46179,7 @@ var McpServer = class {
     let task = createTaskResult.task;
     const pollInterval = task.pollInterval ?? 5e3;
     while (task.status !== "completed" && task.status !== "failed" && task.status !== "cancelled") {
-      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      await new Promise((resolve3) => setTimeout(resolve3, pollInterval));
       const updatedTask = await extra.taskStore.getTask(taskId);
       if (!updatedTask) {
         throw new McpError(ErrorCode.InternalError, `Task ${taskId} not found during polling`);
@@ -46828,20 +46828,20 @@ var StdioServerTransport = class {
     this.onclose?.();
   }
   send(message) {
-    return new Promise((resolve) => {
+    return new Promise((resolve3) => {
       const json2 = serializeMessage(message);
       if (this._stdout.write(json2)) {
-        resolve();
+        resolve3();
       } else {
-        this._stdout.once("drain", resolve);
+        this._stdout.once("drain", resolve3);
       }
     });
   }
 };
 
 // mcp/server.ts
-import * as fs4 from "fs";
-import * as path5 from "path";
+import * as fs6 from "fs";
+import * as path7 from "path";
 import { fileURLToPath } from "url";
 
 // utils/response.ts
@@ -47039,15 +47039,15 @@ function parseJupyterUrl(raw) {
   const withScheme = trimmed.includes("://") ? trimmed : `http://${trimmed}`;
   const parsed = new URL(withScheme);
   const token = parsed.searchParams.get("token");
-  let path6 = parsed.pathname;
+  let path8 = parsed.pathname;
   for (const seg of APP_SEGMENTS) {
-    const i = path6.indexOf(seg);
+    const i = path8.indexOf(seg);
     if (i !== -1) {
-      path6 = path6.slice(0, i);
+      path8 = path8.slice(0, i);
       break;
     }
   }
-  const base = `${parsed.protocol}//${parsed.host}${path6}`.replace(/\/+$/, "");
+  const base = `${parsed.protocol}//${parsed.host}${path8}`.replace(/\/+$/, "");
   return { base, token };
 }
 async function getJson(url2, token) {
@@ -47066,15 +47066,23 @@ async function reachable(server2) {
     return false;
   }
 }
-function encodeContentsPath(path6) {
-  return path6.replace(/^\/+/, "").split("/").map(encodeURIComponent).join("/");
+function encodeContentsPath(path8) {
+  return path8.replace(/^\/+/, "").split("/").map(encodeURIComponent).join("/");
 }
-async function notebookExists(server2, path6) {
+async function notebookExists(server2, path8) {
   try {
-    await getJson(`${server2.url}/api/contents/${encodeContentsPath(path6)}?content=0`, server2.token);
+    await getJson(`${server2.url}/api/contents/${encodeContentsPath(path8)}?content=0`, server2.token);
     return true;
   } catch {
     return false;
+  }
+}
+async function notebookKernelspecName(server2, path8) {
+  try {
+    const content = await getJson(`${server2.url}/api/contents/${encodeContentsPath(path8)}?content=1`, server2.token);
+    return content?.content?.metadata?.kernelspec?.name;
+  } catch {
+    return void 0;
   }
 }
 async function listNotebookSessions(server2) {
@@ -47116,7 +47124,7 @@ async function resolveConnection(serverUrl, token, notebookPath) {
       token: server2.token,
       notebookPath,
       kernelId: match?.kernel?.id,
-      kernelName: match?.kernel?.name,
+      kernelName: match?.kernel?.name ?? await notebookKernelspecName(server2, notebookPath),
       sessionModel: match
     };
   }
@@ -48061,14 +48069,14 @@ var deepFreeze = (o) => {
 };
 
 // node_modules/lib0/function.js
-var callAll = (fs5, args2, i = 0) => {
+var callAll = (fs7, args2, i = 0) => {
   try {
-    for (; i < fs5.length; i++) {
-      fs5[i](...args2);
+    for (; i < fs7.length; i++) {
+      fs7[i](...args2);
     }
   } finally {
-    if (i < fs5.length) {
-      callAll(fs5, args2, i + 1);
+    if (i < fs7.length) {
+      callAll(fs7, args2, i + 1);
     }
   }
 };
@@ -48650,17 +48658,17 @@ var Doc2 = class _Doc extends ObservableV2 {
     this.isLoaded = false;
     this.isSynced = false;
     this.isDestroyed = false;
-    this.whenLoaded = create4((resolve) => {
+    this.whenLoaded = create4((resolve3) => {
       this.on("load", () => {
         this.isLoaded = true;
-        resolve(this);
+        resolve3(this);
       });
     });
-    const provideSyncedPromise = () => create4((resolve) => {
+    const provideSyncedPromise = () => create4((resolve3) => {
       const eventHandler = (isSynced) => {
         if (isSynced === void 0 || isSynced === true) {
           this.off("sync", eventHandler);
-          resolve();
+          resolve3();
         }
       };
       this.on("sync", eventHandler);
@@ -49995,15 +50003,15 @@ var cleanupTransactions = (transactionCleanups, i) => {
       sortAndMergeDeleteSet(ds);
       transaction.afterState = getStateVector(transaction.doc.store);
       doc.emit("beforeObserverCalls", [transaction, doc]);
-      const fs5 = [];
+      const fs7 = [];
       transaction.changed.forEach(
-        (subs, itemtype) => fs5.push(() => {
+        (subs, itemtype) => fs7.push(() => {
           if (itemtype._item === null || !itemtype._item.deleted) {
             itemtype._callObserver(transaction, subs);
           }
         })
       );
-      fs5.push(() => {
+      fs7.push(() => {
         transaction.changedParentTypes.forEach((events, type) => {
           if (type._dEH.l.length > 0 && (type._item === null || !type._item.deleted)) {
             events = events.filter(
@@ -50014,19 +50022,19 @@ var cleanupTransactions = (transactionCleanups, i) => {
               event._path = null;
             });
             events.sort((event1, event2) => event1.path.length - event2.path.length);
-            fs5.push(() => {
+            fs7.push(() => {
               callEventHandlerListeners(type._dEH, events, transaction);
             });
           }
         });
-        fs5.push(() => doc.emit("afterTransaction", [transaction, doc]));
-        fs5.push(() => {
+        fs7.push(() => doc.emit("afterTransaction", [transaction, doc]));
+        fs7.push(() => {
           if (transaction._needFormattingCleanup) {
             cleanupYTextAfterTransaction(transaction);
           }
         });
       });
-      callAll(fs5, []);
+      callAll(fs7, []);
     } finally {
       if (doc.gc) {
         tryGcDeleteSet(ds, store, doc.gcFilter);
@@ -50275,9 +50283,9 @@ var UndoManager = class extends ObservableV2 {
           addToDeleteSet(insertions, client, startClock, len);
         }
       });
-      const now = getUnixTime();
+      const now2 = getUnixTime();
       let didAdd = false;
-      if (this.lastChange > 0 && now - this.lastChange < this.captureTimeout && stack.length > 0 && !undoing && !redoing) {
+      if (this.lastChange > 0 && now2 - this.lastChange < this.captureTimeout && stack.length > 0 && !undoing && !redoing) {
         const lastOp = stack[stack.length - 1];
         lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
         lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
@@ -50286,7 +50294,7 @@ var UndoManager = class extends ObservableV2 {
         didAdd = true;
       }
       if (!undoing && !redoing) {
-        this.lastChange = now;
+        this.lastChange = now2;
       }
       iterateDeletedStructs(
         transaction,
@@ -50913,10 +50921,10 @@ var YEvent = class {
   }
 };
 var getPathTo = (parent, child) => {
-  const path6 = [];
+  const path8 = [];
   while (child._item !== null && child !== parent) {
     if (child._item.parentSub !== null) {
-      path6.unshift(child._item.parentSub);
+      path8.unshift(child._item.parentSub);
     } else {
       let i = 0;
       let c = (
@@ -50929,12 +50937,12 @@ var getPathTo = (parent, child) => {
         }
         c = c.right;
       }
-      path6.unshift(i);
+      path8.unshift(i);
     }
     child = /** @type {AbstractType<any>} */
     child._item.parent;
   }
-  return path6;
+  return path8;
 };
 var warnPrematureAccess = () => {
   warn("Invalid access: Add Yjs type to a document before reading data.");
@@ -55315,14 +55323,14 @@ var Awareness = class extends Observable {
     this.meta = /* @__PURE__ */ new Map();
     this._checkInterval = /** @type {any} */
     setInterval(() => {
-      const now = getUnixTime();
-      if (this.getLocalState() !== null && outdatedTimeout / 2 <= now - /** @type {{lastUpdated:number}} */
+      const now2 = getUnixTime();
+      if (this.getLocalState() !== null && outdatedTimeout / 2 <= now2 - /** @type {{lastUpdated:number}} */
       this.meta.get(this.clientID).lastUpdated) {
         this.setLocalState(this.getLocalState());
       }
       const remove = [];
       this.meta.forEach((meta3, clientid) => {
-        if (clientid !== this.clientID && outdatedTimeout <= now - meta3.lastUpdated && this.states.has(clientid)) {
+        if (clientid !== this.clientID && outdatedTimeout <= now2 - meta3.lastUpdated && this.states.has(clientid)) {
           remove.push(clientid);
         }
       });
@@ -57798,9 +57806,9 @@ async function getJson2(url2, token, init) {
   }
   return res.json();
 }
-async function resolveCollaborationRoom(serverUrl, token, path6) {
+async function resolveCollaborationRoom(serverUrl, token, path8) {
   const base = serverUrl.replace(/\/+$/, "");
-  const cleanPath = path6.replace(/^\/+/, "");
+  const cleanPath = path8.replace(/^\/+/, "");
   const wsBase = `${base.replace(/^http/, "ws")}/api/collaboration/room`;
   const encodedPath = cleanPath.split("/").map(encodeURIComponent).join("/");
   try {
@@ -57832,8 +57840,8 @@ var JupyterLabSession = class _JupyterLabSession {
   // Best-effort, defaults to 'python'. Detected lazily: see `_detectLanguage()`.
   language = "python";
   _languageDetected = false;
-  constructor(path6, serverSettings) {
-    this.path = path6;
+  constructor(path8, serverSettings) {
+    this.path = path8;
     this.serverSettings = serverSettings;
   }
   static async connect(serverUrl, token, notebookPath, options = {}, readyTimeoutMs = 3e4) {
@@ -57875,13 +57883,13 @@ var JupyterLabSession = class _JupyterLabSession {
     await this._waitForSync(readyTimeoutMs);
   }
   _waitForSync(readyTimeoutMs) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve3, reject) => {
       const timer = setTimeout(() => reject(new Error("RTC sync timed out")), readyTimeoutMs);
       const onSync = (isSynced) => {
         if (isSynced) {
           clearTimeout(timer);
           this.provider.off("sync", onSync);
-          resolve();
+          resolve3();
         }
       };
       this.provider.on("sync", onSync);
@@ -57916,7 +57924,11 @@ var JupyterLabSession = class _JupyterLabSession {
     return this.sessionConnection.kernel;
   }
   // ---- live edits (appear in the user's tab immediately) ----
-  addCodeCell(source) {
+  addCodeCell(source, index) {
+    if (index !== void 0) {
+      this.ynotebook.insertCell(index, { cell_type: "code", source, metadata: {} });
+      return index;
+    }
     this.ynotebook.addCell({ cell_type: "code", source, metadata: {} });
     return this.ynotebook.cells.length - 1;
   }
@@ -57973,10 +57985,10 @@ var JupyterLabSession = class _JupyterLabSession {
     cell.setOutputs(toNbOutputs({ source: "", outputs, executionCount, error: error51, cellType: "code" }));
     cell.setExecutionCount(executionCount);
   }
-  async addAndExecute(source, timeoutMs = 12e4) {
-    const index = this.addCodeCell(source);
-    await this.executeCell(index, timeoutMs);
-    return index;
+  async addAndExecute(source, index, timeoutMs = 12e4) {
+    const at = this.addCodeCell(source, index);
+    await this.executeCell(at, timeoutMs);
+    return at;
   }
   // ---- read full context ----
   cells() {
@@ -58145,14 +58157,14 @@ function createJupyterlabHandlers() {
       }));
       return jsonText({ path: s.path, variables, cells: outline });
     },
-    async addAndRun({ source }) {
+    async addAndRun({ source, index }) {
       const s = requireSession();
       if (typeof s === "string") return text(s);
-      const index = await s.addAndExecute(source);
+      const at = await s.addAndExecute(source, index);
       const cells = s.cells();
-      const cell = cells[index];
+      const cell = cells[at];
       const out = cell ? renderForAgent(cell) : "[no output]";
-      return text(`cell ${index} added+ran
+      return text(`cell ${at} added+ran
 ${out}`);
     },
     async runCell({ index }) {
@@ -58210,6 +58222,13 @@ ${cell ? renderForAgent(cell) : "[no output]"}`);
       const diff = formatCellDiff(old, source, `cell ${index}`);
       return text(mutationResult(`edited cell ${index}`, diff));
     },
+    insertCell({ index, source }) {
+      const s = requireSession();
+      if (typeof s === "string") return text(s);
+      const at = s.addCodeCell(source, index);
+      const diff = formatCellDiff("", source, `new cell ${at}`);
+      return text(mutationResult(`inserted cell at ${at}`, diff));
+    },
     deleteCell({ index }) {
       const s = requireSession();
       if (typeof s === "string") return text(s);
@@ -58250,6 +58269,62 @@ ${cell ? renderForAgent(cell) : "[no output]"}`);
     }
   };
 }
+async function connectJupyterlab({
+  server_url,
+  notebook_path,
+  token
+}) {
+  let url2 = server_url || process.env.LEMMA_JUPYTER_URL || "";
+  let tok = token || process.env.LEMMA_JUPYTER_TOKEN || "";
+  let nbPath = notebook_path || process.env.LEMMA_JUPYTER_NOTEBOOK || "";
+  if (!url2) {
+    const found2 = await discoverNotebooks();
+    if (found2.length === 1) {
+      url2 = found2[0].server.url;
+      tok = found2[0].server.token;
+      nbPath = nbPath || found2[0].notebookPath;
+    } else if (found2.length > 1) {
+      return text(
+        "found more than one local notebook, specify which:\n" + found2.map((f) => `- ${f.notebookPath} on ${f.server.url}`).join("\n")
+      );
+    } else {
+      return text("no local server found. Ask the user for the server URL (and token, if any).");
+    }
+  }
+  let conn;
+  try {
+    conn = await resolveConnection(url2, tok || void 0, nbPath || void 0);
+  } catch (e) {
+    if (e instanceof ServerUnreachable || e instanceof NotebookNotFound) {
+      return text(e.message);
+    }
+    throw e;
+  }
+  if (conn.notebookPath === null) {
+    return text(
+      `connected to the server at ${conn.url}, but no notebook is open yet. Open a .ipynb in JupyterLab, then call connect again.`
+    );
+  }
+  if (session) {
+    try {
+      await session.shutdown();
+    } catch {
+    }
+    session = void 0;
+  }
+  try {
+    session = await JupyterLabSession.connect(conn.url, conn.token, conn.notebookPath, {
+      kernelName: conn.kernelName,
+      sessionModel: conn.sessionModel
+    });
+  } catch (e) {
+    return text(`connection failed: ${errorMessage(e)}`);
+  }
+  const kernelNote = conn.kernelId ? "shared kernel" : "new kernel";
+  return text(
+    `connected to ${conn.notebookPath} on ${conn.url} (live RTC, ${kernelNote}): ${session.cells().length} cells`
+  );
+}
 function registerJupyterlabTools(server2) {
   const h = createJupyterlabHandlers();
   server2.registerTool(
@@ -58262,58 +58337,7 @@ function registerJupyterlabTools(server2) {
         notebook_path: external_exports.string().optional().describe("Notebook path; empty for most-recently-active.")
       }
     },
-    async ({ server_url, notebook_path, token }) => {
-      let url2 = server_url || process.env.LEMMA_JUPYTER_URL || "";
-      let tok = token || process.env.LEMMA_JUPYTER_TOKEN || "";
-      let nbPath = notebook_path || process.env.LEMMA_JUPYTER_NOTEBOOK || "";
-      if (!url2) {
-        const found2 = await discoverNotebooks();
-        if (found2.length === 1) {
-          url2 = found2[0].server.url;
-          tok = found2[0].server.token;
-          nbPath = nbPath || found2[0].notebookPath;
-        } else if (found2.length > 1) {
-          return text(
-            "found more than one local notebook, specify which:\n" + found2.map((f) => `- ${f.notebookPath} on ${f.server.url}`).join("\n")
-          );
-        } else {
-          return text("no local server found. Ask the user for the server URL (and token, if any).");
-        }
-      }
-      let conn;
-      try {
-        conn = await resolveConnection(url2, tok || void 0, nbPath || void 0);
-      } catch (e) {
-        if (e instanceof ServerUnreachable || e instanceof NotebookNotFound) {
-          return text(e.message);
-        }
-        throw e;
-      }
-      if (conn.notebookPath === null) {
-        return text(
-          `connected to the server at ${conn.url}, but no notebook is open yet. Open a .ipynb in JupyterLab, then call jupyterlab_connect again.`
-        );
-      }
-      if (session) {
-        try {
-          await session.shutdown();
-        } catch {
-        }
-        session = void 0;
-      }
-      try {
-        session = await JupyterLabSession.connect(conn.url, conn.token, conn.notebookPath, {
-          kernelName: conn.kernelName,
-          sessionModel: conn.sessionModel
-        });
-      } catch (e) {
-        return text(`connection failed: ${errorMessage(e)}`);
-      }
-      const kernelNote = conn.kernelId ? "shared kernel" : "new kernel";
-      return text(
-        `connected to ${conn.notebookPath} on ${conn.url} (live RTC, ${kernelNote}): ${session.cells().length} cells`
-      );
-    }
+    ({ server_url, notebook_path, token }) => connectJupyterlab({ server_url, notebook_path, token })
   );
   return h;
 }
@@ -58351,74 +58375,74 @@ var Editor = class {
   open() {
     return this.req("GET", "/open");
   }
-  read(path6) {
-    return this.req("GET", "/read", path6);
+  read(path8) {
+    return this.req("GET", "/read", path8);
   }
-  state(path6) {
-    return this.req("GET", "/state", path6);
+  state(path8) {
+    return this.req("GET", "/state", path8);
   }
-  execute(path6, code) {
-    return this.req("POST", "/execute", path6, { code }, CONFIRM_TIMEOUT_MS);
+  execute(path8, code) {
+    return this.req("POST", "/execute", path8, { code }, CONFIRM_TIMEOUT_MS);
   }
-  addAndRun(path6, source, index) {
+  addAndRun(path8, source, index) {
     return this.req(
       "POST",
       "/add_and_run",
-      path6,
+      path8,
       index !== void 0 ? { source, index } : { source },
       CONFIRM_TIMEOUT_MS
     );
   }
-  run(path6, index) {
-    return this.req("POST", "/run", path6, { index });
+  run(path8, index) {
+    return this.req("POST", "/run", path8, { index });
   }
-  runAll(path6) {
-    return this.req("POST", "/run_all", path6, {}, RUN_ALL_TIMEOUT_MS);
+  runAll(path8) {
+    return this.req("POST", "/run_all", path8, {}, RUN_ALL_TIMEOUT_MS);
   }
-  edit(path6, index, source) {
-    return this.req("POST", "/edit", path6, { index, source }, CONFIRM_TIMEOUT_MS);
+  edit(path8, index, source) {
+    return this.req("POST", "/edit", path8, { index, source }, CONFIRM_TIMEOUT_MS);
   }
-  editAndRun(path6, index, source) {
+  editAndRun(path8, index, source) {
     return this.req(
       "POST",
       "/edit_and_run",
-      path6,
+      path8,
       { index, source },
       CONFIRM_TIMEOUT_MS
     );
   }
-  insert(path6, index, source) {
-    return this.req("POST", "/insert", path6, { index, source }, CONFIRM_TIMEOUT_MS);
+  insert(path8, index, source) {
+    return this.req("POST", "/insert", path8, { index, source }, CONFIRM_TIMEOUT_MS);
   }
-  delete(path6, index) {
-    return this.req("POST", "/delete", path6, { index }, CONFIRM_TIMEOUT_MS);
+  delete(path8, index) {
+    return this.req("POST", "/delete", path8, { index }, CONFIRM_TIMEOUT_MS);
   }
-  markdown(path6, source, index) {
+  markdown(path8, source, index) {
     return this.req(
       "POST",
       "/markdown",
-      path6,
+      path8,
       index !== void 0 ? { source, index } : { source },
       CONFIRM_TIMEOUT_MS
     );
   }
-  output(path6, index) {
-    return this.req("POST", "/output", path6, { index });
+  output(path8, index) {
+    return this.req("POST", "/output", path8, { index });
   }
-  restart(path6) {
-    return this.req("POST", "/restart", path6);
+  restart(path8) {
+    return this.req("POST", "/restart", path8);
   }
-  inspect(path6, name2) {
-    return this.req("POST", "/inspect", path6, { name: name2 });
+  inspect(path8, name2) {
+    return this.req("POST", "/inspect", path8, { name: name2 });
   }
-  probe(path6, code) {
-    return this.req("POST", "/probe", path6, { code });
+  probe(path8, code) {
+    return this.req("POST", "/probe", path8, { code });
   }
-  clear(path6) {
-    return this.req("POST", "/clear", path6);
+  clear(path8) {
+    return this.req("POST", "/clear", path8);
   }
-  save(path6) {
-    return this.req("POST", "/save", path6);
+  save(path8) {
+    return this.req("POST", "/save", path8);
   }
 };
 function discoverBridges() {
@@ -58488,10 +58512,10 @@ function registerVscodeTools(server2) {
       description: "Notebook's full content: sources + outputs.",
       inputSchema: { path: external_exports.string().describe(PATH_DESC) }
     },
-    async ({ path: path6 }) => {
+    async ({ path: path8 }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      return jsonText(await ed.read(path6));
+      return jsonText(await ed.read(path8));
     }
   );
   server2.registerTool(
@@ -58500,10 +58524,10 @@ function registerVscodeTools(server2) {
       description: "Token-light notebook outline (no outputs).",
       inputSchema: { path: external_exports.string().describe(PATH_DESC) }
     },
-    async ({ path: path6 }) => {
+    async ({ path: path8 }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      return jsonText(await ed.state(path6));
+      return jsonText(await ed.state(path8));
     }
   );
   server2.registerTool(
@@ -58515,10 +58539,10 @@ function registerVscodeTools(server2) {
         code: external_exports.string().describe("Source for the new cell.")
       }
     },
-    async ({ path: path6, code }) => {
+    async ({ path: path8, code }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.execute(path6, code);
+      const r = await ed.execute(path8, code);
       if (r.discarded) return text(DISCARDED);
       return text(`cell ${r.index} added+ran
 ${r.output}`);
@@ -58535,10 +58559,10 @@ ${r.output}`);
         code: external_exports.string().describe("Code to execute and discard.")
       }
     },
-    async ({ path: path6, code }) => {
+    async ({ path: path8, code }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.probe(path6, code);
+      const r = await ed.probe(path8, code);
       return text(r.output ?? "[no output]");
     }
   );
@@ -58552,10 +58576,10 @@ ${r.output}`);
         index: external_exports.number().int().optional().describe(INSERT_INDEX_DESC)
       }
     },
-    async ({ path: path6, source, index }) => {
+    async ({ path: path8, source, index }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.addAndRun(path6, source, index);
+      const r = await ed.addAndRun(path8, source, index);
       if (r.discarded) return text(DISCARDED);
       return text(`cell ${r.index} added+ran
 ${r.output ?? "[no output]"}`);
@@ -58570,10 +58594,10 @@ ${r.output ?? "[no output]"}`);
         index: external_exports.number().int().describe(CELL_INDEX_DESC)
       }
     },
-    async ({ path: path6, index }) => {
+    async ({ path: path8, index }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.run(path6, index);
+      const r = await ed.run(path8, index);
       return text(r.output ?? "[no output]");
     }
   );
@@ -58587,10 +58611,10 @@ ${r.output ?? "[no output]"}`);
         offset: external_exports.number().int().min(0).optional().describe("Character offset to page text output from.")
       }
     },
-    async ({ path: path6, index, offset }) => {
+    async ({ path: path8, index, offset }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.output(path6, index);
+      const r = await ed.output(path8, index);
       if (!r.text && r.images.length === 0) {
         return text(`cell ${index} has no stored output (has it been run?)`);
       }
@@ -58626,10 +58650,10 @@ ${chunk}` : header }
       description: "Runs all cells top to bottom, stops at the first error. For post-restart or end-to-end checks.",
       inputSchema: { path: external_exports.string().describe(PATH_DESC) }
     },
-    async ({ path: path6 }) => {
+    async ({ path: path8 }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.runAll(path6);
+      const r = await ed.runAll(path8);
       const stopped = r.failedAt !== void 0 ? `; stopped at cell ${r.failedAt} (error)` : "";
       const body = r.outputs.filter((o) => o.output && o.output !== "[no output]").map((o) => `--- cell ${o.index} ---
 ${o.output}`).join("\n");
@@ -58647,10 +58671,10 @@ ${body}`);
         source: external_exports.string().describe("New source for the cell.")
       }
     },
-    async ({ path: path6, index, source }) => {
+    async ({ path: path8, index, source }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.edit(path6, index, source);
+      const r = await ed.edit(path8, index, source);
       if (r.discarded) return text(DISCARDED);
       if (r.diff === "(no change)") return text(`cell ${index} unchanged`);
       return text(`cell ${index} edited`);
@@ -58666,10 +58690,10 @@ ${body}`);
         source: external_exports.string().describe("New source for the cell.")
       }
     },
-    async ({ path: path6, index, source }) => {
+    async ({ path: path8, index, source }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.editAndRun(path6, index, source);
+      const r = await ed.editAndRun(path8, index, source);
       if (r.discarded) return text(DISCARDED);
       return text(`cell ${index} edited+ran
 ${r.output ?? "[no output]"}`);
@@ -58685,10 +58709,10 @@ ${r.output ?? "[no output]"}`);
         source: external_exports.string().describe("Source for the new cell.")
       }
     },
-    async ({ path: path6, index, source }) => {
+    async ({ path: path8, index, source }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.insert(path6, index, source);
+      const r = await ed.insert(path8, index, source);
       if (r.discarded) return text(DISCARDED);
       return text(`cell ${r.index} inserted`);
     }
@@ -58702,10 +58726,10 @@ ${r.output ?? "[no output]"}`);
         index: external_exports.number().int().describe(CELL_INDEX_DESC)
       }
     },
-    async ({ path: path6, index }) => {
+    async ({ path: path8, index }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.delete(path6, index);
+      const r = await ed.delete(path8, index);
       if (r.discarded) return text(DISCARDED);
       return text(`cell ${index} deleted`);
     }
@@ -58720,10 +58744,10 @@ ${r.output ?? "[no output]"}`);
         index: external_exports.number().int().optional().describe(INSERT_INDEX_DESC)
       }
     },
-    async ({ path: path6, source, index }) => {
+    async ({ path: path8, source, index }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.markdown(path6, source, index);
+      const r = await ed.markdown(path8, source, index);
       if (r.discarded) return text(DISCARDED);
       return text(`markdown cell ${r.index} added`);
     }
@@ -58734,10 +58758,10 @@ ${r.output ?? "[no output]"}`);
       description: "Restart the kernel, clearing all runtime state.",
       inputSchema: { path: external_exports.string().describe(PATH_DESC) }
     },
-    async ({ path: path6 }) => {
+    async ({ path: path8 }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.restart(path6);
+      const r = await ed.restart(path8);
       return text(r.message ?? "restart requested");
     }
   );
@@ -58750,10 +58774,10 @@ ${r.output ?? "[no output]"}`);
         name: external_exports.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/, "must be a plain identifier")
       }
     },
-    async ({ path: path6, name: name2 }) => {
+    async ({ path: path8, name: name2 }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.inspect(path6, name2);
+      const r = await ed.inspect(path8, name2);
       return text(r.output ?? "[no output]");
     }
   );
@@ -58763,10 +58787,10 @@ ${r.output ?? "[no output]"}`);
       description: "Deletes all cells. Irreversible, only on an explicit clear/reset request.",
       inputSchema: { path: external_exports.string().describe(PATH_DESC) }
     },
-    async ({ path: path6 }) => {
+    async ({ path: path8 }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.clear(path6);
+      const r = await ed.clear(path8);
       return text(r.cleared === 0 ? "notebook already empty" : `cleared ${r.cleared} cell(s)`);
     }
   );
@@ -58779,10 +58803,10 @@ ${r.output ?? "[no output]"}`);
       description: "Save in-memory edits to disk.",
       inputSchema: { path: external_exports.string().describe(PATH_DESC) }
     },
-    async ({ path: path6 }) => {
+    async ({ path: path8 }) => {
       const ed = await requireEditor();
       if (typeof ed === "string") return text(ed);
-      const r = await ed.save(path6);
+      const r = await ed.save(path8);
       return text(r.saved ? "saved" : "nothing to save");
     }
   );
@@ -58798,8 +58822,8 @@ function srcToStr(source) {
   return Array.isArray(source) ? source.join("") : source ?? "";
 }
 var DiskNotebook = class {
-  constructor(path6) {
-    this.path = path6;
+  constructor(path8) {
+    this.path = path8;
   }
   path;
   read() {
@@ -58807,8 +58831,8 @@ var DiskNotebook = class {
     if (!Array.isArray(nb.cells)) nb.cells = [];
     return nb;
   }
-  // Match writeNotebookFile's on-disk style (indent 1) so diffs against a
-  // file PyCharm last wrote stay small.
+  // Indent 1 matches what PyCharm itself writes, so diffs against a file it
+  // last saved stay small.
   write(nb) {
     fs3.writeFileSync(this.path, JSON.stringify(nb, null, 1));
   }
@@ -58836,16 +58860,8 @@ var DiskNotebook = class {
   cellCount() {
     return this.read().cells.length;
   }
-  summary() {
-    return this.read().cells.map((c, i) => ({
-      index: i,
-      kind: c.cell_type === "code" ? "code" : "markdown",
-      source: srcToStr(c.source),
-      executionCount: c.execution_count ?? null
-    }));
-  }
   // Cells with parsed outputs (incl. images) for notebook_read/get_state/
-  // read_cell_output — summary() above only covers the older bare outline.
+  // read_cell_output.
   cells() {
     const nb = this.read();
     return cellsFromNb({ ...nb, metadata: nb.metadata ?? {}, nbformat: nb.nbformat ?? 4, nbformat_minor: nb.nbformat_minor ?? 5 });
@@ -59139,6 +59155,13 @@ function registerPyCharmTools(server2, kernel) {
 }
 
 // adapters/notebook/tools.ts
+function cleanRunSummary(body) {
+  const [headline, ...details] = body.split("\n");
+  const failed = headline.includes("stopped at cell");
+  const failureDetail = failed ? `
+${details.join("\n").slice(0, 2e3)}` : "";
+  return `clean-kernel verification: ${failed ? "FAILED" : "PASSED"} \u2014 ${headline}${failureDetail}`;
+}
 function registerNotebookTools(server2, surfaces) {
   const names = [surfaces.pycharm && "pycharm", surfaces.jupyterlab && "jupyterlab"].filter(
     (n) => Boolean(n)
@@ -59217,6 +59240,24 @@ function registerNotebookTools(server2, surfaces) {
     async ({ surface }) => handlersFor(surface).runAllCells()
   );
   server2.registerTool(
+    "notebook_verify_clean_run",
+    {
+      description: "Decision-grade reproducibility check: save, restart the kernel, and run all cells top to bottom. Returns a compact pass/fail summary instead of every cell output. Clears current runtime state.",
+      inputSchema: {
+        surface: surfaceParam,
+        confirm: external_exports.literal(true).describe("Confirm that clearing current kernel state is intended.")
+      }
+    },
+    async ({ surface }) => {
+      const handlers = handlersFor(surface);
+      await handlers.saveNotebook();
+      await handlers.restartKernel();
+      const result = await handlers.runAllCells();
+      const body = result.content.find((block) => block.type === "text")?.text ?? "no verification result";
+      return text(cleanRunSummary(body));
+    }
+  );
+  server2.registerTool(
     "notebook_inspect_variable",
     {
       description: "Richer preview of one variable in the kernel.",
@@ -59285,20 +59326,1881 @@ function registerNotebookTools(server2, surfaces) {
   );
 }
 
+// mcp/canonical.ts
+import * as crypto2 from "crypto";
+import * as fs5 from "fs";
+import * as path6 from "path";
+
+// mcp/sourceInspection.ts
+function sourceInspectionHelperCode() {
+  return `# Lemma source inspection helper v4
+def _lemma_inspect_source(config):
+    from pathlib import Path
+    import csv
+    import glob
+    import hashlib
+    import json
+    import re
+
+    def clean(value):
+        if value is None:
+            return None
+        try:
+            if _lemma_pd.isna(value):
+                return None
+        except (TypeError, ValueError):
+            pass
+        if hasattr(value, "item"):
+            try:
+                value = value.item()
+            except (ValueError, TypeError):
+                pass
+        if hasattr(value, "isoformat"):
+            try:
+                return value.isoformat()
+            except (ValueError, TypeError):
+                pass
+        if isinstance(value, (str, int, float, bool)):
+            return value if not isinstance(value, str) else value[:300]
+        return repr(value)[:300]
+
+    def header_candidates(raw, max_columns):
+        ranked = []
+        for row_index, row in raw.iloc[:25, :max_columns].iterrows():
+            values = [value for value in row.tolist() if not _lemma_pd.isna(value) and str(value).strip()]
+            if not values:
+                continue
+            labels = [str(value).strip() for value in values]
+            text_count = sum(isinstance(value, str) and bool(re.search(r"[A-Za-z]", value)) for value in values)
+            unique_count = len(set(labels))
+            score = text_count * 4 + unique_count + len(values) / 10
+            ranked.append({
+                "row_index": int(row_index),
+                "score": round(float(score), 3),
+                "non_null": len(values),
+                "text_values": text_count,
+                "values": [clean(value) for value in values[:15]],
+            })
+        ranked.sort(key=lambda item: (-item["score"], item["row_index"]))
+        return ranked[:5]
+
+    def raw_preview(raw):
+        return [
+            {"row_index": int(index), "values": [clean(value) for value in row.tolist()[:15]]}
+            for index, row in raw.iloc[:8, :15].iterrows()
+        ]
+
+    def read_delimited(path, separator, header, nrows=None):
+        last_error = None
+        for encoding in ("utf-8-sig", "utf-8", "cp1252", "latin1"):
+            try:
+                frame = _lemma_pd.read_csv(
+                    path, sep=separator, header=header, nrows=nrows, encoding=encoding
+                )
+                return frame, encoding
+            except UnicodeDecodeError as error:
+                last_error = error
+        raise last_error or UnicodeDecodeError("utf-8", b"", 0, 1, "unable to decode source")
+
+    def inventory(item):
+        candidates = []
+        for raw in item["paths"]:
+            expanded = str(Path(raw).expanduser())
+            if any(char in expanded for char in "*?["):
+                candidates.extend(Path(found) for found in glob.glob(expanded, recursive=True))
+                continue
+            path = Path(expanded)
+            if path.is_dir():
+                candidates.extend(found for found in path.rglob("*") if found.is_file())
+            else:
+                candidates.append(path)
+        ordered = sorted({str(path.resolve()): path.resolve() for path in candidates}.values(), key=str)
+        records = []
+        for path in ordered[:item["maxFiles"]]:
+            if not path.exists():
+                records.append({"path": str(path), "exists": False})
+                continue
+            stat = path.stat()
+            suffix = path.suffix.lower()
+            record = {
+                "path": str(path),
+                "exists": True,
+                "format": suffix.lstrip(".") or "unknown",
+                "bytes": stat.st_size,
+            }
+            if item["hashContents"]:
+                digest = hashlib.sha256()
+                with path.open("rb") as handle:
+                    for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                        digest.update(chunk)
+                record["sha256"] = digest.hexdigest()
+            if suffix in {".csv", ".tsv"}:
+                try:
+                    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                        reader = csv.reader(handle, delimiter="	" if suffix == ".tsv" else ",")
+                        record["columns"] = next(reader, [])[:100]
+                        record["data_rows"] = sum(1 for _ in reader)
+                except (UnicodeDecodeError, csv.Error, OSError):
+                    record["columns"] = None
+                    record["data_rows"] = None
+            elif suffix in {".xlsx", ".xls", ".xlsm"}:
+                try:
+                    record["sheets"] = [str(name) for name in _lemma_pd.ExcelFile(path).sheet_names]
+                except (ValueError, OSError, ImportError):
+                    record["sheets"] = None
+            records.append(record)
+        return {
+            "view": "inventory",
+            "sources": records,
+            "source_count": len(ordered),
+            "returned": len(records),
+            "truncated": len(ordered) > item["maxFiles"],
+        }
+
+    def table(item):
+        path = Path(item["path"]).expanduser().resolve()
+        suffix = path.suffix.lower()
+        workbook = None
+        selected_sheet = item.get("sheet", 0)
+        candidates = []
+        preview = []
+        header_row = None
+        encoding = None
+        setting = item.get("headerRow", "auto")
+        if suffix in {".xlsx", ".xls", ".xlsm"}:
+            workbook = _lemma_pd.ExcelFile(path)
+            raw = _lemma_pd.read_excel(path, sheet_name=selected_sheet, header=None, nrows=25)
+            candidates = header_candidates(raw, item["maxColumns"])
+            preview = raw_preview(raw)
+            if setting == "auto":
+                header_row = candidates[0]["row_index"] if candidates else 0
+            elif setting == "none":
+                header_row = None
+            else:
+                header_row = int(setting)
+            frame = _lemma_pd.read_excel(path, sheet_name=selected_sheet, header=header_row)
+        elif suffix in {".csv", ".tsv"}:
+            separator = "	" if suffix == ".tsv" else ","
+            raw, encoding = read_delimited(path, separator, header=None, nrows=25)
+            candidates = header_candidates(raw, item["maxColumns"])
+            preview = raw_preview(raw)
+            if setting == "auto":
+                header_row = candidates[0]["row_index"] if candidates else 0
+            elif setting == "none":
+                header_row = None
+            else:
+                header_row = int(setting)
+            frame, encoding = read_delimited(path, separator, header=header_row)
+        elif suffix in {".parquet", ".pq"}:
+            frame = _lemma_pd.read_parquet(path)
+        elif suffix in {".jsonl", ".ndjson"}:
+            frame = _lemma_pd.read_json(path, lines=True)
+        elif suffix == ".json":
+            payload = json.loads(path.read_text(encoding="utf-8-sig"))
+            if isinstance(payload, dict) and all(
+                not isinstance(value, (dict, list)) for value in payload.values()
+            ):
+                frame = _lemma_pd.DataFrame(list(payload.items()), columns=["key", "value"])
+            elif isinstance(payload, dict):
+                try:
+                    frame = _lemma_pd.DataFrame(payload)
+                except ValueError:
+                    frame = _lemma_pd.json_normalize(payload)
+            elif isinstance(payload, list):
+                frame = _lemma_pd.json_normalize(payload)
+            else:
+                frame = _lemma_pd.DataFrame({"value": [payload]})
+        elif suffix in {".feather", ".arrow"}:
+            frame = _lemma_pd.read_feather(path)
+        else:
+            raise ValueError(f"unsupported source format: {suffix or 'no extension'}")
+        if not isinstance(frame, _lemma_pd.DataFrame):
+            raise TypeError("source did not resolve to one table; specify a sheet")
+
+        selected = list(frame.columns[:item["maxColumns"]])
+        base = {
+            "view": item["view"],
+            "path": str(path),
+            "rows": int(len(frame)),
+            "columns": int(len(frame.columns)),
+            "returned_columns": len(selected),
+            "truncated_columns": len(frame.columns) > item["maxColumns"],
+            "header_row": header_row,
+            "encoding": encoding,
+        }
+        if workbook is not None:
+            base["sheets"] = [str(name) for name in workbook.sheet_names]
+            base["selected_sheet"] = selected_sheet
+        if candidates:
+            base["header_candidates"] = candidates
+        if item["view"] == "schema":
+            base["raw_preview"] = preview
+            base["schema"] = [
+                {
+                    "column": str(column),
+                    "dtype": str(frame[column].dtype),
+                    "missing": int(frame[column].isna().sum()),
+                    "non_null": int(frame[column].notna().sum()),
+                }
+                for column in selected
+            ]
+            return base
+        if item["view"] == "head":
+            records = frame.loc[:, selected].head(item["rows"]).to_dict(orient="records")
+            base["records"] = [
+                {str(key): clean(value) for key, value in record.items()}
+                for record in records
+            ]
+            return base
+
+        profile = []
+        denominator = max(len(frame), 1)
+        for column in selected:
+            series = frame[column]
+            non_missing = series.dropna()
+            try:
+                unique = int(non_missing.nunique(dropna=True))
+            except TypeError:
+                unique = None
+            counts = series.value_counts(dropna=False).head(item["topN"])
+            summary = {
+                "column": str(column),
+                "dtype": str(series.dtype),
+                "missing": int(series.isna().sum()),
+                "missing_rate": float(series.isna().sum() / denominator),
+                "unique_non_null": unique,
+                "top_values": [
+                    {"value": clean(value), "count": int(count), "rate": float(count / denominator)}
+                    for value, count in counts.items()
+                ],
+            }
+            if len(non_missing) and _lemma_pd.api.types.is_numeric_dtype(series):
+                summary.update({
+                    "min": clean(non_missing.min()),
+                    "median": clean(non_missing.median()),
+                    "max": clean(non_missing.max()),
+                })
+            profile.append(summary)
+        base["profile"] = profile
+        return base
+
+    def observe(item):
+        try:
+            return inventory(item) if item["view"] == "inventory" else table(item)
+        except Exception as error:
+            return {
+                "view": item.get("view"),
+                "path": item.get("path"),
+                "paths": item.get("paths"),
+                "error": f"{type(error).__name__}: {str(error)[:500]}",
+            }
+
+    import pandas as _lemma_pd
+    if config["view"] == "batch":
+        return {
+            "view": "batch",
+            "observations": [observe(item) for item in config["requests"]],
+        }
+    return observe(config)
+
+def _lemma_compact_source_observation(observation, max_chars=3000):
+    import json
+
+    def clean_value(value, depth=0):
+        if isinstance(value, str):
+            return value[:120]
+        if value is None or isinstance(value, (int, float, bool)):
+            return value
+        if depth >= 3:
+            return repr(value)[:120]
+        if isinstance(value, list):
+            return [clean_value(item, depth + 1) for item in value[:12]]
+        if isinstance(value, dict):
+            return {
+                str(key): clean_value(item, depth + 1)
+                for key, item in list(value.items())[:12]
+            }
+        return repr(value)[:120]
+
+    def base(item):
+        keys = (
+            "view", "path", "paths", "error", "rows", "columns",
+            "returned_columns", "truncated_columns", "header_row", "encoding",
+            "sheets", "selected_sheet", "source_count", "returned", "truncated",
+        )
+        return {key: clean_value(item[key]) for key in keys if item.get(key) is not None}
+
+    def compact_item(item, include_header=True):
+        if not isinstance(item, dict):
+            return clean_value(item)
+        result = base(item)
+        if item.get("view") == "inventory":
+            result["sources"] = clean_value(item.get("sources", [])[:12])
+            return result
+        if include_header and item.get("header_candidates"):
+            result["header_candidates"] = clean_value(item["header_candidates"][:2])
+        if item.get("view") == "schema":
+            result["raw_preview"] = clean_value(item.get("raw_preview", [])[:4])
+            result["schema"] = clean_value(item.get("schema", [])[:20])
+        elif item.get("view") == "head":
+            result["records"] = clean_value(item.get("records", [])[:3])
+        elif item.get("profile") is not None:
+            result["profile"] = clean_value(item.get("profile", [])[:10])
+        return result
+
+    if isinstance(observation, dict) and observation.get("view") == "batch":
+        raw_items = observation.get("observations", [])
+        schema_paths = {
+            item.get("path") for item in raw_items
+            if isinstance(item, dict) and item.get("view") == "schema"
+        }
+        compacted = []
+        for item in raw_items:
+            duplicate_head = (
+                isinstance(item, dict)
+                and item.get("view") == "head"
+                and item.get("path") in schema_paths
+            )
+            simple_schema = (
+                isinstance(item, dict)
+                and item.get("view") == "schema"
+                and item.get("header_row") == 0
+            )
+            summary = compact_item(item, include_header=not duplicate_head and not simple_schema)
+            if duplicate_head and isinstance(summary.get("records"), list):
+                summary["records"] = summary["records"][:1]
+            if simple_schema:
+                summary.pop("raw_preview", None)
+            compacted.append(summary)
+        payload = {"view": "batch", "observations": compacted}
+    else:
+        payload = compact_item(observation)
+
+    def encoded_size():
+        return len(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+
+    # Preserve one entry per requested source while shrinking optional detail
+    # until the executed cell output fits in every notebook adapter.
+    items = payload.get("observations", [payload]) if isinstance(payload, dict) else []
+    detail_keys = ("sources", "profile", "records", "schema", "header_candidates", "raw_preview")
+    minimum_items = {
+        "sources": 2,
+        "profile": 3,
+        "records": 1,
+        "schema": 8,
+        "header_candidates": 2,
+        "raw_preview": 4,
+    }
+    while encoded_size() > max_chars:
+        changed = False
+        for key in detail_keys:
+            for item in reversed(items):
+                if not isinstance(item, dict):
+                    continue
+                values = item.get(key)
+                minimum = minimum_items[key]
+                if isinstance(values, list) and len(values) > minimum:
+                    item[key] = values[:max(minimum, len(values) // 2)]
+                    item["detail_truncated"] = True
+                    changed = True
+                    break
+            if changed:
+                break
+        if not changed:
+            break
+    if encoded_size() > max_chars:
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            for key in detail_keys:
+                item.pop(key, None)
+            item["detail_truncated"] = True
+    return payload`;
+}
+function sourceInspectionCode(request, options = {}) {
+  const encoded = JSON.stringify(JSON.stringify(request));
+  const invocation = `# Lemma deterministic source ${request.view}
+import json as _lemma_json
+if "_lemma_inspect_source" not in globals():
+    raise RuntimeError("Lemma source helper is missing; rerun the first source-inspection cell")
+_lemma_source_observation = _lemma_inspect_source(_lemma_json.loads(${encoded}))
+_lemma_source_summary = _lemma_compact_source_observation(_lemma_source_observation)
+print(_lemma_json.dumps(_lemma_source_summary, ensure_ascii=False, separators=(",", ":")))
+del _lemma_json`;
+  return options.includeHelper === false ? invocation : `${sourceInspectionHelperCode()}
+
+${invocation}`;
+}
+
+// mcp/taskState.ts
+import * as crypto from "crypto";
+import * as fs4 from "fs";
+import * as os3 from "os";
+import * as path5 from "path";
+var TaskGateError = class extends Error {
+};
+function now() {
+  return (/* @__PURE__ */ new Date()).toISOString();
+}
+function safeId(value) {
+  const slug = value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
+  return slug || "task";
+}
+function compact(items, limit = 50) {
+  return items.slice(-limit);
+}
+function appendUnique(current, additions, key) {
+  const byKey = new Map(current.map((item) => [key(item), item]));
+  for (const item of additions) byKey.set(key(item), item);
+  return compact([...byKey.values()]);
+}
+function boundedExpectedOutput(value) {
+  if (!value) return void 0;
+  return {
+    shape: value.shape,
+    ...value.description ? { description: value.description.slice(0, 500) } : {},
+    ...value.unit ? { unit: value.unit.slice(0, 100) } : {}
+  };
+}
+function boundedNotebook(value, fallbackTimestamp = now()) {
+  return {
+    surface: value.surface.slice(0, 50),
+    ...value.path ? { path: value.path.slice(0, 1e3) } : {},
+    ...value.uri ? { uri: value.uri.slice(0, 1e3) } : {},
+    connectedAt: value.connectedAt ?? fallbackTimestamp,
+    ...value.lazy ? { lazy: true } : {}
+  };
+}
+function notebookKey(value) {
+  return `${value.surface}
+${value.path ?? ""}
+${value.uri ?? ""}`;
+}
+var TaskStore = class {
+  constructor(projectRoot = process.cwd(), baseDirectory = path5.join(os3.homedir(), ".lemma", "tasks")) {
+    this.projectRoot = projectRoot;
+    this.namespace = crypto.createHash("sha256").update(path5.resolve(projectRoot)).digest("hex").slice(0, 12);
+    this.directory = path5.join(baseDirectory, this.namespace);
+    this.activePath = path5.join(this.directory, "active.json");
+    this.turnPath = path5.join(os3.homedir(), ".lemma", `turn-${this.namespace}.json`);
+  }
+  projectRoot;
+  namespace;
+  directory;
+  activePath;
+  turnPath;
+  begin(args2 = {}) {
+    const goal = args2.goal?.trim() || "Notebook analysis";
+    const taskId = args2.taskId ? safeId(args2.taskId) : `${safeId(goal)}-${Date.now().toString(36)}-${crypto.randomBytes(2).toString("hex")}`;
+    const timestamp = now();
+    const ledger = {
+      schemaVersion: 6,
+      taskId,
+      ...args2.turnId ? { turnId: args2.turnId.slice(0, 200) } : {},
+      namespace: this.namespace,
+      projectRoot: path5.resolve(this.projectRoot),
+      goal: goal.slice(0, 1e3),
+      ...args2.expectedOutput ? { expectedOutput: boundedExpectedOutput(args2.expectedOutput) } : {},
+      status: "active",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      mutationRevision: 0,
+      executionCount: 0,
+      facts: [],
+      assumptions: [],
+      artifacts: [],
+      risks: [],
+      sources: [],
+      cells: [],
+      observations: [],
+      notebooks: args2.notebook ? [boundedNotebook(args2.notebook, timestamp)] : [],
+      ...args2.notebook ? {
+        notebook: boundedNotebook(args2.notebook, timestamp)
+      } : {},
+      unresolvedErrors: []
+    };
+    this.write(ledger);
+    return ledger;
+  }
+  active() {
+    try {
+      const raw = JSON.parse(fs4.readFileSync(this.activePath, "utf8"));
+      const legacyStage = typeof raw.stage === "string" ? raw.stage : void 0;
+      return {
+        schemaVersion: 6,
+        taskId: String(raw.taskId ?? "task"),
+        ...raw.turnId ? { turnId: String(raw.turnId) } : {},
+        namespace: String(raw.namespace ?? this.namespace),
+        projectRoot: String(raw.projectRoot ?? path5.resolve(this.projectRoot)),
+        goal: String(raw.goal ?? "Notebook analysis"),
+        ...raw.expectedOutput ? { expectedOutput: boundedExpectedOutput(raw.expectedOutput) } : {},
+        status: raw.status === "complete" || legacyStage === "complete" ? "complete" : "active",
+        createdAt: String(raw.createdAt ?? now()),
+        updatedAt: String(raw.updatedAt ?? now()),
+        mutationRevision: Number(raw.mutationRevision ?? 0),
+        executionCount: Number(raw.executionCount ?? raw.mutationRevision ?? 0),
+        ...raw.lastAction ? { lastAction: String(raw.lastAction) } : {},
+        ...raw.verifiedRevision !== void 0 ? { verifiedRevision: Number(raw.verifiedRevision) } : {},
+        ...raw.cleanVerifiedAt ? { cleanVerifiedAt: String(raw.cleanVerifiedAt) } : {},
+        facts: Array.isArray(raw.facts) ? raw.facts : [],
+        assumptions: Array.isArray(raw.assumptions) ? raw.assumptions : [],
+        artifacts: Array.isArray(raw.artifacts) ? raw.artifacts : [],
+        risks: Array.isArray(raw.risks) ? raw.risks : [],
+        sources: Array.isArray(raw.sources) ? raw.sources : [],
+        cells: Array.isArray(raw.cells) ? raw.cells : [],
+        observations: Array.isArray(raw.observations) ? raw.observations : [],
+        ...raw.notebook ? { notebook: raw.notebook } : {},
+        notebooks: Array.isArray(raw.notebooks) ? raw.notebooks : raw.notebook ? [raw.notebook] : [],
+        unresolvedErrors: Array.isArray(raw.unresolvedErrors) ? raw.unresolvedErrors : [],
+        ...raw.finalization ? { finalization: raw.finalization } : {}
+      };
+    } catch {
+      return void 0;
+    }
+  }
+  currentTurn() {
+    try {
+      const raw = JSON.parse(fs4.readFileSync(this.turnPath, "utf8"));
+      if (!raw.id) return void 0;
+      return {
+        id: String(raw.id).slice(0, 200),
+        ...raw.prompt ? { prompt: String(raw.prompt).slice(0, 1e3) } : {},
+        ...raw.beganAt ? { beganAt: String(raw.beganAt) } : {}
+      };
+    } catch {
+      return void 0;
+    }
+  }
+  requireActive() {
+    const ledger = this.active();
+    if (!ledger) throw new TaskGateError("No evidence ledger is active. Connect to a notebook first.");
+    return ledger;
+  }
+  noteAction(action) {
+    const ledger = this.requireActive();
+    ledger.lastAction = action.slice(0, 100);
+    this.write(ledger);
+    return ledger;
+  }
+  markInspected(args2) {
+    const ledger = this.requireActive();
+    if (args2?.kind) {
+      ledger.observations = compact([
+        ...ledger.observations,
+        {
+          kind: args2.kind,
+          ...args2.surface ? { surface: args2.surface.slice(0, 50) } : {},
+          ...args2.target ? { target: args2.target.slice(0, 1e3) } : {},
+          recordedAt: now()
+        }
+      ], 100);
+    }
+    this.write(ledger);
+    return ledger;
+  }
+  recordNotebook(args2) {
+    const ledger = this.requireActive();
+    const candidate = boundedNotebook(args2);
+    const previous = ledger.notebooks.find((item) => notebookKey(item) === notebookKey(candidate));
+    const notebook = previous ? { ...candidate, connectedAt: previous.connectedAt, ...previous.lazy || candidate.lazy ? { lazy: true } : {} } : candidate;
+    ledger.notebook = notebook;
+    ledger.notebooks = appendUnique(ledger.notebooks, [notebook], notebookKey);
+    this.write(ledger);
+    return ledger;
+  }
+  recordCell(args2) {
+    const ledger = this.requireActive();
+    const item = {
+      cellId: args2.cellId,
+      ...args2.surface ? { surface: args2.surface.slice(0, 50) } : {},
+      revision: args2.revision,
+      status: args2.status,
+      ...args2.executionCount !== void 0 ? { executionCount: args2.executionCount } : {},
+      ...args2.sourceHash ? { sourceHash: args2.sourceHash.slice(0, 64) } : {},
+      ...args2.outputHash ? { outputHash: args2.outputHash.slice(0, 64) } : {},
+      ...args2.outputSummary ? { outputSummary: args2.outputSummary.slice(0, 500) } : {},
+      recordedAt: now()
+    };
+    ledger.cells = appendUnique(
+      ledger.cells,
+      [item],
+      (cell) => `${cell.surface ?? ""}:${String(cell.cellId)}:${cell.revision}`
+    );
+    this.write(ledger);
+    return ledger;
+  }
+  assertCanExecute() {
+    return this.requireActive();
+  }
+  markMutation(args2) {
+    const ledger = this.requireActive();
+    ledger.status = "active";
+    ledger.finalization = void 0;
+    ledger.mutationRevision += 1;
+    if (args2.executed !== false) ledger.executionCount += 1;
+    ledger.verifiedRevision = void 0;
+    ledger.cleanVerifiedAt = void 0;
+    if (args2.clearAllErrors) ledger.unresolvedErrors = [];
+    if (args2.errorId && args2.error) {
+      ledger.unresolvedErrors = appendUnique(
+        ledger.unresolvedErrors,
+        [{ id: args2.errorId, message: args2.error.slice(0, 1e3) }],
+        (item) => item.id
+      );
+    } else if (args2.executed !== false) {
+      ledger.unresolvedErrors = [];
+    }
+    this.write(ledger);
+    return ledger;
+  }
+  record(args2) {
+    const ledger = this.requireActive();
+    ledger.facts = appendUnique(ledger.facts, args2.facts ?? [], (item) => `${item.statement}
+${item.evidence}`);
+    ledger.assumptions = appendUnique(ledger.assumptions, args2.assumptions ?? [], (item) => item.statement);
+    ledger.artifacts = appendUnique(ledger.artifacts, args2.artifacts ?? [], (item) => item.uri);
+    ledger.risks = appendUnique(ledger.risks, args2.risks ?? [], (item) => item.risk);
+    ledger.sources = appendUnique(ledger.sources, args2.sources ?? [], (item) => item.uri);
+    if (args2.resolvedErrorIds?.length) {
+      const resolved = new Set(args2.resolvedErrorIds);
+      ledger.unresolvedErrors = ledger.unresolvedErrors.filter((item) => !resolved.has(item.id));
+    }
+    this.write(ledger);
+    return ledger;
+  }
+  assertCanVerify() {
+    return this.requireActive();
+  }
+  markVerified(passed, message) {
+    const ledger = this.requireActive();
+    if (!passed) {
+      ledger.unresolvedErrors = appendUnique(
+        ledger.unresolvedErrors,
+        [{ id: "clean-run", message: (message ?? "Clean run failed").slice(0, 1e3) }],
+        (item) => item.id
+      );
+    } else {
+      ledger.unresolvedErrors = [];
+      ledger.verifiedRevision = ledger.mutationRevision;
+      ledger.cleanVerifiedAt = now();
+    }
+    this.write(ledger);
+    return ledger;
+  }
+  finalize(args2) {
+    const ledger = this.requireActive();
+    if (args2.result.value === void 0 && !args2.result.summary?.trim() && !args2.result.artifactUri?.trim()) {
+      throw new TaskGateError("The optional receipt requires a bounded value, summary, or artifact reference.");
+    }
+    if (!args2.evidence.length) {
+      throw new TaskGateError("The optional receipt requires at least one cell or artifact evidence reference.");
+    }
+    for (const evidence of args2.evidence) {
+      if (evidence.kind === "cell" && evidence.revision !== void 0 && evidence.revision > ledger.mutationRevision) {
+        throw new TaskGateError(
+          `Evidence revision ${evidence.revision} is newer than notebook revision ${ledger.mutationRevision}.`
+        );
+      }
+    }
+    if (ledger.unresolvedErrors.length) {
+      throw new TaskGateError(`Cannot record a receipt with ${ledger.unresolvedErrors.length} unresolved cell error(s).`);
+    }
+    ledger.assumptions = appendUnique(ledger.assumptions, args2.assumptions ?? [], (item) => item.statement);
+    ledger.risks = appendUnique(ledger.risks, args2.risks ?? [], (item) => item.risk);
+    const boundedResult = {
+      shape: args2.result.shape,
+      ...args2.result.value !== void 0 ? { value: args2.result.value } : {},
+      ...args2.result.summary ? { summary: args2.result.summary.slice(0, 2e3) } : {},
+      ...args2.result.unit ? { unit: args2.result.unit.slice(0, 100) } : {},
+      ...args2.result.artifactUri ? { artifactUri: args2.result.artifactUri.slice(0, 1e3) } : {}
+    };
+    const boundedEvidence = args2.evidence.slice(0, 20).map((item) => item.kind === "cell" ? {
+      kind: "cell",
+      cellId: item.cellId,
+      ...item.surface ? { surface: item.surface.slice(0, 50) } : {},
+      ...item.revision !== void 0 ? { revision: item.revision } : {},
+      ...item.description ? { description: item.description.slice(0, 500) } : {}
+    } : {
+      kind: "artifact",
+      uri: item.uri.slice(0, 1e3),
+      ...item.description ? { description: item.description.slice(0, 500) } : {}
+    });
+    ledger.finalization = {
+      resultShape: boundedResult.shape,
+      resultHash: crypto.createHash("sha256").update(JSON.stringify(boundedResult)).digest("hex").slice(0, 16),
+      evidenceCount: boundedEvidence.length,
+      evidence: boundedEvidence,
+      finalizedAt: now()
+    };
+    ledger.status = "complete";
+    this.write(ledger);
+    return ledger;
+  }
+  evidenceStatus(ledger = this.requireActive()) {
+    return {
+      status: ledger.status,
+      clean: ledger.verifiedRevision === ledger.mutationRevision && Boolean(ledger.cleanVerifiedAt),
+      unresolvedErrors: ledger.unresolvedErrors.length,
+      mutationRevision: ledger.mutationRevision,
+      executionCount: ledger.executionCount,
+      cellEvidence: ledger.cells.length,
+      observations: ledger.observations.length,
+      ...ledger.verifiedRevision !== void 0 ? { verifiedRevision: ledger.verifiedRevision } : {}
+    };
+  }
+  write(ledger) {
+    ledger.updatedAt = now();
+    fs4.mkdirSync(this.directory, { recursive: true });
+    const taskPath = path5.join(this.directory, `${ledger.taskId}.json`);
+    const temporary = `${taskPath}.${process.pid}.tmp`;
+    fs4.writeFileSync(temporary, `${JSON.stringify(ledger, null, 2)}
+`, { mode: 384 });
+    fs4.renameSync(temporary, taskPath);
+    fs4.writeFileSync(this.activePath, `${JSON.stringify(ledger, null, 2)}
+`, { mode: 384 });
+  }
+};
+
+// mcp/canonical.ts
+var resultShapeSchema = external_exports.enum(["scalar", "list", "table", "narrative", "report", "artifact"]);
+var expectedOutputSchema = external_exports.object({
+  shape: resultShapeSchema,
+  description: external_exports.string().max(500).optional(),
+  unit: external_exports.string().max(100).optional()
+});
+var taskBeginSchema = external_exports.object({
+  goal: external_exports.string().min(1).max(1e3).optional(),
+  expected_output: expectedOutputSchema.optional(),
+  task_id: external_exports.string().max(100).optional()
+});
+function resultText(result) {
+  const parts = [];
+  for (const block of result.content) {
+    if (block.type === "text") parts.push(block.text);
+  }
+  return parts.join("\n");
+}
+function storedOutputResponse(result, content, imageIndex) {
+  const blocks = result.content;
+  const textBlocks = blocks.filter(
+    (block) => block.type === "text"
+  );
+  const imageBlocks = blocks.filter(
+    (block) => block.type === "image"
+  );
+  if (imageIndex !== void 0 && imageIndex >= imageBlocks.length) {
+    throw new TaskGateError(
+      `image_index=${imageIndex} is out of range; this cell has ${imageBlocks.length} readable image output(s).`
+    );
+  }
+  const selectedImages = imageIndex === void 0 ? content === "images" ? imageBlocks.slice(0, 1) : imageBlocks : [imageBlocks[imageIndex]];
+  const metadata = {
+    image_count: imageBlocks.length,
+    images: imageBlocks.map((block, index) => ({
+      index,
+      mime_type: block.mimeType,
+      encoded_chars: block.data.length
+    })),
+    returned_images: content === "images" || content === "all" ? selectedImages.length : 0,
+    remaining_images: content === "images" && imageIndex === void 0 ? Math.max(0, imageBlocks.length - selectedImages.length) : 0
+  };
+  if (content === "metadata") return jsonText(metadata);
+  if (content === "text") {
+    const hint = imageBlocks.length ? `image outputs: ${imageBlocks.length}; call read(kind="output", content="images", index=..., image_index=0) to view one.` : "image outputs: 0";
+    return { content: [...textBlocks, { type: "text", text: hint }] };
+  }
+  const metadataBlock = { type: "text", text: JSON.stringify(metadata) };
+  return {
+    content: content === "images" ? [metadataBlock, ...selectedImages] : [...textBlocks, metadataBlock, ...selectedImages]
+  };
+}
+function parseState(result) {
+  try {
+    return JSON.parse(resultText(result));
+  } catch {
+    return {};
+  }
+}
+function selectedCell(state, index) {
+  if (index === void 0) return void 0;
+  return state.cells?.find((cell, position) => (cell.index ?? position) === index);
+}
+function inferCellIndex(body, state, requested) {
+  if (requested !== void 0) return requested;
+  const matched = body.match(/\bcell\s+(\d+)\b/i);
+  if (matched) return Number(matched[1]);
+  if (state.cells?.length) return state.cells.length - 1;
+  return void 0;
+}
+function changedVariables(before = {}, after = {}) {
+  const beforeNames = new Set(Object.keys(before));
+  const afterNames = new Set(Object.keys(after));
+  return {
+    added: [...afterNames].filter((name2) => !beforeNames.has(name2)).sort(),
+    updated: [...afterNames].filter((name2) => beforeNames.has(name2) && JSON.stringify(before[name2]) !== JSON.stringify(after[name2])).sort(),
+    removed: [...beforeNames].filter((name2) => !afterNames.has(name2)).sort()
+  };
+}
+function warningsFrom(body) {
+  return body.split("\n").filter((line) => /\bwarning\b/i.test(line)).slice(0, 5).map((line) => truncate(line.trim(), 300, false));
+}
+function shortHash(value) {
+  return crypto2.createHash("sha256").update(value).digest("hex").slice(0, 16);
+}
+function detectedArtifacts(source, cellId) {
+  if (!source) return [];
+  const artifacts = [];
+  const patterns = [
+    /\.(?:to_csv|to_parquet|to_feather|to_excel|to_json|savefig|write_text|write_bytes)\(\s*(?:[rubf]{0,2})?(['"])([^'"]+)\1/gi,
+    /\b(?:joblib\.)?dump\([^,]+,\s*(?:[rubf]{0,2})?(['"])([^'"]+)\1/gi
+  ];
+  for (const pattern of patterns) {
+    for (const match of source.matchAll(pattern)) {
+      const candidate = match[2];
+      if (!candidate || /[{}]/.test(candidate)) continue;
+      const absolute = path6.resolve(candidate);
+      try {
+        if (!fs5.statSync(absolute).isFile()) continue;
+      } catch {
+        continue;
+      }
+      artifacts.push({ uri: absolute, description: `Created by executed cell ${String(cellId)}` });
+    }
+  }
+  return artifacts;
+}
+function connectionSucceeded(result) {
+  return /^connected\b/i.test(resultText(result).trim());
+}
+function operationFailed(result) {
+  return /^(no\s|not connected|.*\bfailed\b|.*\bnot found\b)/i.test(resultText(result).trim());
+}
+function sourceObservation(body) {
+  const lines = body.split("\n").map((line) => line.trim()).filter(Boolean);
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    if (!lines[index].startsWith("{")) continue;
+    try {
+      return JSON.parse(lines[index]);
+    } catch {
+    }
+  }
+  return void 0;
+}
+function compactSourceValue(value, depth = 0) {
+  if (typeof value === "string") return truncate(value, 120, false);
+  if (value === null || typeof value !== "object") return value;
+  if (depth >= 2) return truncate(JSON.stringify(value), 160, false);
+  if (Array.isArray(value)) return value.slice(0, 12).map((item) => compactSourceValue(item, depth + 1));
+  return Object.fromEntries(
+    Object.entries(value).slice(0, 12).map(([key, item]) => [key, compactSourceValue(item, depth + 1)])
+  );
+}
+function compactSourceItem(value) {
+  if (!value || typeof value !== "object") return value;
+  const item = value;
+  if (item.view === "inventory") {
+    return {
+      view: item.view,
+      source_count: item.source_count,
+      returned: item.returned,
+      truncated: item.truncated,
+      sources: Array.isArray(item.sources) ? item.sources.slice(0, 12) : item.sources
+    };
+  }
+  const base = {
+    view: item.view,
+    path: item.path,
+    error: item.error,
+    rows: item.rows,
+    columns: item.columns,
+    returned_columns: item.returned_columns,
+    truncated_columns: item.truncated_columns,
+    header_row: item.header_row,
+    encoding: item.encoding,
+    sheets: item.sheets,
+    selected_sheet: item.selected_sheet,
+    header_candidates: Array.isArray(item.header_candidates) ? item.header_candidates.slice(0, 2).map((record2) => compactSourceValue(record2)) : void 0
+  };
+  if (item.view === "schema") {
+    return {
+      ...base,
+      raw_preview: Array.isArray(item.raw_preview) ? item.raw_preview.slice(0, 4).map((record2) => compactSourceValue(record2)) : compactSourceValue(item.raw_preview),
+      schema: Array.isArray(item.schema) ? item.schema.slice(0, 50).map((record2) => compactSourceValue(record2)) : compactSourceValue(item.schema)
+    };
+  }
+  if (item.view === "head") {
+    return {
+      ...base,
+      records: Array.isArray(item.records) ? item.records.slice(0, 4).map((record2) => compactSourceValue(record2)) : compactSourceValue(item.records)
+    };
+  }
+  return {
+    ...base,
+    profile: Array.isArray(item.profile) ? item.profile.slice(0, 12).map((record2) => compactSourceValue(record2)) : compactSourceValue(item.profile)
+  };
+}
+function compactSourceObservation(body) {
+  const observation = sourceObservation(body);
+  if (!observation) return void 0;
+  return observation.view === "batch" && Array.isArray(observation.observations) ? { view: "batch", observations: observation.observations.map(compactSourceItem) } : compactSourceItem(observation);
+}
+function taskSummary(ledger) {
+  return {
+    id: ledger.taskId,
+    status: ledger.status,
+    goal: truncate(ledger.goal, 180, false),
+    ...ledger.expectedOutput ? { expected_output: ledger.expectedOutput } : {},
+    revision: ledger.mutationRevision,
+    executions: ledger.executionCount,
+    counts: {
+      facts: ledger.facts.length,
+      assumptions: ledger.assumptions.length,
+      artifacts: ledger.artifacts.length,
+      risks: ledger.risks.length,
+      sources: ledger.sources.length,
+      cells: ledger.cells.length,
+      observations: ledger.observations.length,
+      notebooks: ledger.notebooks.length,
+      errors: ledger.unresolvedErrors.length
+    },
+    ...ledger.notebook ? { notebook: ledger.notebook } : {}
+  };
+}
+function taskSection(ledger, section, offset, limit) {
+  if (section === "summary") return { task: taskSummary(ledger) };
+  const items = section === "facts" ? ledger.facts : section === "assumptions" ? ledger.assumptions : section === "artifacts" ? ledger.artifacts : section === "risks" ? ledger.risks : section === "sources" ? ledger.sources : ledger.unresolvedErrors;
+  const page = items.slice(offset, offset + limit);
+  return {
+    task: { id: ledger.taskId, status: ledger.status },
+    section,
+    items: page,
+    total: items.length,
+    ...offset + page.length < items.length ? { next_offset: offset + page.length } : {}
+  };
+}
+function createVscodeAdapter(editorFinder) {
+  let editor;
+  let targetPath;
+  function requireConnection() {
+    if (!editor || !targetPath) return "not connected: call connect for the VS Code surface first.";
+    return { editor, path: targetPath };
+  }
+  return {
+    surface: "vscode",
+    async connect({ notebook_path, notebook_file }) {
+      const found2 = await editorFinder();
+      if (!found2) return text("no VS Code / Cursor editor bridge found. Open the editor and Lemma extension first.");
+      const open = await found2.open();
+      const requested = notebook_path ?? notebook_file;
+      if (!requested && open.notebooks.length !== 1) {
+        return text(
+          open.notebooks.length === 0 ? "no notebook is open in the editor; open one or pass notebook_path." : `more than one notebook is open; pass notebook_path exactly:
+${open.notebooks.join("\n")}`
+        );
+      }
+      targetPath = requested ?? open.notebooks[0];
+      editor = found2;
+      await editor.state(targetPath);
+      return text(`connected to ${targetPath} through the VS Code editor bridge`);
+    },
+    async readNotebook() {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      return jsonText(await current.editor.read(current.path));
+    },
+    async getState() {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      return jsonText(await current.editor.state(current.path));
+    },
+    async addAndRun({ source, index }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.addAndRun(current.path, source, index);
+      if (result.discarded) return text("discarded");
+      return text(`cell ${result.index} added+ran
+${result.output ?? "[no output]"}`);
+    },
+    async runCell({ index }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.run(current.path, index);
+      return text(result.output ?? "[no output]");
+    },
+    async readCellOutput({ index, offset }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const output = await current.editor.output(current.path, index);
+      const start = offset ?? 0;
+      const chunk = output.text.slice(start, start + 4e3);
+      const end = start + chunk.length;
+      let header = `cell ${index} output (${output.text.length} chars total)`;
+      if (end < output.text.length) header += ` \u2014 call read again with offset=${end}`;
+      const content = [
+        { type: "text", text: chunk ? `${header}
+${chunk}` : header }
+      ];
+      if (start === 0) {
+        for (const image of output.images) {
+          if (image.base64.length <= 4e6) content.push(imageBlock(image.base64, image.mime));
+        }
+      }
+      return { content };
+    },
+    async editAndRun({ index, source }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.editAndRun(current.path, index, source);
+      if (result.discarded) return text("discarded");
+      return text(`cell ${index} edited+ran
+${result.output ?? "[no output]"}`);
+    },
+    async runAllCells() {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.runAll(current.path);
+      const stopped = result.failedAt === void 0 ? "" : `; stopped at cell ${result.failedAt} (error)`;
+      const outputs = result.outputs.filter((item) => item.output && item.output !== "[no output]").map((item) => `--- cell ${item.index} ---
+${item.output}`).join("\n");
+      return text(`ran ${result.ran}/${result.codeCells} code cells${stopped}
+${outputs}`);
+    },
+    async inspectVariable({ name: name2 }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.inspect(current.path, name2);
+      return text(result.output ?? "[no output]");
+    },
+    async editCell({ index, source }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.edit(current.path, index, source);
+      return text(result.discarded ? "discarded" : `cell ${index} edited`);
+    },
+    async insertCell({ index, source }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.insert(current.path, index, source);
+      return text(result.discarded ? "discarded" : `cell ${result.index} inserted`);
+    },
+    async deleteCell({ index }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.delete(current.path, index);
+      return text(result.discarded ? "discarded" : `cell ${index} deleted`);
+    },
+    async addMarkdown({ source, index }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.markdown(current.path, source, index);
+      return text(result.discarded ? "discarded" : `markdown cell ${result.index} added`);
+    },
+    async clearNotebook() {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.clear(current.path);
+      return text(`cleared ${result.cleared} cell(s)`);
+    },
+    async restartKernel() {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.restart(current.path);
+      return text(result.message ?? "kernel restarted");
+    },
+    async saveNotebook() {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      await current.editor.save(current.path);
+      return text("saved");
+    }
+  };
+}
+function createAdapters(dependencies) {
+  const adapters = /* @__PURE__ */ new Map();
+  adapters.set("vscode", createVscodeAdapter(dependencies.findVscodeEditor ?? findEditor));
+  if (dependencies.pycharm) {
+    adapters.set("pycharm", {
+      ...dependencies.pycharm,
+      surface: "pycharm",
+      connect: (args2) => dependencies.pycharm.connect({
+        server_url: args2.server_url ?? process.env.LEMMA_PYCHARM_URL ?? "",
+        notebook_file: args2.notebook_file ?? process.env.LEMMA_PYCHARM_NOTEBOOK_FILE ?? "",
+        notebook_path: args2.notebook_path ?? process.env.LEMMA_PYCHARM_NOTEBOOK,
+        token: args2.token ?? process.env.LEMMA_PYCHARM_TOKEN
+      })
+    });
+  }
+  if (dependencies.jupyterlab) {
+    adapters.set("jupyter", {
+      ...dependencies.jupyterlab,
+      surface: "jupyter",
+      connect: (args2) => (dependencies.connectJupyterlab ?? connectJupyterlab)({
+        server_url: args2.server_url,
+        notebook_path: args2.notebook_path,
+        token: args2.token
+      })
+    });
+  }
+  return adapters;
+}
+function registerCanonicalTools(server2, dependencies) {
+  const adapters = createAdapters(dependencies);
+  const store = dependencies.taskStore ?? new TaskStore();
+  let activeAdapter;
+  let sourceHelperReady = false;
+  function requireTask() {
+    return store.requireActive();
+  }
+  function blocked(error51) {
+    return jsonText({ status: "blocked", error: errorMessage(error51) });
+  }
+  function taskEnvelope() {
+    const ledger = requireTask();
+    return { task: { id: ledger.taskId } };
+  }
+  async function stateOf(adapter) {
+    return parseState(await adapter.getState());
+  }
+  function notebookReference(adapter, state, lazy2) {
+    return {
+      surface: adapter.surface,
+      ...state.path ? { path: state.path } : {},
+      ...state.uri ? { uri: state.uri } : {},
+      ...lazy2 ? { lazy: true } : {}
+    };
+  }
+  async function ensureLedger(adapter, lazy2, begin) {
+    const state = await stateOf(adapter);
+    const turn = store.currentTurn();
+    const current = store.active();
+    const newTurn = Boolean(turn && current?.turnId !== turn.id);
+    if (begin || !current || current.status === "complete" || newTurn) {
+      return store.begin({
+        goal: begin?.goal ?? turn?.prompt,
+        expectedOutput: begin?.expected_output,
+        taskId: begin?.task_id,
+        turnId: turn?.id,
+        notebook: notebookReference(adapter, state, lazy2)
+      });
+    }
+    store.recordNotebook(notebookReference(adapter, state, lazy2));
+    return store.requireActive();
+  }
+  async function ensureReady() {
+    if (activeAdapter) {
+      await ensureLedger(activeAdapter, Boolean(store.active()?.notebook?.lazy));
+      return activeAdapter;
+    }
+    const onlySurface = adapters.size === 1 ? [...adapters.keys()][0] : void 0;
+    const surface = dependencies.preferredSurface ?? onlySurface;
+    if (!surface) {
+      throw new TaskGateError(
+        "Notebook auto-attach is ambiguous. Use connect once with surface and notebook details."
+      );
+    }
+    const adapter = adapters.get(surface);
+    if (!adapter) throw new TaskGateError(`Surface ${surface} is not configured in this server.`);
+    const result = await adapter.connect({ surface });
+    if (!connectionSucceeded(result)) {
+      throw new TaskGateError(
+        `Notebook auto-attach failed: ${resultText(result)} Use connect with explicit notebook details.`
+      );
+    }
+    activeAdapter = adapter;
+    sourceHelperReady = false;
+    await ensureLedger(adapter, true);
+    store.noteAction("auto_attach");
+    return adapter;
+  }
+  async function executionDelta(args2) {
+    const after = await stateOf(args2.adapter);
+    const body = resultText(args2.result);
+    const runAllFailure = args2.clearAllErrors ? body.match(/stopped at cell\s+(\d+)/i) : void 0;
+    const index = args2.clearAllErrors ? runAllFailure ? Number(runAllFailure[1]) : void 0 : inferCellIndex(body, after, args2.requestedIndex);
+    const cell = selectedCell(after, index);
+    const discarded = /^discarded$/i.test(body.trim());
+    if (discarded) {
+      return jsonText({ status: "discarded", surface: args2.adapter.surface, ...taskEnvelope() });
+    }
+    const error51 = cell?.error ?? (/stopped at cell/i.test(body) ? truncate(body, 1e3) : void 0);
+    const ledger = store.markMutation({
+      errorId: index === void 0 ? args2.clearAllErrors ? "run-all" : "execution" : `cell-${index}`,
+      error: error51 ?? void 0,
+      clearAllErrors: args2.clearAllErrors && !error51
+    });
+    const cellId = index ?? (args2.clearAllErrors ? "all" : "unknown");
+    const outputSummary = truncate(body || "[no output]", 500, false);
+    const changedRunAllCells = args2.clearAllErrors ? (after.cells ?? []).flatMap((candidate, position) => {
+      const candidateId = candidate.index ?? position;
+      const prior = selectedCell(args2.before, candidateId);
+      return candidate.executionCount !== null && candidate.executionCount !== void 0 && candidate.executionCount !== prior?.executionCount ? [{ candidate, candidateId }] : [];
+    }) : [];
+    const recordedCells = changedRunAllCells.length ? changedRunAllCells : [{ candidate: cell, candidateId: cellId }];
+    for (const recorded of recordedCells) {
+      const executedSource = args2.source ?? recorded.candidate?.source;
+      store.recordCell({
+        cellId: recorded.candidateId,
+        surface: args2.adapter.surface,
+        executionCount: recorded.candidate?.executionCount,
+        revision: ledger.mutationRevision,
+        status: recorded.candidate?.error ? "error" : error51 && recorded.candidateId === cellId ? "error" : "ok",
+        ...executedSource ? { sourceHash: shortHash(executedSource) } : {},
+        outputHash: shortHash(body),
+        outputSummary
+      });
+    }
+    if (!error51) {
+      const artifacts = detectedArtifacts(args2.source ?? cell?.source, cellId);
+      if (artifacts.length) store.record({ artifacts });
+    }
+    const returnOutput = args2.returnOutput ?? "summary";
+    const fullResult = index === void 0 ? { action: "read", kind: "notebook" } : { action: "read", kind: "output", index };
+    const delta = {
+      cell: {
+        id: cellId,
+        execution_count: cell?.executionCount ?? null,
+        revision: ledger.mutationRevision
+      },
+      status: error51 ? "error" : "ok",
+      changed_variables: changedVariables(args2.before.variables, after.variables),
+      output: returnOutput === "none" ? { full_result: fullResult } : { summary: truncate(body || "[no output]", 1600), full_result: fullResult },
+      errors: error51 ? [error51] : [],
+      warnings: warningsFrom(body),
+      surface: args2.adapter.surface,
+      ...taskEnvelope()
+    };
+    if ((returnOutput === "images" || returnOutput === "full") && index !== void 0) {
+      try {
+        const stored = await args2.adapter.readCellOutput({ index });
+        const output = storedOutputResponse(
+          stored,
+          returnOutput === "images" ? "images" : "all",
+          args2.imageIndex
+        );
+        return {
+          content: [{ type: "text", text: JSON.stringify(delta) }, ...output.content]
+        };
+      } catch (error52) {
+        delta.warnings.push(
+          truncate(`execution succeeded, but the requested stored output could not be attached: ${errorMessage(error52)}`, 300, false)
+        );
+      }
+    }
+    return jsonText(delta);
+  }
+  server2.registerTool(
+    "connect",
+    {
+      description: "Recovery and surface switching only. Ordinary inspect, run, read, and edit actions attach automatically; do not call connect first. Existing notebook state is preserved unless reset_kernel=true.",
+      inputSchema: {
+        surface: external_exports.enum(["vscode", "pycharm", "jupyter"]).optional(),
+        server_url: external_exports.string().optional(),
+        token: external_exports.string().optional(),
+        notebook_path: external_exports.string().optional(),
+        notebook_file: external_exports.string().optional().describe("Absolute .ipynb path required for PyCharm/DataSpell."),
+        reset_kernel: external_exports.boolean().default(false).describe("Explicitly restart the selected kernel after connecting."),
+        begin: taskBeginSchema.optional().describe("Optional task label and expected output for the evidence ledger.")
+      }
+    },
+    async (args2) => {
+      try {
+        const surface = args2.surface ?? dependencies.preferredSurface;
+        if (!surface) {
+          return blocked(new TaskGateError("Name the active surface: vscode, pycharm, or jupyter."));
+        }
+        const adapter = adapters.get(surface);
+        if (!adapter) return blocked(new TaskGateError(`Surface ${surface} is not configured in this server.`));
+        const previousAdapter = activeAdapter;
+        const result = await adapter.connect(args2);
+        if (!connectionSucceeded(result)) return jsonText({ status: "error", surface, message: resultText(result) });
+        if (args2.reset_kernel) {
+          const restarted = await adapter.restartKernel();
+          if (operationFailed(restarted)) {
+            activeAdapter = previousAdapter;
+            throw new TaskGateError(`Kernel reset failed: ${resultText(restarted)}`);
+          }
+        }
+        activeAdapter = adapter;
+        sourceHelperReady = false;
+        const ledger = await ensureLedger(adapter, false, args2.begin);
+        store.noteAction("connect");
+        return jsonText({
+          status: "connected",
+          surface,
+          ...previousAdapter && previousAdapter.surface !== surface ? { switched_from: previousAdapter.surface } : {},
+          kernel_reset: args2.reset_kernel,
+          message: resultText(result),
+          task: taskSummary(ledger)
+        });
+      } catch (error51) {
+        return blocked(error51);
+      }
+    }
+  );
+  server2.registerTool(
+    "read",
+    {
+      description: 'Read notebook content, compact state, or stored cell output. Output reads are text-only by default; request content="images" to view the first/selected image without loading every visualization.',
+      inputSchema: {
+        kind: external_exports.enum(["state", "notebook", "output"]).default("state"),
+        index: external_exports.number().int().optional(),
+        offset: external_exports.number().int().min(0).optional(),
+        content: external_exports.enum(["text", "images", "all", "metadata"]).default("text").describe(
+          "For output reads: text is context-safe; images returns the first image unless image_index is set; all is explicit."
+        ),
+        image_index: external_exports.number().int().min(0).optional().describe("Zero-based stored image to return.")
+      }
+    },
+    async ({ kind, index, offset, content, image_index }) => {
+      try {
+        const adapter = await ensureReady();
+        store.noteAction(`read.${kind}`);
+        let result;
+        if (kind === "notebook") result = await adapter.readNotebook();
+        else if (kind === "output") {
+          if (index === void 0) throw new TaskGateError('read(kind="output") requires a cell index.');
+          const page = await adapter.readCellOutput({ index, offset });
+          const stored = offset && offset > 0 ? {
+            content: [
+              ...page.content,
+              ...(await adapter.readCellOutput({ index })).content.filter((block) => block.type === "image")
+            ]
+          } : page;
+          result = storedOutputResponse(
+            stored,
+            content,
+            image_index
+          );
+        } else result = await adapter.getState();
+        if (kind !== "output" && operationFailed(result)) {
+          throw new TaskGateError(resultText(result));
+        }
+        store.markInspected({
+          kind,
+          surface: adapter.surface,
+          ...kind === "output" && index !== void 0 ? { target: String(index) } : {}
+        });
+        if (kind === "state") {
+          return jsonText({ state: parseState(result), surface: adapter.surface, ...taskEnvelope() });
+        }
+        return result;
+      } catch (error51) {
+        return blocked(error51);
+      }
+    }
+  );
+  server2.registerTool(
+    "run",
+    {
+      description: 'Append and run a durable code cell, rerun one cell, or run all cells. Returns a compact state delta; return_output="images" attaches the first/selected visualization in the same call.',
+      inputSchema: {
+        mode: external_exports.enum(["append", "cell", "all"]).default("append"),
+        source: external_exports.string().optional(),
+        index: external_exports.number().int().optional(),
+        return_output: external_exports.enum(["summary", "images", "full", "none"]).default("summary"),
+        image_index: external_exports.number().int().min(0).optional().describe("Zero-based image to attach for images/full output.")
+      }
+    },
+    async ({ mode, source, index, return_output, image_index }) => {
+      try {
+        const adapter = await ensureReady();
+        store.noteAction(`run.${mode}`);
+        store.assertCanExecute();
+        if (mode === "all" && (return_output === "images" || return_output === "full")) {
+          throw new TaskGateError(
+            'run(mode="all") supports summary or none; use read(kind="output") for a specific cell visualization.'
+          );
+        }
+        if (image_index !== void 0 && return_output !== "images" && return_output !== "full") {
+          throw new TaskGateError('image_index requires return_output="images" or "full".');
+        }
+        const before = await stateOf(adapter);
+        let result;
+        if (mode === "append") {
+          if (!source) throw new TaskGateError('run(mode="append") requires source.');
+          result = await adapter.addAndRun({ source });
+        } else if (mode === "cell") {
+          if (index === void 0) throw new TaskGateError('run(mode="cell") requires index.');
+          result = await adapter.runCell({ index });
+        } else {
+          result = await adapter.runAllCells();
+        }
+        return executionDelta({
+          adapter,
+          before,
+          result,
+          requestedIndex: mode === "cell" ? index : void 0,
+          clearAllErrors: mode === "all",
+          returnOutput: return_output,
+          imageIndex: image_index,
+          source: mode === "append" ? source : mode === "cell" ? selectedCell(before, index)?.source : void 0
+        });
+      } catch (error51) {
+        return blocked(error51);
+      }
+    }
+  );
+  server2.registerTool(
+    "edit",
+    {
+      description: "Replace, insert, delete, or add markdown through the active editor backend; optionally execute code edits.",
+      inputSchema: {
+        operation: external_exports.enum(["replace", "insert", "delete", "markdown"]),
+        index: external_exports.number().int().optional(),
+        source: external_exports.string().optional(),
+        execute: external_exports.boolean().default(false),
+        return_output: external_exports.enum(["summary", "images", "full", "none"]).default("summary").describe(
+          "For executing replace/insert operations; images attaches the first/selected visualization in this call."
+        ),
+        image_index: external_exports.number().int().min(0).optional().describe("Zero-based image to attach for images/full output.")
+      }
+    },
+    async ({ operation, index, source, execute, return_output, image_index }) => {
+      try {
+        const adapter = await ensureReady();
+        store.noteAction(`edit.${operation}`);
+        store.assertCanExecute();
+        if (!execute && (return_output !== "summary" || image_index !== void 0)) {
+          throw new TaskGateError("return_output and image_index require execute=true.");
+        }
+        if (image_index !== void 0 && return_output !== "images" && return_output !== "full") {
+          throw new TaskGateError('image_index requires return_output="images" or "full".');
+        }
+        const before = await stateOf(adapter);
+        let result;
+        let executed = false;
+        if (operation === "replace") {
+          if (index === void 0 || source === void 0) throw new TaskGateError("replace requires index and source.");
+          result = execute ? await adapter.editAndRun({ index, source }) : await adapter.editCell({ index, source });
+          executed = execute;
+        } else if (operation === "insert") {
+          if (index === void 0 || source === void 0) throw new TaskGateError("insert requires index and source.");
+          result = execute ? await adapter.addAndRun({ index, source }) : await adapter.insertCell({ index, source });
+          executed = execute;
+        } else if (operation === "delete") {
+          if (index === void 0) throw new TaskGateError("delete requires index.");
+          result = await adapter.deleteCell({ index });
+        } else {
+          if (source === void 0) throw new TaskGateError("markdown requires source.");
+          result = await adapter.addMarkdown({ source, index });
+        }
+        if (executed) {
+          return executionDelta({
+            adapter,
+            before,
+            result,
+            requestedIndex: index,
+            returnOutput: return_output,
+            imageIndex: image_index,
+            source
+          });
+        }
+        const body = resultText(result);
+        if (/^discarded$/i.test(body.trim())) {
+          return jsonText({ status: "discarded", surface: adapter.surface, ...taskEnvelope() });
+        }
+        const ledger = store.markMutation({ executed: false });
+        return jsonText({
+          status: "ok",
+          cell: { id: index ?? "appended", revision: ledger.mutationRevision },
+          change: truncate(body, 1200),
+          surface: adapter.surface,
+          ...taskEnvelope()
+        });
+      } catch (error51) {
+        return blocked(error51);
+      }
+    }
+  );
+  const sourceHeaderSchema = external_exports.union([
+    external_exports.literal("auto"),
+    external_exports.literal("none"),
+    external_exports.number().int().min(0)
+  ]).default("auto");
+  const sourceSingleSchema = external_exports.discriminatedUnion("view", [
+    external_exports.object({
+      view: external_exports.literal("inventory"),
+      paths: external_exports.array(external_exports.string()).min(1).max(20),
+      hash_contents: external_exports.boolean().default(false),
+      max_files: external_exports.number().int().min(1).max(200).default(50)
+    }),
+    external_exports.object({
+      view: external_exports.literal("schema"),
+      path: external_exports.string(),
+      sheet: external_exports.union([external_exports.string(), external_exports.number().int().min(0)]).optional(),
+      header_row: sourceHeaderSchema,
+      max_columns: external_exports.number().int().min(1).max(100).default(50)
+    }),
+    external_exports.object({
+      view: external_exports.literal("head"),
+      path: external_exports.string(),
+      sheet: external_exports.union([external_exports.string(), external_exports.number().int().min(0)]).optional(),
+      header_row: sourceHeaderSchema,
+      rows: external_exports.number().int().min(1).max(20).default(5),
+      max_columns: external_exports.number().int().min(1).max(100).default(30)
+    }),
+    external_exports.object({
+      view: external_exports.literal("profile"),
+      path: external_exports.string(),
+      sheet: external_exports.union([external_exports.string(), external_exports.number().int().min(0)]).optional(),
+      header_row: sourceHeaderSchema,
+      top_n: external_exports.number().int().min(1).max(10).default(5),
+      max_columns: external_exports.number().int().min(1).max(100).default(30)
+    })
+  ]);
+  const sourceRequestSchema = external_exports.union([
+    sourceSingleSchema,
+    external_exports.object({
+      view: external_exports.literal("batch"),
+      requests: external_exports.array(sourceSingleSchema).min(1).max(8)
+    })
+  ]);
+  function canonicalSourceRequest(args2) {
+    if (args2.view === "inventory") {
+      return {
+        view: "inventory",
+        paths: args2.paths,
+        hashContents: args2.hash_contents,
+        maxFiles: args2.max_files
+      };
+    }
+    if (args2.view === "schema") {
+      return {
+        view: "schema",
+        path: args2.path,
+        sheet: args2.sheet,
+        headerRow: args2.header_row,
+        maxColumns: args2.max_columns
+      };
+    }
+    if (args2.view === "head") {
+      return {
+        view: "head",
+        path: args2.path,
+        sheet: args2.sheet,
+        headerRow: args2.header_row,
+        rows: args2.rows,
+        maxColumns: args2.max_columns
+      };
+    }
+    return {
+      view: "profile",
+      path: args2.path,
+      sheet: args2.sheet,
+      headerRow: args2.header_row,
+      topN: args2.top_n,
+      maxColumns: args2.max_columns
+    };
+  }
+  function sourceReferences(request) {
+    const singles = request.view === "batch" ? request.requests : [request];
+    return singles.flatMap((item) => item.view === "inventory" ? item.paths.map((uri) => ({ uri, role: "inventory" })) : [{ uri: item.path, role: item.view }]);
+  }
+  server2.registerTool(
+    "inspect",
+    {
+      description: 'Inspect one variable or one/batched source request. Prefer source.view="batch" to inspect compatible files once. Spreadsheet schema auto-detects the header row and returns sheet names, header candidates, and a raw preview. The response is a complete bounded summary; read the stored cell output only if it explicitly reports omitted detail.',
+      inputSchema: {
+        variable: external_exports.object({
+          name: external_exports.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/)
+        }).optional(),
+        source: sourceRequestSchema.optional()
+      }
+    },
+    async ({ variable, source }) => {
+      try {
+        const adapter = await ensureReady();
+        if (Boolean(variable) === Boolean(source)) {
+          throw new TaskGateError("inspect requires exactly one of variable or source.");
+        }
+        if (variable) {
+          store.noteAction("inspect.variable");
+          const result2 = await adapter.inspectVariable({ name: variable.name });
+          if (!operationFailed(result2)) {
+            store.markInspected({ kind: "variable", target: variable.name, surface: adapter.surface });
+          }
+          return jsonText({ variable: variable.name, summary: truncate(resultText(result2), 1600), ...taskEnvelope() });
+        }
+        const args2 = source;
+        const request = args2.view === "batch" ? { view: "batch", requests: args2.requests.map(canonicalSourceRequest) } : canonicalSourceRequest(args2);
+        store.noteAction("inspect.source");
+        const before = await stateOf(adapter);
+        store.markInspected({
+          kind: "source",
+          target: sourceReferences(request).map((item) => item.uri).join(", "),
+          surface: adapter.surface
+        });
+        store.assertCanExecute();
+        store.record({ sources: sourceReferences(request) });
+        const includeHelper = !sourceHelperReady;
+        const inspectionSource = sourceInspectionCode(request, { includeHelper });
+        const result = await adapter.addAndRun({
+          source: inspectionSource
+        });
+        const response = await executionDelta({
+          adapter,
+          before,
+          result,
+          source: inspectionSource
+        });
+        const responseBody = resultText(response);
+        const succeeded = /"status":"ok"/.test(responseBody) || /"status":\s*"ok"/.test(responseBody);
+        if (includeHelper && !operationFailed(result) && succeeded) sourceHelperReady = true;
+        const compactObservation = compactSourceObservation(resultText(result));
+        if (compactObservation && response.content[0]?.type === "text") {
+          try {
+            const envelope = JSON.parse(response.content[0].text);
+            if (envelope.output) {
+              envelope.output = {
+                observation: compactObservation,
+                full_result: envelope.output.full_result
+              };
+            }
+            response.content[0].text = JSON.stringify(envelope);
+          } catch {
+          }
+        }
+        return response;
+      } catch (error51) {
+        return blocked(error51);
+      }
+    }
+  );
+  const factSchema = external_exports.object({ statement: external_exports.string().max(1e3), evidence: external_exports.string().max(1e3) });
+  const assumptionSchema = external_exports.object({
+    statement: external_exports.string().max(1e3),
+    consequence: external_exports.string().max(1e3).optional()
+  });
+  const artifactSchema = external_exports.object({ uri: external_exports.string().max(1e3), description: external_exports.string().max(1e3).optional() });
+  const riskSchema = external_exports.object({ risk: external_exports.string().max(1e3), mitigation: external_exports.string().max(1e3).optional() });
+  const sourceSchema = external_exports.object({
+    uri: external_exports.string().max(1e3),
+    role: external_exports.string().max(200).optional(),
+    fingerprint: external_exports.string().max(200).optional()
+  });
+  const checkpointRecordSchema = external_exports.object({
+    validated_facts: external_exports.array(factSchema).max(20).optional(),
+    assumptions: external_exports.array(assumptionSchema).max(20).optional(),
+    artifacts: external_exports.array(artifactSchema).max(20).optional(),
+    open_risks: external_exports.array(riskSchema).max(20).optional(),
+    sources: external_exports.array(sourceSchema).max(20).optional(),
+    resolved_error_ids: external_exports.array(external_exports.string().max(200)).max(20).optional()
+  });
+  const checkpointStatusSchema = external_exports.object({
+    section: external_exports.enum(["summary", "facts", "assumptions", "artifacts", "risks", "sources", "errors"]).default("summary"),
+    offset: external_exports.number().int().min(0).default(0),
+    limit: external_exports.number().int().min(1).max(20).default(10)
+  });
+  if (dependencies.includeAuditTools) {
+    server2.registerTool(
+      "checkpoint",
+      {
+        description: "Optionally record durable facts, assumptions, artifacts, risks, or sources, or read the passive evidence ledger. This tool is not required for ordinary answers.",
+        inputSchema: {
+          record: checkpointRecordSchema.optional(),
+          status: checkpointStatusSchema.optional()
+        }
+      },
+      async ({ record: record2, status }) => {
+        try {
+          if ([record2, status].filter(Boolean).length !== 1) {
+            throw new TaskGateError("checkpoint requires exactly one of record or status.");
+          }
+          requireTask();
+          if (record2) {
+            store.noteAction("checkpoint.record");
+            const ledger2 = store.record({
+              facts: record2.validated_facts,
+              assumptions: record2.assumptions,
+              artifacts: record2.artifacts,
+              risks: record2.open_risks,
+              sources: record2.sources,
+              resolvedErrorIds: record2.resolved_error_ids
+            });
+            return jsonText({
+              status: "recorded",
+              task: taskSummary(ledger2)
+            });
+          }
+          store.noteAction("checkpoint.status");
+          const ledger = store.requireActive();
+          return jsonText({
+            status: "active",
+            ...taskSection(ledger, status.section, status.offset, status.limit)
+          });
+        } catch (error51) {
+          return blocked(error51);
+        }
+      }
+    );
+    server2.registerTool(
+      "verify_clean_run",
+      {
+        description: "Optionally save, restart, and run the notebook top-to-bottom to test reproducibility.",
+        inputSchema: { confirm: external_exports.literal(true) }
+      },
+      async () => {
+        try {
+          const adapter = await ensureReady();
+          store.noteAction("verify_clean_run");
+          store.assertCanVerify();
+          const saved = await adapter.saveNotebook();
+          if (operationFailed(saved)) throw new TaskGateError(`Notebook save failed: ${resultText(saved)}`);
+          const restarted = await adapter.restartKernel();
+          if (operationFailed(restarted)) throw new TaskGateError(`Kernel restart failed: ${resultText(restarted)}`);
+          const before = await stateOf(adapter);
+          const result = await adapter.runAllCells();
+          await executionDelta({
+            adapter,
+            before,
+            result,
+            clearAllErrors: true,
+            returnOutput: "none"
+          });
+          const summary = cleanRunSummary(resultText(result));
+          const passed = summary.includes("PASSED");
+          const ledger = store.markVerified(passed, summary);
+          return jsonText({
+            status: passed ? "passed" : "failed",
+            summary,
+            surface: adapter.surface,
+            task: { id: ledger.taskId },
+            evidence: store.evidenceStatus(ledger)
+          });
+        } catch (error51) {
+          return blocked(error51);
+        }
+      }
+    );
+    server2.registerTool(
+      "publish_answer",
+      {
+        description: "Optionally record a compact audit receipt for a bounded result and executed evidence. Do not call this for an ordinary answer unless a receipt is useful.",
+        inputSchema: {
+          result: external_exports.object({
+            shape: resultShapeSchema,
+            value: external_exports.union([
+              external_exports.string().max(2e3),
+              external_exports.number(),
+              external_exports.boolean(),
+              external_exports.null(),
+              external_exports.array(external_exports.union([external_exports.string().max(500), external_exports.number(), external_exports.boolean(), external_exports.null()])).max(100)
+            ]).optional().describe("Scalar or short list only; keep long lists/tables in the evidenced cell or artifact."),
+            summary: external_exports.string().max(2e3).optional().describe("Bounded result summary, not the complete chat answer."),
+            unit: external_exports.string().max(100).optional(),
+            artifact_uri: external_exports.string().max(1e3).optional().describe("Reference for a long table, list, report, or other artifact.")
+          }),
+          evidence: external_exports.array(external_exports.discriminatedUnion("kind", [
+            external_exports.object({
+              kind: external_exports.literal("cell"),
+              cell_id: external_exports.number().int().min(0),
+              surface: external_exports.enum(["vscode", "pycharm", "jupyter"]).optional().describe(
+                "Surface containing the cell; defaults to the currently active surface."
+              ),
+              revision: external_exports.number().int().min(0).optional(),
+              description: external_exports.string().max(500).optional()
+            }),
+            external_exports.object({
+              kind: external_exports.literal("artifact"),
+              uri: external_exports.string().max(1e3),
+              description: external_exports.string().max(500).optional()
+            })
+          ])).min(1).max(20),
+          assumptions: external_exports.array(assumptionSchema).max(20).optional(),
+          open_risks: external_exports.array(riskSchema).max(20).optional()
+        }
+      },
+      async ({ result, evidence, assumptions, open_risks }) => {
+        try {
+          const adapter = await ensureReady();
+          const states = /* @__PURE__ */ new Map();
+          for (const item of evidence) {
+            if (item.kind !== "cell") continue;
+            const evidenceSurface = item.surface ?? adapter.surface;
+            const evidenceAdapter = adapters.get(evidenceSurface);
+            if (!evidenceAdapter) {
+              throw new TaskGateError(`Evidence surface ${evidenceSurface} is unavailable.`);
+            }
+            let state = states.get(evidenceSurface);
+            if (!state) {
+              state = await stateOf(evidenceAdapter);
+              states.set(evidenceSurface, state);
+            }
+            const cell = selectedCell(state, item.cell_id);
+            if (!cell || cell.executionCount === null || cell.executionCount === void 0) {
+              throw new TaskGateError(
+                `Evidence cell ${item.cell_id} on ${evidenceSurface} does not exist or has not executed.`
+              );
+            }
+            if (cell.error) {
+              throw new TaskGateError(`Evidence cell ${item.cell_id} on ${evidenceSurface} has an unresolved error.`);
+            }
+          }
+          store.finalize({
+            result: {
+              shape: result.shape,
+              value: result.value,
+              summary: result.summary,
+              unit: result.unit,
+              artifactUri: result.artifact_uri
+            },
+            evidence: evidence.map((item) => item.kind === "cell" ? {
+              kind: "cell",
+              cellId: item.cell_id,
+              surface: item.surface ?? adapter.surface,
+              revision: item.revision,
+              description: item.description
+            } : {
+              kind: "artifact",
+              uri: item.uri,
+              description: item.description
+            }),
+            assumptions,
+            risks: open_risks
+          });
+          const ledger = store.noteAction("publish_answer");
+          return jsonText({
+            status: "recorded",
+            receipt: ledger.finalization && {
+              result_shape: ledger.finalization.resultShape,
+              result_hash: ledger.finalization.resultHash,
+              evidence_count: ledger.finalization.evidenceCount,
+              finalized_at: ledger.finalization.finalizedAt
+            },
+            task: { id: ledger.taskId, status: ledger.status }
+          });
+        } catch (error51) {
+          return blocked(error51);
+        }
+      }
+    );
+  }
+}
+
+// mcp/surface.ts
+var SURFACES = ["vscode", "pycharm", "jupyter"];
+function resolvePreferredSurface(argv = process.argv, env = process.env) {
+  const flag = argv.find((arg) => arg.startsWith("--surface="));
+  const raw = flag?.slice("--surface=".length) || env.LEMMA_SURFACE;
+  if (!raw) return void 0;
+  if (SURFACES.includes(raw)) return raw;
+  throw new Error(`Invalid preferred Lemma surface "${raw}". Expected one of: ${SURFACES.join(", ")}.`);
+}
+
 // mcp/server.ts
 function lemmaRoot() {
   if (process.env.CLAUDE_PLUGIN_ROOT) return process.env.CLAUDE_PLUGIN_ROOT;
   if (process.env.PLUGIN_ROOT) return process.env.PLUGIN_ROOT;
-  let dir = path5.dirname(fileURLToPath(import.meta.url));
+  let dir = path7.dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 6; i++) {
-    if (fs4.existsSync(path5.join(dir, "AGENTS.md"))) return dir;
-    dir = path5.dirname(dir);
+    if (fs6.existsSync(path7.join(dir, "AGENTS.md"))) return dir;
+    dir = path7.dirname(dir);
   }
-  return path5.dirname(fileURLToPath(import.meta.url));
+  return path7.dirname(fileURLToPath(import.meta.url));
 }
 function readPersona() {
   try {
-    return fs4.readFileSync(path5.join(lemmaRoot(), "AGENTS.md"), "utf8").trim();
+    return fs6.readFileSync(path7.join(lemmaRoot(), "AGENTS.md"), "utf8").trim();
   } catch {
     return void 0;
   }
@@ -59314,7 +61216,7 @@ if (PERSONA) {
     "lemma_persona",
     {
       title: "Lemma data-scientist persona",
-      description: "Senior data-scientist mode: frame, look, leakage-check, baseline, validate honestly."
+      description: "Evidence-based data analysis: inspect sources, compute in the notebook, check correctness, and return the requested result."
     },
     () => ({
       messages: [{ role: "user", content: { type: "text", text: PERSONA } }]
@@ -59322,6 +61224,7 @@ if (PERSONA) {
   );
 }
 var SKILL_NAMES = [
+  "lemma-wrangle",
   "lemma-eda",
   "lemma-baseline",
   "lemma-model",
@@ -59332,39 +61235,78 @@ var SKILL_NAMES = [
   "lemma-leakage",
   "lemma-review"
 ];
-server.registerTool(
+var LEGACY_TOOLS = process.env.LEMMA_LEGACY_TOOLS === "1";
+var SCRIPTS_BY_SKILL = {
+  "lemma-wrangle": ["scripts/source_inventory.py"],
+  "lemma-eda": ["scripts/profile_table.py"],
+  "lemma-review": ["scripts/notebook_integrity.py", "scripts/verify_clean_run.py"]
+};
+function skillResource(name2, resource) {
+  const relatives = resource === "procedure" ? ["SKILL.md"] : resource === "reference" ? ["references/deep-guide.md"] : SCRIPTS_BY_SKILL[name2];
+  if (!relatives) return `skill ${name2} has no deterministic script resource.`;
+  try {
+    return relatives.map((relative) => `# ${relative}
+
+${fs6.readFileSync(path7.join(lemmaRoot(), "skills", name2, relative), "utf8")}`).join("\n\n");
+  } catch {
+    return `one or more ${name2} ${resource} resources are missing, is the lemma install complete?`;
+  }
+}
+server.registerPrompt(
   "lemma_skill",
   {
-    description: "Returns one lemma skill's full ruleset. Invoke before the matching analysis on a host with no native skill support.",
-    inputSchema: { name: external_exports.enum(SKILL_NAMES) }
-  },
-  ({ name: name2 }) => {
-    try {
-      return text(fs4.readFileSync(path5.join(lemmaRoot(), "skills", name2, "SKILL.md"), "utf8"));
-    } catch {
-      return text(`skill ${name2} not found, is the lemma install complete?`);
+    title: "Load a Lemma procedure or resource",
+    description: "Load a compact procedure first; request its reference or script only when the procedure calls for it.",
+    argsSchema: {
+      name: external_exports.enum(SKILL_NAMES),
+      resource: external_exports.enum(["procedure", "reference", "script"]).default("procedure")
     }
-  }
+  },
+  ({ name: name2, resource }) => ({
+    messages: [{ role: "user", content: { type: "text", text: skillResource(name2, resource) } }]
+  })
 );
+if (LEGACY_TOOLS) {
+  server.registerTool(
+    "lemma_skill",
+    {
+      description: "Returns one compact Lemma procedure for a legacy client with no prompt support.",
+      inputSchema: { name: external_exports.enum(SKILL_NAMES) }
+    },
+    ({ name: name2 }) => text(skillResource(name2, "procedure"))
+  );
+}
 var NO_KERNEL = "No kernel connection.";
 var httpClient;
 function getKernel() {
   return httpClient ?? NO_KERNEL;
 }
-var surfaceArg = process.argv.find((a) => a.startsWith("--surface="))?.slice("--surface=".length);
-if (!surfaceArg || surfaceArg === "vscode") {
-  registerVscodeTools(server);
+var preferredSurface = resolvePreferredSurface();
+function pycharmKernel() {
+  return {
+    current: () => getKernel(),
+    connect: async ({ serverUrl, token, notebookPath }) => {
+      httpClient?.kill();
+      httpClient = await KernelHttpClient.connect({ serverUrl, token, notebookPath });
+      return { kernelId: httpClient.kernelId };
+    }
+  };
 }
-var pycharmHandlers = !surfaceArg || surfaceArg === "pycharm" ? registerPyCharmTools(server, {
-  current: () => getKernel(),
-  connect: async ({ serverUrl, token, notebookPath }) => {
-    httpClient?.kill();
-    httpClient = await KernelHttpClient.connect({ serverUrl, token, notebookPath });
-    return { kernelId: httpClient.kernelId };
-  }
-}) : void 0;
-var jupyterlabHandlers = !surfaceArg || surfaceArg === "jupyter" ? registerJupyterlabTools(server) : void 0;
-registerNotebookTools(server, { pycharm: pycharmHandlers, jupyterlab: jupyterlabHandlers });
+if (LEGACY_TOOLS) {
+  registerVscodeTools(server);
+  const pycharmHandlers = registerPyCharmTools(server, pycharmKernel());
+  const jupyterlabHandlers = registerJupyterlabTools(server);
+  registerNotebookTools(server, { pycharm: pycharmHandlers, jupyterlab: jupyterlabHandlers });
+} else {
+  const pycharmHandlers = createPyCharmHandlers(pycharmKernel());
+  const jupyterlabHandlers = createJupyterlabHandlers();
+  registerCanonicalTools(server, {
+    preferredSurface,
+    pycharm: pycharmHandlers,
+    jupyterlab: jupyterlabHandlers,
+    includeAuditTools: process.env.LEMMA_AUDIT_TOOLS === "1"
+  });
+}
 function cleanup() {
   httpClient?.kill();
   shutdownJupyterlabSession();

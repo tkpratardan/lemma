@@ -70,12 +70,12 @@ One command brings her everywhere you work. Ten hosts in a single pass: Claude C
 
 1.  **The Persona:** Her judgment rides into every host through whichever channel it honors natively (MCP instructions, session-start hook, context file, or steering file). Every session starts with a seasoned data scientist already in the room.
 2.  **Stateful Interfaces:** She looks instead of guessing. MCP tools drive a live notebook across three surfaces (VS Code/Cursor via extension; PyCharm/DataSpell via disk and kernel, no plugin needed; JupyterLab via real-time collaboration), so the agent reads what is actually in the kernel, not what it remembers a cell printing.
-3.  **Specialized Skills:** She matches the rigor to the question. "What happened", "is this difference real", and "did the change cause it" are three different questions, and she works each one differently: nine skills, one per kind of question an analysis can actually be, from the first look at a fresh dataset to the review of someone else's result.
+3.  **Specialized Skills:** She matches the rigor to the question. "What happened", "is this difference real", and "did the change cause it" are three different questions, and she works each one differently: ten skills, one per kind of question an analysis can actually be, from assembling a working dataset out of messy sources to the review of someone else's result.
 
 
 ### Strengthening the Persona on Instruction-Only Hosts
 
-Some hosts have no global config path for an always-on ruleset, and MCP alone does not close that gap: not every client surfaces the server's instructions, and the `lemma_skill` tool is pull-based, so an agent that never received the persona does not know to call it. For a host-native guarantee, copy the matching rules file into your own project:
+Some hosts have no global config path for an always-on ruleset, and MCP alone does not close that gap: not every client surfaces the server's instructions, and the `lemma_skill` prompt is pull-based, so an agent that never received the persona does not know to request it. For a host-native guarantee, copy the matching rules file into your own project:
 
 | Host | File |
 | :--- | :--- |
@@ -86,17 +86,45 @@ Some hosts have no global config path for an always-on ruleset, and MCP alone do
 
 Each file is the same persona, generated verbatim from `AGENTS.md` with only host-specific frontmatter. Copy it as-is; hand edits are overwritten the next time the copies are regenerated (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
+## Numbers
+
+Headless Claude Code (Sonnet 5, subscription auth, no API key) on [DSAEval](https://github.com/AMA-CMFAI/DSAEval), baseline (no skill) vs Lemma, none of DSAEval's own harness used — real questions, real Kaggle datasets, judged by DSAEval's own unmodified rubric (Haiku).
+
+<p align="center">
+  <img src="assets/benchmark-dsaeval.svg" width="860" alt="Baseline vs Lemma on 34 hard DSAEval tasks: accuracy 44.1% baseline vs 84.8% lemma, confident-wrong rate 55.9% baseline vs 15.2% lemma, cost per task $0.50 baseline vs $0.62 lemma (1.23x)">
+</p>
+
+| | easy set (9 tasks) | hard set (34 tasks) |
+| :--- | ---: | ---: |
+| baseline / lemma accuracy | 100% / 100% | 44.1% / **84.8%** |
+| baseline / lemma confident-wrong | 0% / 0% | 55.9% / **15.2%** |
+| baseline / lemma $/task | $0.155 / $0.576 | $0.504 / $0.621 |
+
+On the hardest task from every DSAEval task type and domain, baseline gives a confidently wrong answer more than half the time; Lemma about 1 in 7, at 1.23x the cost. On clean single-answer questions with no room for rigor to pay off, both tie at 100% and Lemma's overhead is pure cost.
+
+No curated writeup — the raw artifacts are the source of truth:
+
+* [`evals/run_dsaeval.py`](evals/run_dsaeval.py) / [`evals/run_dsaeval_hard.py`](evals/run_dsaeval_hard.py) — the eval scripts, questions and ground truth inline (`run_dsaeval.py`) or in [`evals/dsaeval_hard_tasks.json`](evals/dsaeval_hard_tasks.json) (question, DSAEval's reasoning + answer, dataset, category)
+* [`evals/runs/results.jsonl`](evals/runs/results.jsonl) — every run's actual model answer (`pred`), cost, tokens, turns (filter `benchmark: dsaeval` / `dsaeval-hard`)
+* [`evals/runs/dsaeval_hard_scores.jsonl`](evals/runs/dsaeval_hard_scores.jsonl) — the full judge verdict per task: `ReasoningProcess`/`CodeSteps`/`FinalResults`/`Consistency` scores plus its written `Analysis`
+
+```bash
+cd evals
+python3 run_dsaeval.py --arm both && python3 run_dsaeval_hard.py --arm both --max-turns 40
+python3 report.py --benchmark dsaeval-hard
+```
+
 ## Requirements
 
 Ensure your environment meets the prerequisites for your chosen surface:
 
 | Surface | Requirements |
 | :--- | :--- |
-| **`jupyterlab_*`** | An active `jupyter lab` instance with `jupyter-collaboration` installed |
-| **`vscode_*`** | Lemma VS Code extension installed (automatic via `lemma` installer) |
-| **`pycharm_*`** | A PyCharm/DataSpell-open notebook on disk and its active Jupyter kernel |
+| **JupyterLab** | An active `jupyter lab` instance with `jupyter-collaboration` installed |
+| **VS Code / Cursor** | Lemma VS Code extension installed (automatic via `lemma` installer) |
+| **PyCharm / DataSpell** | An open notebook on disk and its active Jupyter kernel |
 
-> **Note:** `jupyterlab_*` and `pycharm_*` are both still naive. `pycharm_*` needs a connection URL and writes to disk instead of live-editing, since PyCharm has no live-edit API; it relies on PyCharm's own reload-on-change. `jupyterlab_*` needs a server URL and token too, Lemma can't discover them on its own, with one hack, not a guarantee: as a subprocess of Jupyter AI's own chat (which spawns agents alongside [`jupyter-server-mcp`](https://github.com/jupyter-ai-contrib/jupyter-server-mcp), its own in-process MCP server), Lemma scans the local Jupyter runtime directory for a running server instead of asking, since that subprocess is guaranteed to be colocated with it. It isn't foolproof: more than one local notebook, or none found, falls back to asking the user or to Jupyter AI's own tools.
+> **Note:** The agent always sees the same five analysis actions. Normal actions attach lazily to the preferred surface. `connect(surface=...)` can switch among VS Code, PyCharm, and JupyterLab during the same session without resetting the selected kernel; `reset_kernel=true` makes a restart explicit. Internally, PyCharm needs a connection URL and writes through the on-disk notebook because it has no live-edit API. JupyterLab accepts a URL and token or attempts local auto-discovery; multiple or missing local notebooks are reported instead of guessed.
 
 *For complete tool references, see [docs/tools.md](docs/tools.md).*
 *For system architecture, see [docs/architecture.md](docs/architecture.md).*

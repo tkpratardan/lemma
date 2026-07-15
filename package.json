@@ -51,7 +51,10 @@
     "zod": "^4.4.3"
   },
   "scripts": {
-    "prepare": "cd src && npm install && npm run build && npm run bundle"
+    "prepare": "cd src && npm install && npm run build && npm run bundle",
+    "build:copies": "node scripts/build-rule-copies.js && node scripts/build-openclaw-skills.js",
+    "check:copies": "node scripts/build-rule-copies.js --check && node scripts/build-openclaw-skills.js --check && node scripts/check-versions.js",
+    "test": "node --test 'test/*.test.js'"
   },
   "engines": {
     "node": ">=18"

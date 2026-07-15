@@ -1,23 +1,41 @@
 #!/usr/bin/env node
+// Post-tool-use hook, all hosts: track surface activation and set the discard
+// gate when a tool result carries lemma's discard text. Analytical judgment
+// stays in the persona/skill loop; repeating generic context after every cell
+// only pollutes long notebook trajectories.
 'use strict';
 
+const fs = require('fs');
+
 const { setDiscarded, isDiscardSignal } = require('./lib/discardGate.js');
-const { isMutatingNotebookTool, NUDGE_TEXT } = require('./lib/nudge.js');
+const { isSurfaceTool, setSurfaceActive } = require('./lib/dataGate.js');
+const { HOST, emit } = require('./lib/envelope.js');
+
+// Copilot documents both camelCase and VS Code-compatible snake_case fields.
+function toolResult(event) {
+  if (HOST === 'copilot') {
+    return event.tool_result?.text_result_for_llm ?? event.toolResult?.textResultForLlm ?? '';
+  }
+  if (HOST === 'cursor') {
+    return event.result_json;
+  }
+  return event.tool_response;
+}
 
 function main() {
   let event = {};
   try {
-    event = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
+    event = JSON.parse(fs.readFileSync('/dev/stdin', 'utf8'));
   } catch {
     process.exit(0);
   }
-  if (isDiscardSignal(event.tool_response)) {
+  const toolName = event.tool_name ?? event.toolName;
+  if (isSurfaceTool(toolName)) {
+    setSurfaceActive();
+  }
+  if (isDiscardSignal(toolResult(event))) {
     setDiscarded();
-    process.stdout.write(JSON.stringify({ continue: false, stopReason: 'edit discarded' }) + '\n');
-  } else if (isMutatingNotebookTool(event.tool_name)) {
-    process.stdout.write(JSON.stringify({
-      hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: NUDGE_TEXT },
-    }) + '\n');
+    emit('discardStop');
   }
   process.exit(0);
 }

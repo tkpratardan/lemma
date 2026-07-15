@@ -1,11 +1,6 @@
 #!/usr/bin/env node
-// Lemma installer — provider matrix + auto-detect + per-agent mechanism.
-// One command configures every installed agent instead of hand-maintaining
-// a separate JSON file per host.
-//
-// Everything is written to user-level (global) configs — available in every
-// workspace, no per-project setup required. Nothing is written inside a
-// project directory.
+// Lemma installer: one command auto-detects and configures every installed
+// agent. Writes only user-level (global) configs, never project files.
 
 'use strict';
 
@@ -27,13 +22,9 @@ const CONFIGURE = ARGS.options.get('configure');
 const CONFIGURE_SURFACES = ['vscode', 'pycharm', 'jupyter'];
 
 // ---- plugin-route source (remote-first: git push is the release action) ----
-//
-// Hosts with a native plugin/marketplace system (Claude Code, Codex, Copilot,
-// Antigravity/agy, Gemini extensions) get pointed at the real published repo,
-// not a locally-copied bundle — their own plugin manager owns fetching and
-// (where supported) auto-updating it, the same way ~/src/ponytail does this.
-// LEMMA_DEV_LOCAL=1 swaps in this checkout instead, so working on lemma
-// itself doesn't require a push+round-trip to test a change.
+// Hosts with a native plugin system get pointed at the published repo so
+// their own manager owns fetching/updating. LEMMA_DEV_LOCAL=1 swaps in this
+// checkout, so testing a change doesn't need a push round-trip.
 
 const LEMMA_GITHUB_REPO = 'tkpratardan/lemma';
 const LEMMA_GITHUB_URL = `https://github.com/${LEMMA_GITHUB_REPO}`;
@@ -250,17 +241,26 @@ function lemmaMcpCommand() {
 }
 
 // ---- Codex plugin install ---------------------------------------------------
-//
-// Codex uses plugins as the distribution unit for skills/hooks/MCP. Points at
-// the real published repo (or this checkout under LEMMA_DEV_LOCAL) instead of
-// a locally-copied bundle, matching how ~/src/ponytail installs itself there
-// (`codex plugin marketplace add owner/repo`) — Codex's own plugin manager
-// owns fetching it from here on, not lemma's installer.
-//
+// Points Codex's own plugin manager at the published repo (or this checkout
+// under LEMMA_DEV_LOCAL); it owns fetching from here on, not this installer.
+
 const CODEX_MARKETPLACE_NAME = 'lemma';
 
 function codexPluginSelector() {
   return `lemma@${CODEX_MARKETPLACE_NAME}`;
+}
+
+// Logs one host-CLI action and runs it unless DRY_RUN. `warnLabel` downgrades
+// a failure to a logged warning so one host's breakage never blocks the
+// others; omit it where the old behavior ignored failures (uninstall paths).
+function runCliStep(cli, logText, args, warnLabel) {
+  log(`  ${logText}`);
+  if (DRY_RUN) return;
+  const r = spawnSync(cli, args, { encoding: 'utf8', timeout: 60000 });
+  if (warnLabel && (r.status !== 0 || r.error)) {
+    const reason = (r.stderr || r.stdout || r.error?.message || 'unknown').trim();
+    log(`  warning: ${warnLabel} failed: ${reason}`);
+  }
 }
 
 function installCodexPlugin() {
@@ -269,22 +269,10 @@ function installCodexPlugin() {
     log('  warning: codex CLI not found; skipping');
     return;
   }
-  log(`  codex plugin marketplace add ${pluginSource()}`);
-  if (!DRY_RUN) {
-    const added = spawnSync(cli, ['plugin', 'marketplace', 'add', pluginSource()], { encoding: 'utf8', timeout: 60000 });
-    if (added.status !== 0 || added.error) {
-      const reason = (added.stderr || added.stdout || added.error?.message || 'unknown').trim();
-      log(`  warning: codex plugin marketplace add failed: ${reason}`);
-    }
-  }
-  log(`  codex plugin add ${codexPluginSelector()}`);
-  if (!DRY_RUN) {
-    const installed = spawnSync(cli, ['plugin', 'add', codexPluginSelector()], { encoding: 'utf8', timeout: 60000 });
-    if (installed.status !== 0 || installed.error) {
-      const reason = (installed.stderr || installed.stdout || installed.error?.message || 'unknown').trim();
-      log(`  warning: codex plugin add failed: ${reason}`);
-    }
-  }
+  runCliStep(cli, `codex plugin marketplace add ${pluginSource()}`,
+    ['plugin', 'marketplace', 'add', pluginSource()], 'codex plugin marketplace add');
+  runCliStep(cli, `codex plugin add ${codexPluginSelector()}`,
+    ['plugin', 'add', codexPluginSelector()], 'codex plugin add');
 }
 
 function uninstallCodexPlugin() {
@@ -293,14 +281,10 @@ function uninstallCodexPlugin() {
     log('  warning: codex CLI not found; nothing to uninstall');
     return;
   }
-  log(`  codex plugin remove ${codexPluginSelector()}`);
-  if (!DRY_RUN) {
-    spawnSync(cli, ['plugin', 'remove', codexPluginSelector()], { encoding: 'utf8', timeout: 60000 });
-  }
-  log(`  codex plugin marketplace remove ${CODEX_MARKETPLACE_NAME}`);
-  if (!DRY_RUN) {
-    spawnSync(cli, ['plugin', 'marketplace', 'remove', CODEX_MARKETPLACE_NAME], { encoding: 'utf8', timeout: 60000 });
-  }
+  runCliStep(cli, `codex plugin remove ${codexPluginSelector()}`,
+    ['plugin', 'remove', codexPluginSelector()]);
+  runCliStep(cli, `codex plugin marketplace remove ${CODEX_MARKETPLACE_NAME}`,
+    ['plugin', 'marketplace', 'remove', CODEX_MARKETPLACE_NAME]);
   removeCodexHookTrustState();
 }
 
@@ -319,16 +303,9 @@ function removeCodexHookTrustState() {
 }
 
 // ---- Copilot CLI plugin install ---------------------------------------------
-//
-// Points at the real published repo (or this checkout under LEMMA_DEV_LOCAL)
-// instead of a locally-copied bundle — confirmed against the real `copilot`
-// CLI this session (`copilot plugin --help` / `copilot plugin marketplace
-// add --help`): `marketplace add <source>` takes "owner/repo for GitHub, URL,
-// or local path" directly, and the uninstall verb is `uninstall`, not
-// `remove` (the prior local-bundle code had this wrong).
-//
-// Hooks: confirmed live for Copilot CLI and for Codex (the latter gated
-// behind a one-time user trust step) per each host's own plugin docs.
+// Confirmed against the real CLI: `marketplace add <source>` takes owner/repo,
+// URL, or local path directly, and the uninstall verb is `uninstall`, not
+// `remove`. Hooks fire for Copilot, and for Codex after a one-time trust step.
 
 const COPILOT_MARKETPLACE_NAME = 'lemma';
 const COPILOT_PLUGIN_SELECTOR = 'lemma@lemma'; // name@marketplace, both "lemma" per .github/plugin/marketplace.json
@@ -339,23 +316,10 @@ function installCopilotPlugin() {
     log('  warning: copilot CLI not found; skipping');
     return;
   }
-  log(`  copilot plugin marketplace add ${pluginSource()}`);
-  if (!DRY_RUN) {
-    const added = spawnSync(cli, ['plugin', 'marketplace', 'add', pluginSource()], { encoding: 'utf8', timeout: 60000 });
-    if (added.status !== 0 || added.error) {
-      const reason = (added.stderr || added.stdout || added.error?.message || 'unknown').trim();
-      log(`  warning: copilot plugin marketplace add failed: ${reason}`);
-    }
-  }
-  log(`  copilot plugin install ${COPILOT_PLUGIN_SELECTOR}`);
-  if (!DRY_RUN) {
-    const installed = spawnSync(cli, ['plugin', 'install', COPILOT_PLUGIN_SELECTOR],
-      { encoding: 'utf8', timeout: 60000 });
-    if (installed.status !== 0 || installed.error) {
-      const reason = (installed.stderr || installed.stdout || installed.error?.message || 'unknown').trim();
-      log(`  warning: copilot plugin install failed: ${reason}`);
-    }
-  }
+  runCliStep(cli, `copilot plugin marketplace add ${pluginSource()}`,
+    ['plugin', 'marketplace', 'add', pluginSource()], 'copilot plugin marketplace add');
+  runCliStep(cli, `copilot plugin install ${COPILOT_PLUGIN_SELECTOR}`,
+    ['plugin', 'install', COPILOT_PLUGIN_SELECTOR], 'copilot plugin install');
 }
 
 function uninstallCopilotPlugin() {
@@ -364,30 +328,16 @@ function uninstallCopilotPlugin() {
     log('  warning: copilot CLI not found; nothing to uninstall');
     return;
   }
-  log(`  copilot plugin uninstall ${COPILOT_PLUGIN_SELECTOR}`);
-  if (!DRY_RUN) {
-    const r = spawnSync(cli, ['plugin', 'uninstall', COPILOT_PLUGIN_SELECTOR], { encoding: 'utf8', timeout: 60000 });
-    if (r.status !== 0 || r.error) {
-      const reason = (r.stderr || r.stdout || r.error?.message || 'unknown').trim();
-      log(`  warning: copilot plugin uninstall failed: ${reason}`);
-    }
-  }
-  log(`  copilot plugin marketplace remove ${COPILOT_MARKETPLACE_NAME}`);
-  if (!DRY_RUN) {
-    spawnSync(cli, ['plugin', 'marketplace', 'remove', COPILOT_MARKETPLACE_NAME], { encoding: 'utf8', timeout: 60000 });
-  }
+  runCliStep(cli, `copilot plugin uninstall ${COPILOT_PLUGIN_SELECTOR}`,
+    ['plugin', 'uninstall', COPILOT_PLUGIN_SELECTOR], 'copilot plugin uninstall');
+  runCliStep(cli, `copilot plugin marketplace remove ${COPILOT_MARKETPLACE_NAME}`,
+    ['plugin', 'marketplace', 'remove', COPILOT_MARKETPLACE_NAME]);
 }
 
 // ---- OpenClaw plugin install -------------------------------------------------
-//
-// Confirmed against the real `openclaw` CLI this session: `openclaw plugins
-// install lemma --marketplace <source>` reads the same `.claude-plugin/`
-// marketplace manifest Claude Code uses (`openclaw plugins list` showed it
-// installed as format "bundle", version correctly read from package.json,
-// and `openclaw plugins doctor` reported no issues) — no ClawHub publish
-// needed, which the previous local-skills-copy-only approach had assumed.
-// `--force` skips the interactive confirm prompt on uninstall (confirmed:
-// without it, uninstall fails outside a TTY asking for y/N).
+// `openclaw plugins install --marketplace` reads the same `.claude-plugin/`
+// manifest Claude Code uses — no ClawHub publish needed. `--force` skips the
+// interactive y/N confirm, which otherwise fails outside a TTY.
 
 function installOpenclawPlugin() {
   const cli = which('openclaw');
@@ -395,15 +345,9 @@ function installOpenclawPlugin() {
     log('  warning: openclaw CLI not found; skipping');
     return;
   }
-  log(`  openclaw plugins install lemma --marketplace ${pluginSource()}`);
-  if (!DRY_RUN) {
-    const r = spawnSync(cli, ['plugins', 'install', 'lemma', '--marketplace', pluginSource(), '--force'],
-      { encoding: 'utf8', timeout: 60000 });
-    if (r.status !== 0 || r.error) {
-      const reason = (r.stderr || r.stdout || r.error?.message || 'unknown').trim();
-      log(`  warning: openclaw plugins install failed: ${reason}`);
-    }
-  }
+  runCliStep(cli, `openclaw plugins install lemma --marketplace ${pluginSource()}`,
+    ['plugins', 'install', 'lemma', '--marketplace', pluginSource(), '--force'],
+    'openclaw plugins install');
 }
 
 function uninstallOpenclawPlugin() {
@@ -412,18 +356,13 @@ function uninstallOpenclawPlugin() {
     log('  warning: openclaw CLI not found; nothing to uninstall');
     return;
   }
-  log('  openclaw plugins uninstall lemma --force');
-  if (!DRY_RUN) {
-    spawnSync(cli, ['plugins', 'uninstall', 'lemma', '--force'], { encoding: 'utf8', timeout: 60000 });
-  }
+  runCliStep(cli, 'openclaw plugins uninstall lemma --force',
+    ['plugins', 'uninstall', 'lemma', '--force']);
 }
 
 // ---- OpenClaw bootstrap file install ------------------------------------------
-//
-// AGENTS.md is one of OpenClaw's own documented workspace bootstrap files,
-// loaded into the system prompt at session start — a plain file, no hook or
-// CLI step needed. Marker-fenced so uninstall only ever touches lemma's own
-// block, never a user's existing AGENTS.md content.
+// AGENTS.md is a documented OpenClaw workspace bootstrap file. Marker-fenced
+// so uninstall only touches lemma's block, never the user's own content.
 
 const OPENCLAW_MARK_BEGIN = '<!-- lemma-begin -->';
 const OPENCLAW_MARK_END = '<!-- lemma-end -->';
@@ -473,19 +412,18 @@ function uninstallOpenclawBootstrap() {
 }
 
 // ---- Cursor hooks install ----------------------------------------------------
-//
-// ~/.cursor/hooks.json is a plain global config file, confirmed at
-// cursor.com/docs/hooks — no plugin marketplace involved, so this merges in
-// directly, same as ~/.cursor/mcp.json above.
+// ~/.cursor/hooks.json is a plain global config (cursor.com/docs/hooks), so
+// this merges in directly — no plugin marketplace involved.
 
-// Each Cursor hook event lemma wires up, and the script it runs.
+// Each Cursor hook event lemma wires up, the shared script it runs, and the
+// pre-3.2 per-host script name a re-install must still replace.
 const CURSOR_HOOKS = [
-  { event: 'sessionStart', script: 'cursor-session-start.js' },
-  { event: 'beforeSubmitPrompt', script: 'cursor-clear-discard.js' },
-  { event: 'afterMCPExecution', script: 'cursor-detect-discard.js' },
-  { event: 'beforeMCPExecution', script: 'cursor-deny-if-discarded.js' },
-  { event: 'beforeShellExecution', script: 'cursor-deny-if-discarded.js' },
-  { event: 'beforeReadFile', script: 'cursor-deny-if-discarded.js' },
+  { event: 'sessionStart', script: 'session-start.js', legacy: 'cursor-session-start.js' },
+  { event: 'beforeSubmitPrompt', script: 'prompt-submit.js', legacy: 'cursor-clear-discard.js' },
+  { event: 'afterMCPExecution', script: 'post-tool-use.js', legacy: 'cursor-detect-discard.js' },
+  { event: 'beforeMCPExecution', script: 'pre-tool-use.js', legacy: 'cursor-deny-if-discarded.js' },
+  { event: 'beforeShellExecution', script: 'pre-tool-use.js', legacy: 'cursor-deny-if-discarded.js' },
+  { event: 'beforeReadFile', script: 'pre-tool-use.js', legacy: 'cursor-deny-if-discarded.js' },
 ];
 
 function cursorHooksPath() {
@@ -494,9 +432,9 @@ function cursorHooksPath() {
 
 // Matches by script filename, not object equality, so re-install replaces
 // lemma's entry instead of appending a duplicate each time.
-function isCursorLemmaHook(script) {
+function isCursorLemmaHook(...scripts) {
   return (entry) => Boolean(entry) && typeof entry.command === 'string' &&
-    entry.command.includes(script);
+    scripts.some((script) => entry.command.includes(script));
 }
 
 function installCursorHook() {
@@ -508,10 +446,13 @@ function installCursorHook() {
   try { config = JSON.parse(fs.readFileSync(filePath, 'utf8')); } catch { }
   config.version = config.version || 1;
   config.hooks = config.hooks || {};
-  for (const { event, script } of CURSOR_HOOKS) {
+  for (const { event, script, legacy } of CURSOR_HOOKS) {
     const existing = Array.isArray(config.hooks[event]) ? config.hooks[event] : [];
-    const entry = { command: `node "${path.join(REPO_ROOT, 'hooks', script)}"`, timeout: 5 };
-    config.hooks[event] = existing.filter((h) => !isCursorLemmaHook(script)(h));
+    const entry = {
+      command: `node "${path.join(REPO_ROOT, 'hooks', script)}" --host=cursor`,
+      timeout: 5,
+    };
+    config.hooks[event] = existing.filter((h) => !isCursorLemmaHook(script, legacy)(h));
     config.hooks[event].push(entry);
   }
 
@@ -520,8 +461,8 @@ function installCursorHook() {
 }
 
 function uninstallCursorHook() {
-  for (const { event, script } of CURSOR_HOOKS) {
-    removeFromArrayInJson(cursorHooksPath(), `hooks.${event}`, isCursorLemmaHook(script));
+  for (const { event, script, legacy } of CURSOR_HOOKS) {
+    removeFromArrayInJson(cursorHooksPath(), `hooks.${event}`, isCursorLemmaHook(script, legacy));
   }
 }
 
@@ -550,7 +491,16 @@ function agyInstallPath(target) {
 }
 
 function makeProviders(cmd) {
-  const mcpEntry = { command: cmd[0], ...(cmd.length > 1 ? { args: cmd.slice(1) } : {}) };
+  const commandFor = (defaultSurface) => {
+    if (!defaultSurface || cmd.some((arg) => arg.startsWith('--surface='))) return cmd;
+    return [...cmd, `--surface=${defaultSurface}`];
+  };
+  const entryFor = (defaultSurface) => {
+    const selected = commandFor(defaultSurface);
+    return { command: selected[0], ...(selected.length > 1 ? { args: selected.slice(1) } : {}) };
+  };
+  const mcpEntry = entryFor();
+  const vscodeMcpEntry = entryFor('vscode');
 
   return [
     {
@@ -563,15 +513,15 @@ function makeProviders(cmd) {
       skillsDir: path.join(HOME, '.cursor', 'skills'),
       install() {
         writeJsonMerge(path.join(HOME, '.cursor', 'mcp.json'), {
-          mcpServers: { lemma: mcpEntry },
+          mcpServers: { lemma: vscodeMcpEntry },
         });
         installCursorHook();
-        installCursorPermissions();
+        installPermissionsFor('cursor');
       },
       uninstall() {
         removeFromJson(path.join(HOME, '.cursor', 'mcp.json'), 'mcpServers.lemma');
         uninstallCursorHook();
-        uninstallCursorPermissions();
+        uninstallPermissionsFor('cursor');
       },
     },
     {
@@ -579,7 +529,7 @@ function makeProviders(cmd) {
       label: 'VS Code',
       detect: () => Boolean(which('code')),
       install() {
-        const entry = { type: 'stdio', command: cmd[0], ...(cmd.length > 1 ? { args: cmd.slice(1) } : {}) };
+        const entry = { type: 'stdio', ...vscodeMcpEntry };
         // Standalone global mcp.json ({"servers":…}) is what VS Code's own MCP
         // panel opens and reads. Writing MCP config into settings.json is
         // deprecated (VS Code now warns and offers to migrate it away), so
@@ -661,7 +611,7 @@ function makeProviders(cmd) {
         // Only when lemma is actually registered one way or the other —
         // otherwise there's nothing here to allow-list.
         if (pluginInstalled || fallbackUsed) {
-          installPermissions();
+          installPermissionsFor('claude');
         }
       },
       uninstall() {
@@ -676,11 +626,12 @@ function makeProviders(cmd) {
         removeFromJson(path.join(HOME, '.claude.json'), 'mcpServers.lemma');
         removeSkillsFrom(path.join(HOME, '.claude', 'skills'));
         uninstallHooks();
-        uninstallPermissions();
+        uninstallPermissionsFor('claude');
         // `claude plugin uninstall` doesn't clear these — a leftover cache/flag
         // makes an already-running session look like the plugin never left.
         for (const stale of [
           path.join(HOME, '.claude', '.lemma-active'),
+          path.join(HOME, '.lemma'),
           path.join(HOME, '.claude', 'plugins', 'cache', 'lemma'),
           path.join(HOME, '.claude', 'plugins', 'marketplaces', 'lemma'),
         ]) {
@@ -710,8 +661,8 @@ function makeProviders(cmd) {
           ? path.join(HOME, 'Library', 'Application Support', 'Claude')
           : path.join(HOME, '.config', 'Claude');
         const file = path.join(configDir, 'claude_desktop_config.json');
-        writeJsonMerge(file, { mcpServers: { lemma: mcpEntry } });
-        addToArrayInJson(file, 'mcpServers.lemma.alwaysAllow', VSCODE_TOOL_NAMES);
+        writeJsonMerge(file, { mcpServers: { lemma: vscodeMcpEntry } });
+        addToArrayInJson(file, 'mcpServers.lemma.alwaysAllow', CANONICAL_TOOL_NAMES);
       },
       uninstall() {
         const configDir = process.platform === 'darwin'
@@ -777,7 +728,7 @@ function makeProviders(cmd) {
               log(`  warning: agy plugin install failed: ${(r.stderr || r.stdout || r.error?.message || 'unknown').trim()}`);
             }
           }
-          installAntigravityPermissions();
+          installPermissionsFor('antigravity');
           return;
         }
         // `link` is for a local dev checkout (live-reflects edits, no
@@ -819,7 +770,7 @@ function makeProviders(cmd) {
           if (!DRY_RUN) {
             spawnSync('agy', ['plugin', 'uninstall', 'lemma'], { encoding: 'utf8', timeout: 15000 });
           }
-          uninstallAntigravityPermissions();
+          uninstallPermissionsFor('antigravity');
           return;
         }
         log('  gemini extensions uninstall lemma');
@@ -840,9 +791,8 @@ function makeProviders(cmd) {
         // (~/.opencode/config.json, tried earlier, only holds plugins/skills
         // subdirs — see https://opencode.ai/docs/config/). The plugin
         // (.opencode/plugins/lemma.mjs) is the single persona channel: it
-        // injects AGENTS.md into every request's system prompt and handles
-        // the `/lemma [on|off]` mode switch. An `instructions` entry would
-        // put a second copy of the persona in the same request, so none is
+        // injects AGENTS.md into every request's system prompt. An
+        // `instructions` entry would put a second copy of the persona in the same request, so none is
         // written (and one from an older install is removed), and the MCP
         // instructions copy is suppressed via env for the same reason.
         const configFile = path.join(HOME, '.config', 'opencode', 'opencode.json');
@@ -881,8 +831,8 @@ function makeProviders(cmd) {
       detect: () => appExists('Windsurf') || Boolean(which('windsurf')),
       install() {
         const file = path.join(HOME, '.codeium', 'windsurf', 'mcp_config.json');
-        writeJsonMerge(file, { mcpServers: { lemma: mcpEntry } });
-        addToArrayInJson(file, 'mcpServers.lemma.alwaysAllow', VSCODE_TOOL_NAMES);
+        writeJsonMerge(file, { mcpServers: { lemma: vscodeMcpEntry } });
+        addToArrayInJson(file, 'mcpServers.lemma.alwaysAllow', CANONICAL_TOOL_NAMES);
       },
       uninstall() {
         removeFromJson(path.join(HOME, '.codeium', 'windsurf', 'mcp_config.json'), 'mcpServers.lemma');
@@ -937,16 +887,9 @@ function uninstallHooks() {
 }
 
 // ---- skills (per-host: each agent that scans a skills dir gets a copy) -------
-//
-// Unlike MCP/persona/hooks (a pointer at the file the package already sits
-// at), skills are discovered by directory scan, so they must be physically
-// copied to a location the host scans. Each provider that supports SKILL.md
-// declares a global `skillsDir`; the main loop copies lemma's skills there.
-//
-// Verified global skill dirs: claude-code → ~/.claude/skills (also scanned by
-// opencode etc.), opencode → ~/.config/opencode/skills. Windsurf/Cursor only
-// document *project* skill dirs (.windsurf/skills/, .cursor/skills/) — no
-// verified global path, so left unwired rather than guessed.
+// Skills are discovered by directory scan, so unlike MCP/persona/hooks they
+// must be physically copied into each provider's global `skillsDir`.
+// Windsurf only documents a *project* skills dir, so it stays unwired.
 
 function lemmaSkillNames() {
   const skillsDir = path.join(REPO_ROOT, 'skills');
@@ -989,12 +932,9 @@ function removeSkillsFrom(destRoot) {
 
 // ---- permissions (Claude Code's global settings) ----------------------------
 
-const VSCODE_TOOL_NAMES = [
-  'vscode_status', 'vscode_read_notebook', 'vscode_get_state', 'vscode_execute_cell',
-  'vscode_probe', 'vscode_add_and_run', 'vscode_run_cell', 'vscode_read_cell_output',
-  'vscode_run_all_cells', 'vscode_edit_cell', 'vscode_edit_and_run', 'vscode_insert_cell',
-  'vscode_delete_cell', 'vscode_add_markdown', 'vscode_restart_kernel', 'vscode_inspect_variable',
-  'vscode_clear_notebook', 'vscode_save_notebook',
+const CANONICAL_TOOL_NAMES = [
+  'connect', 'read', 'run', 'edit', 'inspect', 'checkpoint',
+  'verify_clean_run', 'publish_answer',
 ];
 
 // Claude Code names a plugin-installed server's tools
@@ -1003,67 +943,69 @@ const VSCODE_TOOL_NAMES = [
 // registration path might be the one active.
 const CLAUDE_MCP_PREFIXES = ['lemma', 'plugin_lemma_lemma'];
 
-function installPermissions() {
-  const globalSettings = path.join(HOME, '.claude', 'settings.json');
-  log(`  allow-list vscode_* tools → ${globalSettings} (global)`);
-  const entries = CLAUDE_MCP_PREFIXES.flatMap((prefix) =>
-    VSCODE_TOOL_NAMES.map((name) => `mcp__${prefix}__${name}`));
-  addToArrayInJson(globalSettings, 'permissions.allow', entries);
+// One row per host that pre-approves the canonical notebook actions in a JSON allowlist:
+// where the list lives, and how that host spells a tool entry. Entry formats
+// confirmed per host: cursor.com/docs/reference/permissions ("<server>:<tool>"
+// in mcpAllowlist); Antigravity uses "mcp(<server>/<tool>)".
+const PERMISSION_TARGETS = {
+  claude: {
+    file: () => path.join(HOME, '.claude', 'settings.json'),
+    keyPath: 'permissions.allow',
+    entries: () => CLAUDE_MCP_PREFIXES.flatMap((prefix) =>
+      CANONICAL_TOOL_NAMES.map((name) => `mcp__${prefix}__${name}`)),
+    logInstall: true,
+    pruneEmptyParent: true,
+  },
+  cursor: {
+    file: () => path.join(HOME, '.cursor', 'permissions.json'),
+    keyPath: 'mcpAllowlist',
+    entries: () => CANONICAL_TOOL_NAMES.map((name) => `lemma:${name}`),
+  },
+  antigravity: {
+    file: () => path.join(HOME, '.gemini', 'antigravity-cli', 'settings.json'),
+    keyPath: 'permissions.allow',
+    entries: () => CANONICAL_TOOL_NAMES.map((name) => `mcp(lemma/${name})`),
+  },
+};
+
+function installPermissionsFor(hostId) {
+  const target = PERMISSION_TARGETS[hostId];
+  if (target.logInstall) {
+    log(`  allow-list canonical notebook actions → ${target.file()} (global)`);
+  }
+  addToArrayInJson(target.file(), target.keyPath, target.entries());
 }
 
-function uninstallPermissions() {
-  const globalSettings = path.join(HOME, '.claude', 'settings.json');
-  const lemmaVscodeTools = new Set(
-    CLAUDE_MCP_PREFIXES.flatMap((prefix) => VSCODE_TOOL_NAMES.map((name) => `mcp__${prefix}__${name}`)));
-  removeFromArrayInJson(globalSettings, 'permissions.allow', (item) => lemmaVscodeTools.has(item));
+function uninstallPermissionsFor(hostId) {
+  const target = PERMISSION_TARGETS[hostId];
+  const lemmaVscodeTools = new Set(target.entries());
+  removeFromArrayInJson(target.file(), target.keyPath, (item) => lemmaVscodeTools.has(item));
+  if (!target.pruneEmptyParent) return;
   // Drop a vestigial empty `"permissions": {}` left behind when allow was the
   // only key present (mirrors uninstallHooks' equivalent cleanup).
   try {
-    const settings = JSON.parse(fs.readFileSync(globalSettings, 'utf8'));
+    const settings = JSON.parse(fs.readFileSync(target.file(), 'utf8'));
     if (settings.permissions && Object.keys(settings.permissions).length === 0) {
       delete settings.permissions;
-      if (!DRY_RUN) fs.writeFileSync(globalSettings, JSON.stringify(settings, null, 2) + '\n');
+      if (!DRY_RUN) fs.writeFileSync(target.file(), JSON.stringify(settings, null, 2) + '\n');
     }
   } catch { /* file missing or unparsable — nothing to clean */ }
 }
 
-// cursor.com/docs/reference/permissions: mcpAllowlist entries are "<server>:<tool>".
-function installCursorPermissions() {
-  const file = path.join(HOME, '.cursor', 'permissions.json');
-  addToArrayInJson(file, 'mcpAllowlist', VSCODE_TOOL_NAMES.map((name) => `lemma:${name}`));
-}
-
-function uninstallCursorPermissions() {
-  const file = path.join(HOME, '.cursor', 'permissions.json');
-  const lemmaVscodeTools = new Set(VSCODE_TOOL_NAMES.map((name) => `lemma:${name}`));
-  removeFromArrayInJson(file, 'mcpAllowlist', (item) => lemmaVscodeTools.has(item));
-}
-
-function installAntigravityPermissions() {
-  const file = path.join(HOME, '.gemini', 'antigravity-cli', 'settings.json');
-  addToArrayInJson(file, 'permissions.allow', VSCODE_TOOL_NAMES.map((name) => `mcp(lemma/${name})`));
-}
-
-function uninstallAntigravityPermissions() {
-  const file = path.join(HOME, '.gemini', 'antigravity-cli', 'settings.json');
-  const lemmaVscodeTools = new Set(VSCODE_TOOL_NAMES.map((name) => `mcp(lemma/${name})`));
-  removeFromArrayInJson(file, 'permissions.allow', (item) => lemmaVscodeTools.has(item));
-}
-
 // opencode.ai/docs/permissions: MCP tools are named `<server>_<tool>` and
-// permission patterns support wildcards, so one rule covers all of vscode_*.
+// permission patterns support wildcards, so one rule covers the action surface.
 function installOpencodePermissions() {
   const file = path.join(HOME, '.config', 'opencode', 'opencode.json');
-  writeJsonMerge(file, { permission: { 'lemma_vscode_*': 'allow' } });
+  writeJsonMerge(file, { permission: { 'lemma_*': 'allow' } });
 }
 
 function uninstallOpencodePermissions() {
   const file = path.join(HOME, '.config', 'opencode', 'opencode.json');
-  removeFromJson(file, 'permission.lemma_vscode_*');
+  removeFromJson(file, 'permission.lemma_*');
 }
 
-const CODEX_TOML_START = '# --- lemma vscode_* tool approvals (managed by lemma installer) ---';
-const CODEX_TOML_END = '# --- end lemma vscode_* tool approvals ---';
+const CODEX_TOML_START = '# --- lemma canonical tool approvals (managed by lemma installer) ---';
+const CODEX_TOML_END = '# --- end lemma canonical tool approvals ---';
 
 function codexConfigTomlPath() {
   return path.join(HOME, '.codex', 'config.toml');
@@ -1092,10 +1034,10 @@ function installCodexTomlPermissions() {
   const base = `plugins."${codexPluginSelector()}".mcp_servers.lemma`;
   const tables = [
     `[${base}]\ndefault_tools_approval_mode = "prompt"`,
-    ...VSCODE_TOOL_NAMES.map((name) => `[${base}.tools.${name}]\napproval_mode = "approve"`),
+    ...CANONICAL_TOOL_NAMES.map((name) => `[${base}.tools.${name}]\napproval_mode = "approve"`),
   ];
   const withBlock = `${content.replace(/\n*$/, '\n')}\n${CODEX_TOML_START}\n${tables.join('\n\n')}\n${CODEX_TOML_END}\n`;
-  log(`  write vscode_* tool approvals → ${file}`);
+  log(`  write canonical tool approvals → ${file}`);
   if (!DRY_RUN) {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, withBlock);
@@ -1108,25 +1050,18 @@ function uninstallCodexTomlPermissions() {
   try { content = fs.readFileSync(file, 'utf8'); } catch { return; }
   const stripped = stripCodexTomlBlock(content);
   if (stripped === content) return;
-  log(`  remove vscode_* tool approvals from ${file}`);
+  log(`  remove canonical tool approvals from ${file}`);
   if (!DRY_RUN) {
     fs.writeFileSync(file, stripped);
   }
 }
 
-// ---- editor extension (the vscode_* surface) --------------------------------
-//
-// The vscode_* tools need the Lemma VS Code extension installed in the editor.
-// Automate it via the editor CLIs (`code` / `cursor --install-extension`) so it
-// rides the one install instead of a manual sideload per editor.
-//
-// Install source: $LEMMA_VSIX (a local .vsix, for testing a build before it's
-// published) if set, otherwise the marketplace id `tkpratardan.lemma-datascience`.
-// `cursor --install-extension` still rejects this id as "not found" even once
-// listed on Cursor's own marketplace mirror — confirmed, not a propagation
-// delay, likely a separate moderation gate outside lemma's control; see
-// docs/INSTALL.md. A missing listing fails only that editor's install (a
-// logged warning, not fatal).
+// ---- editor extension (the VS Code surface backend) -------------------------
+// The canonical actions need the Lemma editor extension on this backend; install it via the
+// editor CLIs. Source: $LEMMA_VSIX (local build) or the marketplace id.
+// `cursor --install-extension` rejects the id even though it's listed on
+// Cursor's marketplace mirror — a moderation gate outside lemma's control
+// (docs/INSTALL.md); that failure is a logged warning, not fatal.
 
 const EXTENSION_ID = 'tkpratardan.lemma-datascience';
 const EDITOR_CLIS = ['code', 'cursor'];
@@ -1197,7 +1132,8 @@ const HELP_OPTIONS = [
     'antigravity-gemini, opencode, windsurf',
   ]],
   ['--configure <surface>', [
-    "Register only one notebook surface's MCP tools instead of all three.",
+    'Set the preferred surface for lazy notebook attachment.',
+    'All three surfaces remain available through connect(surface=...).',
     '<surface> is one of:',
     'vscode  - VS Code / Cursor / vscode-family editors',
     'pycharm - PyCharm / DataSpell',
@@ -1210,7 +1146,7 @@ const HELP_EXAMPLES = [
   ['lemma', 'configure every detected agent'],
   ['lemma --dry-run', 'preview changes without writing'],
   ['lemma --only cursor', 'configure just Cursor'],
-  ['lemma --configure vscode', 'only register the vscode_* notebook tools'],
+  ['lemma --configure vscode', 'route canonical notebook actions to VS Code'],
   ['lemma --uninstall', 'remove Lemma from every detected agent'],
   ['lemma --only codex --uninstall', 'remove Lemma from just Codex'],
 ];
@@ -1303,7 +1239,7 @@ async function main() {
   // The editor extension is per-editor, not per-agent: run it on a full install
   // or when targeting an editor agent specifically.
   if (!ONLY || ONLY === 'cursor' || ONLY === 'vscode') {
-    log(`\n${UNINSTALL ? 'Removing' : 'Installing'} editor extension (vscode_* surface):`);
+    log(`\n${UNINSTALL ? 'Removing' : 'Installing'} editor extension (VS Code surface):`);
     if (UNINSTALL) { uninstallExtension(); } else { installExtension(); }
   }
 

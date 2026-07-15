@@ -4,28 +4,28 @@
     "sessionStart": [
       {
         "type": "command",
-        "command": "node \"${PLUGIN_ROOT}/hooks/copilot-session-start.js\"",
+        "command": "node \"${PLUGIN_ROOT}/hooks/session-start.js\" --host=copilot",
         "timeoutSec": 5
       }
     ],
     "userPromptSubmitted": [
       {
         "type": "command",
-        "command": "node \"${PLUGIN_ROOT}/hooks/copilot-prompt-submit.js\"",
+        "command": "node \"${PLUGIN_ROOT}/hooks/prompt-submit.js\" --host=copilot",
         "timeoutSec": 5
       }
     ],
     "preToolUse": [
       {
         "type": "command",
-        "command": "node \"${PLUGIN_ROOT}/hooks/copilot-pre-tool-use.js\"",
+        "command": "node \"${PLUGIN_ROOT}/hooks/pre-tool-use.js\" --host=copilot",
         "timeoutSec": 5
       }
     ],
     "postToolUse": [
       {
         "type": "command",
-        "command": "node \"${PLUGIN_ROOT}/hooks/copilot-post-tool-use.js\"",
+        "command": "node \"${PLUGIN_ROOT}/hooks/post-tool-use.js\" --host=copilot",
         "timeoutSec": 5
       }
     ]

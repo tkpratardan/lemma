@@ -1,23 +1,20 @@
 {
   "name": "lemma",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "Senior data-scientist mode + live-notebook tools. Frame, look, leakage-check, baseline, validate honestly.",
   "contextFileName": "AGENTS.md",
   "mcpServers": {
     "lemma": {
       "command": "node",
       "args": [
-        "${extensionPath}${/}bin${/}lemma-mcp.mjs"
+        "${extensionPath}${/}bin${/}lemma-mcp.mjs",
+        "--surface=vscode"
       ],
       "env": {
         "LEMMA_NO_MCP_INSTRUCTIONS": "1"
       },
       "includeTools": [
-        "vscode_status", "vscode_read_notebook", "vscode_get_state", "vscode_execute_cell",
-        "vscode_probe", "vscode_add_and_run", "vscode_run_cell", "vscode_read_cell_output",
-        "vscode_run_all_cells", "vscode_edit_cell", "vscode_edit_and_run", "vscode_insert_cell",
-        "vscode_delete_cell", "vscode_add_markdown", "vscode_restart_kernel", "vscode_inspect_variable",
-        "vscode_clear_notebook", "vscode_save_notebook"
+        "connect", "read", "run", "edit", "inspect"
       ]
     }
   }

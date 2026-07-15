@@ -8,6 +8,12 @@ pushing the tag runs the publish workflow (see CONTRIBUTING.md). Add entries to
 
 ## [Unreleased]
 
+### Changed
+
+- Surface configuration now selects only the lazy-attachment preference. All
+  notebook adapters remain available, and `connect(surface=...)` can switch
+  surfaces mid-session without resetting the kernel or discarding turn evidence.
+
 ## [3.1.2] - 2026-07-09
 
 First release.

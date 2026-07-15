@@ -13,6 +13,7 @@ import { notebookSummary, renderForAgent, pagedCellOutput, formatRunAll, truncat
 import { formatCellDiff, mutationResult } from '../../utils/diff.js';
 import { errorMessage } from '../../utils/errors.js';
 import { text, jsonText } from '../../utils/response.js';
+import type { NotebookHandlers } from '../notebook/tools.js';
 
 let session: JupyterLabSession | undefined;
 
@@ -34,26 +35,11 @@ export function shutdownJupyterlabSession(): void {
   void session?.shutdown();
 }
 
-// Verbs pycharm and jupyterlab share; adapters/notebook/tools.ts registers
-// these once as notebook_* with a surface flag instead of twice.
-export interface JupyterlabHandlers {
-  readNotebook(): ReturnType<typeof text>;
-  getState(): Promise<ReturnType<typeof text>>;
-  addAndRun(args: { source: string; index?: number }): Promise<ReturnType<typeof text>>;
-  runCell(args: { index: number }): Promise<ReturnType<typeof text>>;
-  readCellOutput(args: { index: number; offset?: number }): ReturnType<typeof pagedCellOutput>;
-  editAndRun(args: { index: number; source: string }): Promise<ReturnType<typeof text>>;
-  runAllCells(): Promise<ReturnType<typeof text>>;
-  inspectVariable(args: { name: string }): Promise<ReturnType<typeof text>>;
-  editCell(args: { index: number; source: string }): ReturnType<typeof text>;
-  deleteCell(args: { index: number }): ReturnType<typeof text>;
-  addMarkdown(args: { source: string; index?: number }): ReturnType<typeof text>;
-  clearNotebook(): ReturnType<typeof text>;
-  restartKernel(): Promise<ReturnType<typeof text>>;
-  saveNotebook(): Promise<ReturnType<typeof text>>;
-}
+// The shared verb contract lives in adapters/notebook/tools.ts, which
+// registers these once as notebook_* with a surface flag instead of twice.
+export type JupyterlabHandlers = NotebookHandlers;
 
-function createJupyterlabHandlers(): JupyterlabHandlers {
+export function createJupyterlabHandlers(): JupyterlabHandlers {
   return {
     readNotebook() {
       const s = requireSession();
@@ -75,14 +61,14 @@ function createJupyterlabHandlers(): JupyterlabHandlers {
       return jsonText({ path: s.path, variables, cells: outline });
     },
 
-    async addAndRun({ source }) {
+    async addAndRun({ source, index }) {
       const s = requireSession();
       if (typeof s === 'string') return text(s);
-      const index = await s.addAndExecute(source);
+      const at = await s.addAndExecute(source, index);
       const cells = s.cells();
-      const cell = cells[index];
+      const cell = cells[at];
       const out = cell ? renderForAgent(cell) : '[no output]';
-      return text(`cell ${index} added+ran\n${out}`);
+      return text(`cell ${at} added+ran\n${out}`);
     },
 
     async runCell({ index }) {
@@ -145,6 +131,14 @@ function createJupyterlabHandlers(): JupyterlabHandlers {
       return text(mutationResult(`edited cell ${index}`, diff));
     },
 
+    insertCell({ index, source }) {
+      const s = requireSession();
+      if (typeof s === 'string') return text(s);
+      const at = s.addCodeCell(source, index);
+      const diff = formatCellDiff('', source, `new cell ${at}`);
+      return text(mutationResult(`inserted cell at ${at}`, diff));
+    },
+
     deleteCell({ index }) {
       const s = requireSession();
       if (typeof s === 'string') return text(s);
@@ -190,6 +184,73 @@ function createJupyterlabHandlers(): JupyterlabHandlers {
   };
 }
 
+export interface JupyterlabConnectArgs {
+  server_url?: string;
+  token?: string;
+  notebook_path?: string;
+}
+
+export async function connectJupyterlab({
+  server_url,
+  notebook_path,
+  token,
+}: JupyterlabConnectArgs): Promise<ReturnType<typeof text>> {
+  let url = server_url || process.env.LEMMA_JUPYTER_URL || '';
+  let tok = token || process.env.LEMMA_JUPYTER_TOKEN || '';
+  let nbPath = notebook_path || process.env.LEMMA_JUPYTER_NOTEBOOK || '';
+  if (!url) {
+    const found = await discoverNotebooks();
+    if (found.length === 1) {
+      url = found[0].server.url;
+      tok = found[0].server.token;
+      nbPath = nbPath || found[0].notebookPath;
+    } else if (found.length > 1) {
+      return text(
+        'found more than one local notebook, specify which:\n' +
+          found.map((f) => `- ${f.notebookPath} on ${f.server.url}`).join('\n')
+      );
+    } else {
+      return text('no local server found. Ask the user for the server URL (and token, if any).');
+    }
+  }
+  let conn;
+  try {
+    conn = await resolveConnection(url, tok || undefined, nbPath || undefined);
+  } catch (e) {
+    if (e instanceof ServerUnreachable || e instanceof NotebookNotFound) {
+      return text(e.message);
+    }
+    throw e;
+  }
+  if (conn.notebookPath === null) {
+    return text(
+      `connected to the server at ${conn.url}, but no notebook is open yet. Open a ` +
+        '.ipynb in JupyterLab, then call connect again.'
+    );
+  }
+  if (session) {
+    try {
+      await session.shutdown();
+    } catch {
+      /* best effort */
+    }
+    session = undefined;
+  }
+  try {
+    session = await JupyterLabSession.connect(conn.url, conn.token, conn.notebookPath, {
+      kernelName: conn.kernelName,
+      sessionModel: conn.sessionModel,
+    });
+  } catch (e: unknown) {
+    return text(`connection failed: ${errorMessage(e)}`);
+  }
+  const kernelNote = conn.kernelId ? 'shared kernel' : 'new kernel';
+  return text(
+    `connected to ${conn.notebookPath} on ${conn.url} (live RTC, ${kernelNote}): ` +
+      `${session.cells().length} cells`
+  );
+}
+
 // Registers jupyterlab_connect, the only verb with no pycharm equivalent;
 // returns the shared handlers for adapters/notebook/tools.ts.
 export function registerJupyterlabTools(server: McpServer): JupyterlabHandlers {
@@ -208,62 +269,8 @@ export function registerJupyterlabTools(server: McpServer): JupyterlabHandlers {
         notebook_path: z.string().optional().describe('Notebook path; empty for most-recently-active.'),
       },
     },
-    async ({ server_url, notebook_path, token }) => {
-      let url = server_url || process.env.LEMMA_JUPYTER_URL || '';
-      let tok = token || process.env.LEMMA_JUPYTER_TOKEN || '';
-      let nbPath = notebook_path || process.env.LEMMA_JUPYTER_NOTEBOOK || '';
-      if (!url) {
-        const found = await discoverNotebooks();
-        if (found.length === 1) {
-          url = found[0].server.url;
-          tok = found[0].server.token;
-          nbPath = nbPath || found[0].notebookPath;
-        } else if (found.length > 1) {
-          return text(
-            'found more than one local notebook, specify which:\n' +
-              found.map((f) => `- ${f.notebookPath} on ${f.server.url}`).join('\n')
-          );
-        } else {
-          return text('no local server found. Ask the user for the server URL (and token, if any).');
-        }
-      }
-      let conn;
-      try {
-        conn = await resolveConnection(url, tok || undefined, nbPath || undefined);
-      } catch (e) {
-        if (e instanceof ServerUnreachable || e instanceof NotebookNotFound) {
-          return text(e.message);
-        }
-        throw e;
-      }
-      if (conn.notebookPath === null) {
-        return text(
-          `connected to the server at ${conn.url}, but no notebook is open yet. Open a ` +
-            '.ipynb in JupyterLab, then call jupyterlab_connect again.'
-        );
-      }
-      if (session) {
-        try {
-          await session.shutdown();
-        } catch {
-          /* best effort */
-        }
-        session = undefined;
-      }
-      try {
-        session = await JupyterLabSession.connect(conn.url, conn.token, conn.notebookPath, {
-          kernelName: conn.kernelName,
-          sessionModel: conn.sessionModel,
-        });
-      } catch (e: unknown) {
-        return text(`connection failed: ${errorMessage(e)}`);
-      }
-      const kernelNote = conn.kernelId ? 'shared kernel' : 'new kernel';
-      return text(
-        `connected to ${conn.notebookPath} on ${conn.url} (live RTC, ${kernelNote}): ` +
-          `${session.cells().length} cells`
-      );
-    }
+    ({ server_url, notebook_path, token }) =>
+      connectJupyterlab({ server_url, notebook_path, token })
   );
 
   return h;

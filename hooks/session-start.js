@@ -1,23 +1,23 @@
 #!/usr/bin/env node
-// SessionStart hook: inject the data-scientist persona when no other channel
-// does. Fires on startup|resume|clear|compact (hooks.json), so a compaction
-// gets the persona back exactly when context loses it. Shared between Claude
-// Code and Codex — host.js handles the output-framing difference.
+// SessionStart hook, all hosts: inject the persona once per session. On
+// Claude Code/Codex it also fires on compaction (hooks.json matcher), so the
+// persona comes back exactly when context loses it.
 'use strict';
 
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const { readMode } = require('./lib/activation.js');
+const { clearSurface } = require('./lib/dataGate.js');
 const { getFullPersona } = require('./lib/instructions.js');
-const { isCodex, writeSessionStartOutput } = require('./lib/host.js');
+const { HOST, emit } = require('./lib/envelope.js');
+const { clearTurn } = require('./lib/turnState.js');
 
 // Whether a client actually surfaces MCP instructions can't be observed
 // from here, for any host, so only skip when a direct (non-plugin) config
 // confirms the server is registered.
 function mcpDeliversPersona() {
-  if (isCodex || process.env.CLAUDE_PLUGIN_ROOT) {
+  if (HOST === 'codex' || process.env.CLAUDE_PLUGIN_ROOT) {
     return false;
   }
   try {
@@ -29,15 +29,27 @@ function mcpDeliversPersona() {
 }
 
 function main() {
-  if (readMode() === 'off' || mcpDeliversPersona()) {
+  let event = {};
+  try {
+    event = JSON.parse(fs.readFileSync('/dev/stdin', 'utf8'));
+  } catch { /* hosts without structured SessionStart input */ }
+  // Compaction is the same task and must retain its mechanical gates.
+  if (event.source !== 'compact') {
+    clearSurface();
+    clearTurn();
+  }
+  // Direct Claude configuration may already deliver MCP instructions. Plugin
+  // routes deliberately use this hook, so do not suppress those.
+  const gated = HOST === 'claude' || HOST === 'codex';
+  if (gated && mcpDeliversPersona()) {
     process.exit(0);
   }
   const agentsMd = getFullPersona();
   if (!agentsMd) {
-    process.exit(0); // no AGENTS.md — emit nothing rather than break the session
+    process.exit(0); // no AGENTS.md, emit nothing rather than break the session
   }
-  const tag = "[lemma — data-science rigor, layered on top of this repo's own rules]\n\n";
-  writeSessionStartOutput(tag + agentsMd);
+  const tag = "[lemma: data-science rigor, layered on top of this repo's own rules]\n\n";
+  emit('sessionStart', tag + agentsMd);
 }
 
 main();

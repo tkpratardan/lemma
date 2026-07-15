@@ -1,0 +1,616 @@
+[
+  {
+    "data_type": "tabular data, text data",
+    "domain": "Natural Language Processing",
+    "task_type": "Data Preparation & Wrangling, Exploratory Data Analysis, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Starting from the Animal Crossing user_reviews.csv dataset, create cleaned word frequency distributions for Negative and Positive review corpora and use Shifterator to construct an entropy shift graph quantifying which words drive the differences between the two sets. Provide the resulting visualization and summarize what the graph encodes.",
+    "reasoning": "Load the dataset and split the reviews into Negative and Positive groups using the median grade as the boundary. Clean both corpora by removing punctuation, common stop words, and domain-specific tokens, and convert text to lowercase. Count word frequencies for each group to obtain comparable distributions. Use an entropy-based word shift approach to contrast the distributions and quantify each word\u2019s contribution to the difference. Render the shift graph to visualize which words increase or decrease entropy between Negative (reference) and Positive (comparison) review texts, with colors indicating which corpus a word is associated with.",
+    "answer": "An entropy shift graph comparing Negative (reference) and Positive (comparison) reviews was produced. The visualization shows word-level contributions to the difference in usage, with Negative-associated contributions displayed in purple and Positive-associated contributions in yellow. Specific top contributing words are visible on the chart. <image_id:4>",
+    "confidence": 3.0,
+    "notebook": "shifterator-analysis-on-animal-crossing-reviews.ipynb",
+    "id": 92,
+    "figure": "<image_id:4>",
+    "dataset_size_mb": 2.710921287536621,
+    "dataset": "jessemostipak/animal-crossing",
+    "selected_for": [
+      "task_type:Data Preparation & Wrangling, Exploratory Data Analysis, Reporting & Interpretation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Exploratory Data Analysis, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Given the Superstore sales data across four U.S. regions (Central, South, East, West) from 2011-2014, how does regional sales performance vary both temporally and by product category, what are the seasonal patterns within each region, and which regions demonstrate the strongest growth potential?",
+    "reasoning": "First, the dataset should be filtered and aggregated by region and month across all years to identify seasonal patterns within each region. Line plots should be created for each year showing monthly sales trends by region to visualize how seasonal variations differ across regions. Next, the dataset should be aggregated by region and sub-category to analyze product-level performance within each geographic area, revealing which products perform well in specific regions. This regional product analysis helps identify regional preferences and market characteristics. Subsequently, the dataset should be aggregated by region and year to track how total sales evolved in each region across the four-year period. This allows calculation of year-over-year growth rates for each region. The average annual growth rate (AAGR) should be computed for each region to rank them by growth performance. Finally, the data should be examined to understand how different regions were affected by the overall sales dip in 2012, identifying which regions drove the decline and which maintained growth.",
+    "answer": "Temporal / seasonal patterns: The monthly trend panels (2011\u20132014) show recurring high months in many years around September and November\u2013December (holiday / back-to-school peaks), but patterns are not identical every year or across all regions\u2014there are year-specific anomalies (for example, a large March 2011 spike in the South). Regional performance over time: The West has the largest annual totals and shows the clearest upward trajectory from 2011 to 2014; the East also grows steadily and is the second-largest region overall. Central has moderate totals with smaller increases, and the South has the weakest totals, including a pronounced dip in 2012 and a partial recovery thereafter. Product-category differences: The East and West dominate many high-revenue sub-categories (notably Phones, Chairs, Storage and other big-ticket / technology-like items), while Central and South tend to have lower totals across most sub-categories. The South shows relatively stronger sales than Central in some industrial/large-item categories (e.g., Machines), but it is not the leading region overall for most sub-categories. Growth potential: Based on yearly totals and the clear upward trend, West (strongest) and East (also strong) demonstrate the highest growth potential; Central is moderate, and South appears most vulnerable and in need of targeted improvement. Overall, the figures support region-level seasonality, category concentration in East/West for big-ticket items, and West/East as the primary growth opportunities.",
+    "confidence": 4.0,
+    "notebook": "retail-sales-exploratory-data-analysis-eda.ipynb",
+    "id": 570,
+    "figure": "<image_id:9> <image_id:10> <image_id:11>",
+    "dataset_size_mb": 5.488334655761719,
+    "dataset": "ishanshrivastava28/superstore-sales",
+    "selected_for": [
+      "task_type:Exploratory Data Analysis, Reporting & Interpretation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Business Analytics",
+    "task_type": "Exploratory Data Analysis, Model Evaluation & Selection, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Given the Superstore sales dataset from 2011-2014 with product pricing, sales volumes, and profit data, how does profitability vary across product sub-categories, which products are operating at a loss, how significantly do discounts impact overall profit margins, and what is the relationship between discount levels and actual sales or profit performance?",
+    "reasoning": "First, profit margin should be calculated for each product sub-category by dividing total net profit by total sales and multiplying by 100. Sub-categories should be ranked by profitability to identify the most and least profitable products. Products with negative profit margins should be flagged as operating at a loss. Second, profit before discount and profit after discount should be compared for each sub-category to quantify the discount impact. The percentage drop in profit due to discounts should be calculated for each sub-category. Third, the dataset should be segmented by discount level (0%, 10%, 20%, 40%, 50%, 60%, 70%, 80%) and summary statistics (mean, median, count) should be calculated for sales, selling price, and profit before discount for each discount group. This allows comparison of whether higher discounts are associated with higher sales or higher-value products. Fourth, the distribution of discounts should be visualized to understand what proportion of orders receive each discount level. Finally, yearly profit margin trends should be analyzed to assess overall company profitability evolution.",
+    "answer": "Summary of what the images actually show:\n- Average profit margins by sub-category (visible in three horizontal bar charts): Office Supplies sub-categories Labels, Paper and Envelopes show the highest average profit margins (around the low-40% range). Fasteners and some Office Supplies/Technology items are moderately profitable (around ~20\u201330%). Copiers and Accessories are strong within Technology (Copiers ~30+%, Accessories ~20+%). Several sub-categories have negative average margins: Binders (large negative), Appliances (negative), Tables (largest negative in Furniture, ~-15%), Bookcases (negative), and Machines show a small negative margin.\n- Net profit before vs after discounts (paired bar charts): Almost every sub-category shows a reduction in net profit after discounts. Copiers remain the largest positive net profit after discounts, followed by Phones and Accessories; Paper and Binders are mid-positive. Significant negative net profit after discounts is visible for Tables (a large swing from a positive pre-discount net profit to a large negative post-discount net profit), Bookcases (small negative), and Supplies (small negative). Several categories drop substantially though remain positive (e.g., Phones, Chairs, Accessories).\n- Discount distribution (histogram): Discounts are concentrated at 0% and 20% (large spikes). Fewer orders have high discounts (40%\u201380%), which appear as much smaller bars.\n- Relationship between discounts and profit (as visible): The before-vs-after charts show that discounts materially reduce net profit for many sub-categories \u2014 in some cases flipping a positive pre-discount profit to a net loss (Tables being the clearest example). The plots do not, however, show per-order sales or median sales by discount bin, so no direct conclusions about median sales or exact order counts at each discount level can be read from these images alone.\n\nNote: The original answer includes many precise numeric counts, medians and percentage-change figures and a contradictory statement about which sub-category is the single highest net-profit; those exact numeric claims and the count/median statistics are not directly shown in the provided images and therefore cannot be confirmed from these plots.",
+    "confidence": 4.0,
+    "notebook": "retail-sales-exploratory-data-analysis-eda.ipynb",
+    "id": 571,
+    "figure": "<image_id:12> <image_id:13> <image_id:14> <image_id:15> <image_id:20>",
+    "dataset_size_mb": 5.488334655761719,
+    "dataset": "ishanshrivastava28/superstore-sales",
+    "selected_for": [
+      "domain:Business Analytics"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Anomaly Detection",
+    "task_type": "Exploratory Data Analysis, Feature Engineering & Preparation",
+    "language": "Python",
+    "question": "Given the bank transaction dataset with transaction metadata and customer information, what relationships exist between transaction characteristics (amount, duration) and customer attributes (age, account balance), and how do these relationships vary by transaction type?",
+    "reasoning": "First, the dataset must be loaded and numeric features must be selected for relationship analysis. For bivariate analysis, scatter plots should be created between key numeric pairs: TransactionAmount vs CustomerAge, TransactionAmount vs TransactionDuration, TransactionAmount vs AccountBalance, AccountBalance vs TransactionDuration, TransactionDuration vs LoginAttempts, and AccountBalance vs LoginAttempts. Regression analysis should be applied to each pair to quantify the relationship strength and direction. Log scaling should be applied where appropriate to detect outliers and anomalies. Joint plots with marginal distributions should be created to understand the combined distributions of variable pairs. Hexagonal binning plots should be used to visualize density patterns for pairs with large sample sizes. The analysis should be stratified by TransactionType (Debit vs Credit) to identify whether relationships differ between transaction types. A correlation matrix should be computed for all numeric variables to quantify linear relationships. The presence of clusters or groupings in scatter plots should be noted. Finally, the relationship between LoginAttempts and transaction characteristics should be examined to identify patterns that might indicate fraudulent behavior.",
+    "answer": "Summary of visual findings from the plots (focused only on what is shown):\n\n- Overall linear correlations are very weak for most numeric pairs. The correlation heatmap shows TransactionAmount has essentially no correlation with CustomerAge (\u2248 -0.03), TransactionDuration (\u2248 0.00), or AccountBalance (\u2248 -0.03).\n- The strongest (moderate) relationship visible is between CustomerAge and AccountBalance (\u2248 +0.32): the regression scatter plot shows a positive slope, indicating older customers tend to have higher account balances on average.\n- TransactionAmount vs TransactionDuration: the scatter with fitted line is essentially flat \u2014 no clear trend and a very small/zero linear relationship.\n- TransactionAmount vs AccountBalance: the regression/scatter also shows a near-flat relationship (no meaningful linear dependence of amount on balance).\n- AccountBalance vs TransactionDuration: the scatter shows a wide spread of balances across all durations and no clear linear pattern.\n- LoginAttempts and other small-count variables show negligible correlations with transaction amount/duration in the heatmap.\n- By TransactionType (Debit vs Credit), the colored scatter of TransactionAmount vs AccountBalance shows heavy overlap between types. Debit points are more numerous and appear to include many of the higher transaction amounts, but the two types largely share the same range (no distinct separation).\n- Density/hexbin for Amount vs Age shows most transactions concentrated at lower amounts across a broad age band (younger to middle-age customers), with fewer very large amounts; account balances appear clustered at low-to-mid ranges with some higher-value customers.\n\nIn short: most transaction characteristics (amount, duration) show little linear relationship with each other or with account balance; the main visible relationship is that account balance tends to increase with customer age. Transaction types overlap considerably, though debits appear more common and include many of the larger amounts.",
+    "confidence": 3.0,
+    "notebook": "bank-transaction-eda-for-fraud-detection.ipynb",
+    "id": 955,
+    "figure": "<image_id:25> <image_id:26> <image_id:27> <image_id:28> <image_id:30> <image_id:32> <image_id:34> <image_id:41>",
+    "dataset_size_mb": 0.328998565673828,
+    "dataset": "valakhorasani/bank-transaction-dataset-for-fraud-detection",
+    "selected_for": [
+      "task_type:Exploratory Data Analysis, Feature Engineering & Preparation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Predictive Modeling",
+    "task_type": "Model Evaluation & Selection, Model Training & Optimization, Prediction & Forecasting",
+    "language": "Python",
+    "question": "Using the Twitch streamer dataset (twitchdata-update.csv), starting from the raw data, build a linear regression model to predict 'Followers gained' from 'Watch time(Minutes)', 'Stream time(minutes)', 'Peak viewers', 'Average viewers', 'Followers', and 'Views gained'. Split the data into training and test sets (80/20), standardize features using only the training set, train the model, report the test R^2 and RMSE, and then use the model to predict the followers gained for the feature vector [6196161750, 215250, 222720, 27716, 3246298, 93036735].",
+    "reasoning": "Load the CSV and choose the six specified numeric predictors as features while setting 'Followers gained' as the target. Split the data into training and test partitions with an 80/20 ratio to enable unbiased evaluation. Fit a feature standardization transform using only the training data to avoid information leakage, and apply the same transform to both training and test features. Train a linear regression model on the standardized training set. Evaluate its generalization by predicting on the standardized test set and computing R^2 and RMSE against the true test targets. Finally, feed the provided feature vector into the trained model to generate a prediction for followers gained.",
+    "answer": "Model performance on the test set: r2 score: 0.5366031433627447; RMSE: 202315.23271199074. Prediction for [6196161750, 215250, 222720, 27716, 3246298, 93036735]: 2.26501821e+14.",
+    "confidence": 4.0,
+    "notebook": "twitch-top-streamers-data-eda-linearreg.ipynb",
+    "id": 1544,
+    "figure": null,
+    "dataset_size_mb": 0.07530403137207001,
+    "dataset": "aayushmishra1512/twitchdata",
+    "selected_for": [
+      "domain:Predictive Modeling"
+    ]
+  },
+  {
+    "data_type": "tabular data, time series data",
+    "domain": "Time Series",
+    "task_type": "Data Preparation & Wrangling, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Given Queensland's annual greenhouse gas emissions data from 1990\u20132016 by transport sector, how can you restructure the raw data to enable time series analysis, and what are the key trends in total CO2 emissions across the entire period?",
+    "reasoning": "First, the raw data must be loaded from the CSV file and examined to understand its structure and dimensions. The data appears to be in a wide format with sectors as columns and years as rows. This format should be transposed to create a proper time series structure where each row represents a year and each column represents a transport sector. After restructuring, the Year column should be properly formatted and used as the index for time series analysis. The Total column should be examined to identify overall trends across the 27-year period. By visualizing the total emissions line alongside individual sector lines, the general trajectory of emissions (whether increasing, decreasing, or stable) can be determined, and major inflection points or changes in the trend can be identified.",
+    "answer": "The raw dataset has dimensions of (9, 28). After transposing and restructuring, the data becomes (27, 9) representing 27 years from 1990 to 2016 with 8 transport sectors plus a Total column. Total CO2 emissions show a consistent upward trend from 11.186 million tonnes in 1990 to 22.514 million tonnes in 2016, representing approximately a 101% increase over the 26-year period. The emissions growth is relatively steady with minor fluctuations, indicating sustained increase in transport-related greenhouse gas emissions in Queensland.",
+    "confidence": 4.0,
+    "notebook": "co2-emission-by-transport-sector.ipynb",
+    "id": 1866,
+    "figure": null,
+    "dataset_size_mb": 0.001654624938964,
+    "dataset": "mpwolke/cusersmarildownloadsdioxidecsv",
+    "selected_for": [
+      "task_type:Data Preparation & Wrangling, Reporting & Interpretation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Model Evaluation & Selection",
+    "language": "Python",
+    "question": "From the Estonia passenger dataset after encoding categorical variables, compare Random Forest test accuracies across three feature configurations: (1) all features (Sex, Age, Category), (2) features selected after dropping Category (Age, Sex), and (3) features selected after dropping Age (Sex, Category). Which configuration achieves the highest test accuracy, and what are the accuracies for each?",
+    "reasoning": "Start with the raw data and encode the categorical fields to numeric form. For the full-feature setting, train and evaluate a Random Forest using Sex, Age, and Category, then record the test accuracy. For the second setting, remove Category, apply feature selection, and then train and evaluate the Random Forest with the selected features, recording the test accuracy. For the third setting, remove Age, apply feature selection, and similarly train and evaluate the Random Forest. Compare the resulting test accuracies across the three configurations to identify the best-performing feature set.",
+    "answer": "Random Forest: all features \u2014 80.81%; Random Forest: Age, Sex \u2014 1.00; Random Forest: Sex and Category \u2014 1.00. The highest test accuracy is achieved by both the Age+Sex and Sex+Category configurations at 1.00.",
+    "confidence": 4.0,
+    "notebook": "the-estonia-disaster-model-random-forest-vs-k-nn.ipynb",
+    "id": 1956,
+    "figure": null,
+    "dataset_size_mb": 0.038216590881347004,
+    "dataset": "christianlillelund/passenger-list-for-the-estonia-ferry-disaster",
+    "selected_for": [
+      "task_type:Model Evaluation & Selection"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Clustering",
+    "task_type": "Feature Engineering & Preparation, Model Training & Optimization, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Using the social media and mental health survey data, can you identify distinct clusters or segments of respondents with similar social media usage patterns and mental health profiles, determine the optimal number of clusters, and characterize the resulting segments?",
+    "reasoning": "First, select relevant columns for clustering analysis that capture both social media usage behaviors and mental health indicators: daily social media time, frequency of purposeless social media use, frequency of distraction by social media, restlessness without social media, distractibility scale, and worry level scale. Handle missing values in these selected features using mean imputation strategy to ensure complete data. Apply standardization/scaling to normalize all features to the same scale, which is essential for distance-based clustering algorithms to work effectively. Reduce the dimensionality of the standardized data to 2 principal components using Principal Component Analysis (PCA) to enable visualization while retaining the most important variance in the data. Determine the optimal number of clusters by computing the Within-Cluster Sum of Squares (WCSS) for different numbers of clusters (1 to 10) and plotting the elbow curve to identify the point where adding more clusters shows diminishing returns. Based on the elbow method, select the optimal number of clusters (3 clusters identified as optimal). Apply K-means clustering algorithm with k-means++ initialization method to the standardized full-dimensional data using the predetermined optimal number of clusters. Assign cluster labels to each respondent and visualize the clusters in the 2D PCA space using a scatter plot colored by cluster assignment. Analyze and characterize each cluster based on the mean values of the original features to interpret the profiles and meanings of the identified segments.",
+    "answer": "The elbow plot shows within-cluster sum of squares (WCSS) dropping steeply from k=1 to k=3 and then decreasing more gradually for larger k, so selecting 3 clusters is a reasonable choice from the plot. The 2D PCA scatter shows three colored groups (red at left, mint/green in the middle, purple at right) that are largely separated along Principal Component 1, though there is some overlap at the boundaries. The images themselves do not display feature means or labels for social media usage, distractibility, or worry, so the plots do not by themselves support detailed statements about which cluster has \u201cmoderate\u201d vs \u201chigh\u201d usage or mental\u2011health levels. To fully characterize the segments, cluster centroids or mean values on the original social media and mental\u2011health variables and cluster sizes should be reported (e.g., compute and present per-cluster averages for usage, distractibility, and worry).",
+    "confidence": 3.0,
+    "notebook": "mental-health-trends-in-the-age-of-social-media.ipynb",
+    "id": 2126,
+    "figure": "<image_id:12> <image_id:13>",
+    "dataset_size_mb": 0.07361888885498001,
+    "dataset": "souvikahmed071/social-media-and-mental-health",
+    "selected_for": [
+      "domain:Clustering"
+    ]
+  },
+  {
+    "data_type": "image data",
+    "domain": "Computer Vision",
+    "task_type": "Model Training & Optimization, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Load the basic shapes image dataset, preprocess by resizing to 28x28 and normalizing, split into train/test sets, train a CNN with two conv-pool pairs (32 and 64 filters), flatten, and dense softmax output for three classes over 40 epochs, then visualize the first four training images in a 2x2 grid and the 32 feature maps from the first convolutional layer for the first training image arranged in an 8x4 grid.",
+    "reasoning": "Images are loaded, resized for consistency, and normalized to aid model convergence, with labels encoded and data split for training. The CNN is constructed with initial convolution to detect basic edges and patterns, followed by pooling to summarize features. Training refines the model on the train set. Visualization begins by scaling back the first four normalized training images to display their original-like appearance in a subplot grid to inspect data quality. Separately, the output of the first convolutional layer is extracted for the first image, producing 32 feature maps that highlight detected patterns like edges, and these are visualized in a grid to understand early feature learning.",
+    "answer": "The 2x2 grid of the first four training images (top-left to bottom-right) shows: top-left a rounded-square / box shape, top-right a tall vertical oval (ellipse), bottom-left a smaller tilted/rotated oval, and bottom-right a triangle. The second image displays the 32 feature maps from the first convolutional layer for the first training image arranged in an 8x4 grid (4 rows \u00d7 8 columns). The feature maps mainly highlight contour and edge responses of the rounded-square object (varying polarity and intensity); some maps are bright where the contour is, others are dark or show suppressed activations, but overall they show edge/intensity patterns rather than high-level shapes.",
+    "confidence": 3.0,
+    "notebook": "shape-classification-cnn.ipynb",
+    "id": 2377,
+    "figure": "<image_id:1> <image_id:3>",
+    "dataset_size_mb": 0.284576416015625,
+    "dataset": "cactus3/basicshapes",
+    "selected_for": [
+      "domain:Computer Vision"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Feature Engineering & Preparation, Reporting & Interpretation",
+    "language": "Python",
+    "question": "For the XGBoost classification model trained to predict sleep disorders from health and lifestyle features, which features have the greatest impact on model predictions, and how do these feature importance rankings vary across the three disorder classes?",
+    "reasoning": "First, the trained XGBoost model must be available along with the test feature set. SHAP (SHapley Additive exPlanations) values should be calculated for each feature on the test set, which quantifies the contribution of each feature to each prediction. These SHAP values represent how much each feature pushes the model output toward the predicted class. By aggregating SHAP values across all test samples, the average absolute impact of each feature can be determined. A SHAP summary plot should be created that displays feature importance rankings across all three classes simultaneously. The visualization should show which features have the largest magnitudes of impact, and how their contributions vary depending on whether predictions are for 'None', 'Sleep Apnea', or 'Insomnia' classes. The color coding in the SHAP plot indicates the direction of feature values (high vs. low), revealing not just which features matter most, but also how high or low values of those features influence predictions toward each class.",
+    "answer": "The bar chart is a per-feature mean(|SHAP value|) plot (features sorted by total importance) with stacked colored segments showing each class' contribution (blue = Insomnia, magenta = Sleep_Apnea, olive = None). The actual ranking by total impact (largest to smallest) is: Occupation (largest total), Blood Pressure, BMI Category, Physical Activity Level, Sleep Duration, Stress Level, Daily Steps, Quality of Sleep, Age, Heart Rate, and Gender (smallest). Class-wise contributions vary by feature: Occupation\u2019s importance is dominated by the 'None' class (olive) with smaller contributions from Insomnia (blue) and Sleep_Apnea (magenta); Blood Pressure and BMI Category receive large contributions from Sleep_Apnea (magenta) and substantial contribution from None; Physical Activity Level and Daily Steps are driven mostly by None (olive); Sleep Duration has a notable Insomnia (blue) contribution plus some None; Stress Level is driven largely by Sleep_Apnea (magenta); Quality of Sleep shows moderate contributions from both Insomnia (blue) and Sleep_Apnea (magenta) with a smaller None contribution. Note: the colors indicate class contributions to mean absolute SHAP (not high/low feature values).",
+    "confidence": 3.0,
+    "notebook": "shhh-i-want-to-sleep.ipynb",
+    "id": 2661,
+    "figure": "<image_id:7>",
+    "dataset_size_mb": 0.023018836975097,
+    "dataset": "uom190346a/sleep-health-and-lifestyle-dataset",
+    "selected_for": [
+      "task_type:Feature Engineering & Preparation, Reporting & Interpretation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Data Ingestion & Integration",
+    "language": "Python",
+    "question": "Given the bank loan dataset after initial cleaning, how would you detect inconsistent categorical data entries, and what corrections would be needed to ensure consistency in the target variable and categorical features?",
+    "reasoning": "First, the dataset must be loaded and processed through previous cleaning steps. To detect inconsistencies, frequency tables must be generated for all categorical variables including the target variable (default status). By examining these frequency tables, inconsistent entries such as different string representations of the same value (for example, '0', ':0', and numeric 0 representing the same category) can be identified. Once inconsistencies are detected, they must be corrected using appropriate mapping or replacement operations to ensure a uniform representation. For the default column, all variant representations must be converted to a consistent format, and the data type must be ensured to be uniform (e.g., integer type). After correction, the frequency tables should be regenerated to verify that the inconsistencies have been resolved and the data is now consistent.",
+    "answer": "Before correction, the frequency table for the default column showed: 515 records with value 0, 183 records with value 1, 1 record with string value '0', and 1 record with string value ':0', indicating data entry inconsistencies. After applying correction logic to replace '0' and ':0' with numeric 0, and converting the column to integer type, the corrected frequency table showed: 517 records with value 0 and 183 records with value 1, with no inconsistent string variants remaining. The education level (ed) column showed consistent entries with values 1.0 (363 records), 2.0 (192 records), 3.0 (84 records), 4.0 (36 records), and 5.0 (5 records), with no detected inconsistencies.",
+    "confidence": 4.0,
+    "notebook": "complete-guide-to-data-quality-part-1.ipynb",
+    "id": 2698,
+    "figure": null,
+    "dataset_size_mb": 0.069774627685546,
+    "dataset": "matinmahmoudi/loans-and-liability",
+    "selected_for": [
+      "task_type:Data Ingestion & Integration"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Anomaly Detection",
+    "task_type": "Exploratory Data Analysis, Pattern & Anomaly Detection",
+    "language": "Python",
+    "question": "Given a bank loan dataset split into training and test sets with continuous and categorical features, how would you apply both one-dimensional (Standard Deviation and IQR methods) and multidimensional (Isolation Forest) outlier detection approaches, and what are the differences in the number of outliers detected across these methods?",
+    "reasoning": "First, the dataset must be loaded, cleaned through previous steps, and split into training and test sets using stratified splitting to maintain class distribution. For one-dimensional outlier detection using the Standard Deviation method, the mean and standard deviation of each continuous variable must be calculated, and values falling beyond three standard deviations from the mean must be flagged as outliers. For the IQR method, the first quartile (Q1) and third quartile (Q3) must be calculated for each continuous variable, then the interquartile range (IQR = Q3 - Q1) must be computed, and values falling below (Q1 - k*IQR) or above (Q3 + k*IQR) must be flagged as outliers, where k is typically 1.5 for standard outlier detection or 2 for stricter detection. These methods are applied independently to each continuous variable. For multidimensional outlier detection, the data must be preprocessed by imputing missing values and scaling features to have mean 0 and standard deviation 1. The Isolation Forest algorithm must be trained on the preprocessed training data with a contamination parameter set to expect 5% of data to be outliers. The trained model then predicts outliers in both training and test sets by assigning scores of -1 for outliers and 1 for inliers. The number of detected outliers should be compared across all methods to understand their differences.",
+    "answer": "Using the Standard Deviation method (threshold=3) on training data, detected outliers were: age (1 outlier), employ (4 outliers), address (2 outliers), income (9 outliers), debtinc (6 outliers), creddebt (8 outliers), othdebt (10 outliers). Using the IQR method (k=2) on the same training data, detected outliers were: age (1 outlier), employ (2 outliers), address (2 outliers), income (18 outliers), debtinc (6 outliers), creddebt (22 outliers), othdebt (19 outliers). The IQR method detected substantially more outliers in several variables (income, creddebt, othdebt) compared to the Standard Deviation method. Using the Isolation Forest algorithm with 5% contamination on preprocessed training data (with 490 records), 25 outliers were detected overall. On the test set (210 records), Isolation Forest detected 8 outliers. After removing outliers detected by Isolation Forest, the training set was reduced from 490 to 465 records, and the test set was reduced from 210 to 202 records.",
+    "confidence": 4.0,
+    "notebook": "complete-guide-to-data-quality-part-1.ipynb",
+    "id": 2699,
+    "figure": null,
+    "dataset_size_mb": 0.069774627685546,
+    "dataset": "matinmahmoudi/loans-and-liability",
+    "selected_for": [
+      "domain:Anomaly Detection"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Data Preparation & Wrangling",
+    "language": "Python",
+    "question": "Given a bank loan dataset after outlier removal with missing values distributed across multiple features, how would you perform an initial assessment of missing data, generate detailed reports for quality evaluation, and apply iterative imputation to handle missing values while maintaining data integrity?",
+    "reasoning": "First, the dataset must be loaded, cleaned through all previous steps including outlier removal, resulting in reduced dataset size. An initial check must be performed by calculating the percentage of missing values for each feature across both training and test sets. This assessment helps determine whether simple removal of records with missing data is feasible or if imputation is necessary. A detailed report must be generated for each record showing the number of missing cells and the percentage of missing values per record, with records sorted by their missing data percentage to identify low-quality records with excessive missing values. Records with all values missing should be removed. For remaining records with partial missing values, a feature-wise analysis must be conducted to determine the best imputation strategy. Before applying imputation, the data must be preprocessed: numerical features must have missing values imputed using an iterative imputation method (such as IterativeImputer) that estimates missing values based on relationships with other variables, and categorical features must have missing values imputed using the most frequent value strategy. The iterative imputer must be fit on the training set and then applied to the test set to prevent data leakage. After imputation, the dataset should have no missing values.",
+    "answer": "Initial missing values assessment of training set (after outlier removal, 465 records): age had 14 missing values (3.01%), ed had 16 missing values (3.44%), employ had 0 missing values, address had 0 missing values, income had 24 missing values (5.16%), debtinc had 0 missing values, creddebt had 0 missing values, othdebt had 0 missing values. Test set (202 records): age had 4 missing values (1.98%), ed had 4 missing values (1.98%), employ had 0 missing values, address had 0 missing values, income had 11 missing values (5.45%), debtinc had 0 missing values, creddebt had 0 missing values, othdebt had 0 missing values. Records with low missing data percentages (below 5% threshold for all features) were initially retained. After detailed quality checks and removal of low-quality records, the training set was reduced from 465 records to 413 records, and the test set was reduced from 202 records to 183 records. After applying iterative imputation using IterativeImputer with random_state=42, the final training set contained 413 records with all missing values imputed, and the final test set contained 183 records with all missing values imputed, resulting in complete datasets with no missing values.",
+    "confidence": 4.0,
+    "notebook": "complete-guide-to-data-quality-part-1.ipynb",
+    "id": 2700,
+    "figure": null,
+    "dataset_size_mb": 0.069774627685546,
+    "dataset": "matinmahmoudi/loans-and-liability",
+    "selected_for": [
+      "task_type:Data Preparation & Wrangling"
+    ]
+  },
+  {
+    "data_type": "tabular data, text data",
+    "domain": "Natural Language Processing",
+    "task_type": "Data Preparation & Wrangling, Feature Engineering & Preparation",
+    "language": "Python",
+    "question": "Given an industrial accident dataset with timestamp, location, demographic, and detailed text descriptions of how accidents occurred, how would you create a comprehensive set of time-based and NLP-derived features suitable for accident severity analysis?",
+    "reasoning": "First, the dataset must be loaded and column names standardized for consistency. For time-based features, the timestamp column should be parsed into datetime format, then decomposed into multiple temporal features (year, month, day, day of week, week of year) to capture temporal patterns in accident occurrences. Additionally, seasonal information should be derived by mapping months into climatological seasons relevant to the geographic region. For NLP preprocessing, the text descriptions must be cleaned through a multi-step pipeline: converting to lowercase, tokenizing into words, lemmatizing to reduce words to their base forms, stemming to further normalize variations, and filtering out stopwords (both standard and domain-specific). After processing, the cleaned text should be analyzed to extract n-gram features (unigrams, bigrams, trigrams) that capture meaningful phrases related to accident causes. Sentiment analysis should also be applied to quantify the emotional tone of descriptions, as this might correlate with accident severity. Finally, TF-IDF vectorization should be used to convert the processed text into numerical features that capture the importance of specific terms or phrases in predicting accident levels.",
+    "answer": "Time-based features extracted include Year, Month, Day, Weekday, WeekofYear, and Season (Spring, Summer, Autumn, Winter). The NLP preprocessing pipeline successfully converted raw descriptions into processed text by applying lowercase conversion, tokenization, lemmatization, stemming, and stopword removal (including custom stopwords like 'cm', 'kg', 'mr', 'wa', 'nv', 'ore', 'da', 'pm', 'am', 'cx'). Sentiment scores were calculated using VADER sentiment analysis, yielding compound scores ranging from -1 to 1. TF-IDF features were extracted for unigrams (1-grams), bigrams (2-grams), and trigrams (3-grams) with a maximum of 10 features per n-gram type, generating 30 additional numerical features. Top unigrams included 'left', 'hand', 'right', 'finger', 'hit', 'remov', 'fall', 'move'. Top bigrams included 'left hand', 'right hand', 'finger left', 'finger right'. This resulted in a comprehensive feature set combining 10 time-based features, 1 sentiment feature, 30 TF-IDF features, and original categorical features encoded numerically.",
+    "confidence": 4.0,
+    "notebook": "industrial-accident-causal-analysis.ipynb",
+    "id": 2748,
+    "figure": null,
+    "dataset_size_mb": 0.322935104370117,
+    "dataset": "ihmstefanini/industrial-safety-and-health-analytics-database",
+    "selected_for": [
+      "domain:Natural Language Processing"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Exploratory Data Analysis",
+    "language": "Python",
+    "question": "Based on the student math performance dataset, what are the key findings regarding the effectiveness of different teaching methods and teachers, and what actionable insights can be derived to improve educational outcomes?",
+    "reasoning": "First, aggregate and compare the overall performance metrics across teaching methods to determine which approach yields better results. Then, analyze performance patterns by ethnic group to identify whether certain methods work better for specific populations. Examine individual teacher effectiveness by comparing their average student scores across all demographics. Identify outliers where a teacher's performance is significantly different from peers or where specific teacher-ethnicity combinations yield unexpected results. Cross-reference the combined effects of teaching method and teacher identity on student outcomes. Calculate the performance gaps between the best and worst performing teachers to quantify the impact of individual teaching quality. Identify which ethnic groups or demographic combinations show the lowest performance regardless of method or teacher, indicating potential areas needing intervention. Synthesize these findings into actionable recommendations for school administration to improve overall student math performance.",
+    "answer": "Key findings: (1) Traditional teaching method produces significantly higher average scores (70.68) compared to Standard method (62.34), with a 8.34-point advantage. (2) Individual teacher effectiveness varies substantially, with Wesson achieving 70.68 average, Smith 69.61 average, and Ruger 55.27 average\u2014a 15.41-point gap between best and worst performing teachers. (3) Teaching method effectiveness is not uniform across populations; while Traditional method generally outperforms Standard method, Smith's Standard method produces competitively high scores (69.61 average). (4) Ruger demonstrates consistently poor performance across all ethnic groups (scores ranging 53.7-56.9), suggesting systemic teaching capability issues rather than demographic-specific problems. (5) Caucasian students using Standard method with Smith teacher achieve higher scores (67.27) than some Traditional method groups, indicating teacher quality can overcome method limitations. Actionable insights: The school should prioritize addressing Ruger's teaching methodology through professional development or curriculum adjustments, as this teacher underperforms peers by 15 points on average. Rather than making blanket method changes, the school should consider a hybrid approach leveraging both Smith's Standard method excellence and Wesson's Traditional method strength, potentially matching teaching methods and instructors to student populations based on demonstrated effectiveness patterns.",
+    "confidence": 3.0,
+    "notebook": "eda-on-student-s-math-score.ipynb",
+    "id": 2779,
+    "figure": null,
+    "dataset_size_mb": 0.003175735473632,
+    "dataset": "soumyadiptadas/students-math-score-for-different-teaching-style",
+    "selected_for": [
+      "task_type:Exploratory Data Analysis"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Domain-Specific Applications",
+    "task_type": "Data Ingestion & Integration, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Given raw Ball_by_Ball.csv, Batsmen.csv, Bowlers.csv and Player.csv. Construct a well-rounded IPL team by: (1) selecting the top 5 batsmen by highest strike rate, (2) selecting the top 5 bowlers by lowest economy rate (from those with 4 < Econ_Rate < 8.5), and (3) selecting the top 10 all-rounders by intersecting batsmen and bowlers on Player_Id and taking the first 10. Return the combined roster with Player_Name, Strike_Rate, Econ_Rate, DOB, and Country.",
+    "reasoning": "From raw ball-by-ball data, engineer batting metrics (runs, balls faced, strike rate) and bowling metrics (runs conceded including extras, overs, economy rate). Rank batsmen by strike rate and bowlers by economy rate to select the top performers in each category. Identify all-rounders by merging batting and bowling records on the player identifier and select the first ten entries, preserving both metrics. Combine the three groups into a single roster and remove duplicates to finalize a diversified team list including names, metrics, and demographics.",
+    "answer": "Final well-rounded team roster:\nBatsmen (Strike_Rate listed; Econ_Rate is NaN):\n- CR Brathwaite \u2014 Strike_Rate: 207.50, Econ_Rate: NaN, DOB: 18-Jul-88, Country: West Indies\n- Umar Gul \u2014 Strike_Rate: 205.26, Econ_Rate: NaN, DOB: 14-Apr-84, Country: Pakistan\n- RS Sodhi \u2014 Strike_Rate: 200.00, Econ_Rate: NaN, DOB: 18-Oct-80, Country: India\n- KH Pandya \u2014 Strike_Rate: 186.61, Econ_Rate: NaN, DOB: 24-Mar-91, Country: India\n- Shahid Afridi \u2014 Strike_Rate: 176.09, Econ_Rate: NaN, DOB: 1-Mar-80, Country: Pakistan\nBowlers (Econ_Rate listed; Strike_Rate is NaN):\n- Sachin Baby \u2014 Strike_Rate: NaN, Econ_Rate: 4.80, DOB: 18-Dec-88, Country: India\n- AM Rahane \u2014 Strike_Rate: NaN, Econ_Rate: 5.00, DOB: 6-Jun-88, Country: India\n- SS Mundhe \u2014 Strike_Rate: NaN, Econ_Rate: 5.14, DOB: 27-Oct-88, Country: India\n- LA Carseldine \u2014 Strike_Rate: NaN, Econ_Rate: 5.14, DOB: 17-Nov-75, Country: Australia\n- DJ Thornely \u2014 Strike_Rate: NaN, Econ_Rate: 5.45, DOB: 1-Oct-78, Country: Australia\nAll-rounders (both metrics listed):\n- DJ Bravo \u2014 Strike_Rate: 122.29, Econ_Rate: 7.90, DOB: 7-Oct-83, Country: West Indies\n- BJ Hodge \u2014 Strike_Rate: 121.42, Econ_Rate: 7.79, DOB: 29-Dec-74, Country: Australia\n- JD Ryder \u2014 Strike_Rate: 129.61, Econ_Rate: 7.67, DOB: 6-Aug-84, Country: New Zealand\n- KP Pietersen \u2014 Strike_Rate: 132.06, Econ_Rate: 7.13, DOB: 27-Jun-80, Country: South Africa\n- MC Henriques \u2014 Strike_Rate: 122.70, Econ_Rate: 7.82, DOB: 1-Feb-87, Country: Australia\n- AD Mathews \u2014 Strike_Rate: 121.19, Econ_Rate: 7.97, DOB: 2-Jun-87, Country: Sri Lanka\n- STR Binny \u2014 Strike_Rate: 126.94, Econ_Rate: 7.38, DOB: 3-Jun-84, Country: India\n- AD Russell \u2014 Strike_Rate: 164.00, Econ_Rate: 8.41, DOB: 29-Apr-88, Country: West Indies\n- A Symonds \u2014 Strike_Rate: 124.71, Econ_Rate: 7.71, DOB: 9-Jun-75, Country: Australia\n- JA Morkel \u2014 Strike_Rate: 136.94, Econ_Rate: 7.90, DOB: 10-Jun-81, Country: South Africa",
+    "confidence": 4.0,
+    "notebook": "ipl-player-clusters.ipynb",
+    "id": 2803,
+    "figure": null,
+    "dataset_size_mb": 5.994569778442383,
+    "dataset": "harsha547/indian-premier-league-csv-dataset",
+    "selected_for": [
+      "task_type:Data Ingestion & Integration, Reporting & Interpretation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Model Evaluation & Selection, Model Training & Optimization",
+    "language": "Python",
+    "question": "Using the engineered and scaled disease prediction dataset, how can hyperparameter tuning improve the CatBoost classifier's performance, what are the optimal hyperparameters, and does tuning result in better generalization compared to the default model?",
+    "reasoning": "First, the dataset must be preprocessed as described in previous steps: feature engineering to create interaction terms and derived features, one-hot encoding of categorical variables, MinMaxScaler normalization of numerical features, label encoding of the target variable, and train-test split with 80-20 ratio. A baseline CatBoost model should be trained on the training set and evaluated on the test set to establish initial performance metrics (accuracy, precision, recall, F1-score). Then, a GridSearchCV process should be implemented to systematically search over a hyperparameter space defined by learning_rate (0.01, 0.05, 0.1), depth (4, 6, 8), and iterations (200, 300, 500). This creates a grid of 27 different hyperparameter combinations. For each combination, a 3-fold cross-validation should be performed on the training data to evaluate performance. The hyperparameter combination that achieves the highest mean cross-validation accuracy should be identified as the best parameters. A new CatBoost model should then be instantiated with these optimal parameters and trained on the full training set. The tuned model should be evaluated on the test set and its metrics compared against the baseline model to determine if hyperparameter optimization resulted in performance improvements.",
+    "answer": "A baseline CatBoost model without hyperparameter tuning achieved a test accuracy of 87.14%. GridSearchCV evaluated 27 hyperparameter combinations using 3-fold CV and identified optimal hyperparameters: learning_rate=0.05, depth=4, iterations=300. The tuned CatBoost model achieved the same test accuracy of 87.14% (61/70 correct predictions). The confusion matrix in the image shows: 26 true negatives, 4 false positives, 5 false negatives, and 35 true positives. Corresponding metrics are: negative-class precision \u2248 0.84, positive-class precision \u2248 0.90; negative-class recall \u2248 0.87, positive-class recall \u2248 0.88. Macro and weighted F1-scores are \u2248 0.87. In short, hyperparameter tuning validated these moderate settings (lr=0.05, depth=4, iterations=300) but did not improve test-set accuracy or generalization compared to the default model.",
+    "confidence": 4.0,
+    "notebook": "disease-symptoms-ml-modelling.ipynb",
+    "id": 3534,
+    "figure": "<image_id:16>",
+    "dataset_size_mb": 0.019563674926757,
+    "dataset": "uom190346a/disease-symptoms-and-patient-profile-dataset",
+    "selected_for": [
+      "task_type:Model Evaluation & Selection, Model Training & Optimization"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Data Preparation & Wrangling, Feature Engineering & Preparation",
+    "language": "Python",
+    "question": "From Car_sales.csv, construct a modeling table as follows: (1) drop rows with missing Price_in_thousands; (2) impute missing values in __year_resale_value, Fuel_efficiency, and Curb_weight using medians; (3) engineer NewManufacturer by binning Manufacturer into two classes based on mean price threshold 30 (\u226430\u2192class 1, >30\u2192class 2); (4) create Age = 2022 \u2212 year extracted from Latest_Launch; (5) drop Model and Latest_Launch; (6) apply Box\u2013Cox transforms to Sales_in_thousands, __year_resale_value, Engine_size, Horsepower, Fuel_capacity, and Power_perf_factor; (7) Min\u2013Max normalize numerical columns; (8) one-hot encode Manufacturer and Vehicle_type; and (9) create Target from Price_in_thousands and drop the original price column. What is the final dataset shape ready for modeling?",
+    "reasoning": "Load the dataset and ensure the target is available by removing rows with missing prices. Address missing values in selected features using median imputation to maintain central tendency without skewing. Engineer a binary NewManufacturer class by grouping manufacturers based on their mean price relative to 30, and derive Age by parsing the year from Latest_Launch and subtracting from 2022. Remove non-essential columns (Model and Latest_Launch). Reduce skewness on specified numeric variables with Box\u2013Cox and then scale all numeric features to [0,1] with Min\u2013Max to standardize ranges. Convert categorical features to numeric via one-hot encoding. Finally, define the prediction target as the former price field and remove it from the feature set. Report the rows and columns of the resulting matrix.",
+    "answer": "The final encoded modeling dataset has shape (155, 17).",
+    "confidence": 4.0,
+    "notebook": "car-sales-price-prediction-eda-regression.ipynb",
+    "id": 4197,
+    "figure": null,
+    "dataset_size_mb": 0.015275955200195002,
+    "dataset": "hsinha53/car-sales",
+    "selected_for": [
+      "task_type:Data Preparation & Wrangling, Feature Engineering & Preparation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Model Training & Optimization",
+    "language": "Python",
+    "question": "Given the HR employee dataset, what is the optimal set of hyperparameters for a logistic regression model to predict employee attrition and what is the resulting normalized MCC score?",
+    "reasoning": "First, the dataset is loaded and preprocessed as required for machine learning. Nested cross-validation is implemented where the outer loop splits the data into training and test sets, and the inner loop performs hyperparameter tuning on the training set. The hyperparameters to be optimized include C (regularization strength), solver type, and penalty type. After tuning, the best model is evaluated on the test set using the MCC metric. The MCC score is normalized to the range [0, 1] by applying the formula (score + 1)/2.",
+    "answer": "The optimal parameters were C=3792.690190732246, solver='lbfgs', penalty='l2'. The resulting normalized MCC score was 0.7905982905982907.",
+    "confidence": 4.0,
+    "notebook": "data-science-project-with-questions-and-answers.ipynb",
+    "id": 5162,
+    "figure": null,
+    "dataset_size_mb": 0.21741580963134702,
+    "dataset": "thedevastator/employee-attrition-and-factors",
+    "selected_for": [
+      "task_type:Model Training & Optimization"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Statistical Testing & Experimentation",
+    "task_type": "Statistical Testing & Inference",
+    "language": "Python",
+    "question": "Given the student performance dataset with gender and parental education level information, how can you statistically test whether there are significant differences in academic performance between different demographic groups, and what are the implications of these differences?",
+    "reasoning": "First, the dataset must be loaded and prepared with gender and education level information properly encoded. For testing gender differences, the dataset should be partitioned into two groups based on gender values. Math scores should be extracted separately for each gender group. An independent samples t-test should then be conducted to determine if the mean math scores differ significantly between genders, with the null hypothesis being that there is no difference. The test will yield a t-statistic and p-value to assess statistical significance. For testing differences across parental education levels, the dataset should be partitioned into six groups corresponding to the six education categories. Average scores should be calculated for each education group. A one-way ANOVA test should be performed to determine if there are significant differences in average scores across all education levels simultaneously, testing the null hypothesis that all group means are equal. The resulting F-statistic and p-value will indicate whether parental education level has a statistically significant effect on student performance. Both tests should be interpreted using standard significance thresholds (typically p < 0.05) to determine practical implications.",
+    "answer": "The independent samples t-test comparing math scores between genders yields a t-statistic of 5.383 with a p-value of 9.12e-08, which is highly statistically significant (p < 0.05), indicating males score significantly higher in math compared to females. The one-way ANOVA comparing average scores across six parental education levels yields an F-statistic of 10.753 with a p-value of 4.38e-10, which is also highly statistically significant (p < 0.05), demonstrating that parental education level has a significant impact on student academic performance. These results suggest that both gender and parental education are statistically significant factors influencing student performance, with practical implications for identifying at-risk student populations and designing targeted interventions.",
+    "confidence": 4.0,
+    "notebook": "students-performance-analytics.ipynb",
+    "id": 5374,
+    "figure": null,
+    "dataset_size_mb": 0.05400085449218701,
+    "dataset": "muhammadroshaanriaz/students-performance-dataset-cleaned",
+    "selected_for": [
+      "task_type:Statistical Testing & Inference",
+      "domain:Statistical Testing & Experimentation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Exploratory Data Analysis, Statistical Testing & Inference",
+    "language": "Python",
+    "question": "When initially loading and inspecting the cleaned student performance dataset, what is the structure, size, data types, and summary statistics of the data, and are there any data quality issues that require attention before analysis?",
+    "reasoning": "First, the dataset should be loaded from the CSV file into a pandas DataFrame. The first few rows should be displayed to understand the structure and see example data values. The total number of records and columns should be identified to understand data dimensionality. The data types of each column should be examined to verify they match the variable types (integer for encoded categorical and numerical scores, object for text categories). A null value check should be performed on all columns to identify any missing data that might require handling. Basic information about the DataFrame should be retrieved including data types and non-null counts. Summary statistics should be computed for all numerical columns to understand their distributions, ranges, means, medians, and standard deviations. This exploratory inspection will reveal whether the data is clean and ready for analysis or requires preprocessing steps.",
+    "answer": "The dataset contains 1000 student records with 10 columns. The data structure includes: gender (int64, binary encoded), race_ethnicity (object, categorical text), parental_level_of_education (object, 6 education categories), lunch (int64, binary encoded), test_preparation_course (int64, binary encoded), math_score (int64), reading_score (int64), writing_score (int64), total_score (int64), and average_score (float64). There are zero missing values across all 1000 records in every column, indicating the dataset is complete with no data quality issues requiring handling. Summary statistics show: math scores range from 0-100 with mean 66.09 and std 15.16; reading scores range from 17-100 with mean 69.17 and std 14.60; writing scores range from 10-100 with mean 68.05 and std 15.20; total scores range from 27-300 with mean 203.31 and std 42.77; average scores range from 9-100 with mean 67.77 and std 14.26. Binary variables (gender, lunch, test_preparation_course) show distributions around 0.48, 0.65, and 0.36 respectively. The dataset is clean and ready for analysis without preprocessing required.",
+    "confidence": 4.0,
+    "notebook": "students-performance-analytics.ipynb",
+    "id": 5377,
+    "figure": null,
+    "dataset_size_mb": 0.05400085449218701,
+    "dataset": "muhammadroshaanriaz/students-performance-dataset-cleaned",
+    "selected_for": [
+      "task_type:Exploratory Data Analysis, Statistical Testing & Inference"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Recommendation Systems",
+    "task_type": "Feature Engineering & Preparation, Model Training & Optimization, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Given a high-dimensional cosmetics-ingredient matrix with 190 moisturizer products and 2233 ingredient features, how can you reduce the dimensionality to two dimensions for visualization while preserving the similarity relationships between products, and what interactive visualization would allow users to explore product recommendations?",
+    "reasoning": "After creating the document-term matrix representing 190 products with 2233 ingredient features, the data is too high-dimensional for direct visualization. A non-linear dimensionality reduction technique must be applied to reduce this to two dimensions while preserving local similarities between products. T-SNE (t-distributed Stochastic Neighbor Embedding) is suitable for this task as it maintains the relationships between similar items even when reducing dimensionality significantly. The algorithm should be configured with appropriate hyperparameters (number of components set to 2, learning rate tuned for convergence, and random state set for reproducibility). After dimensionality reduction, the resulting two-dimensional coordinates should be added to the original dataset. An interactive visualization should then be created using a plotting library that supports hover tools and tooltips. Each product should be represented as a point on the plot, with the ability to view detailed information (product name, brand, price, rating) when hovering over data points. The proximity of points on the plot will indicate ingredient similarity, enabling users to identify products with similar compositions.",
+    "answer": "The t-SNE model successfully reduced the 2233-dimensional ingredient space to 2 dimensions with a learning rate of 200 and random state of 42. The two-dimensional coordinates were added to the moisturizers dataset as 'X' and 'Y' columns. An interactive Bokeh scatter plot was created with 190 points (one per product) displayed with size 10 and color '#FF7373' at alpha transparency of 0.8. A hover tool was implemented to display four product attributes: Item Name, Brand, Price (formatted with currency), and Rank (rating). The visualization enables users to identify similar products based on their proximity on the plot, with t-SNE distances reflecting ingredient composition similarities rather than interpretable quantitative axes.",
+    "confidence": 4.0,
+    "notebook": "cosmetics-ingredients.ipynb",
+    "id": 5799,
+    "figure": null,
+    "dataset_size_mb": 1.096166610717773,
+    "dataset": "kingabzpro/cosmetics-datasets",
+    "selected_for": [
+      "domain:Recommendation Systems"
+    ]
+  },
+  {
+    "data_type": "time series data",
+    "domain": "Time Series",
+    "task_type": "Feature Engineering & Preparation, Model Evaluation & Selection, Reporting & Interpretation",
+    "language": "Python",
+    "question": "After training the LSTM model on historical Tesla stock data and evaluating it on the test set, how can you visualize the model's predictive performance against actual prices, and what does a 30-day forward forecast generated using autoregressive predictions reveal about future price trends?",
+    "reasoning": "To assess the LSTM model's performance, predictions must be generated on the test set and compared visually with actual observed prices. The test set includes both actual closing prices and model predictions. These are visualized together with the training data to show the model's ability to follow price movements and capture market dynamics. The visualization separates the dataset into three segments: training data used to learn patterns, actual test data showing real price movements, and predicted values showing what the model forecasted for the test period. This allows visual inspection of prediction accuracy and identification of any systematic biases. For forward forecasting beyond historical data, an autoregressive approach is employed where each new prediction becomes part of the input for predicting the next value. Starting from the last sequence in the test data (the final 60 actual prices), the model predicts day 1, which is then incorporated into the sequence while removing the oldest value. This sliding window process is repeated 30 times to generate a 30-day forecast. Each predicted value is first generated in the normalized space (0-1 range), then inverse-transformed back to original price units. The resulting 30-day forecast is combined with corresponding dates and visualized alongside historical prices to show predicted future price trajectory.",
+    "answer": "Visualize performance by plotting the historical train and test series and overlaying the model predictions on the test period (first figure). In the provided plot, the prediction series (gold) closely follows the test series (red) with only small deviations, indicating the model tracks upward and downward movements in the test window. For the 30-day forward forecast, append the autoregressive predictions to the end of the historical series and plot them as a continuation (second figure). The forecasted curve shows a pronounced upward trajectory at the end of the historical data: the predicted prices rise from roughly the mid-600s at the start of the forecast window to about 800\u2013820 by the end of the 30 days, indicating a strong short-term bullish trend (on the order of a ~20\u201330% increase over the month). Note: the plots do not display an RMSE value, so that numeric error metric is not visible in the images.",
+    "confidence": 3.0,
+    "notebook": "tesla-stock-forecasting-lstm.ipynb",
+    "id": 5874,
+    "figure": "<image_id:4> <image_id:5>",
+    "dataset_size_mb": 0.196341514587402,
+    "dataset": "varpit94/tesla-stock-data-updated-till-28jun2021",
+    "selected_for": [
+      "domain:Time Series"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Data Preparation & Wrangling, Feature Engineering & Preparation, Model Evaluation & Selection, Model Training & Optimization",
+    "language": "Python",
+    "question": "Given the PCOS (Polycystic Ovary Syndrome) dataset containing 541 patient records with 39 mixed discrete and continuous clinical features, and binary PCOS diagnosis labels, how can you preprocess the data to handle missing values, apply genetic algorithm-based feature selection to identify the most predictive features, and quantify the accuracy improvement achieved compared to the baseline model using all features?",
+    "reasoning": "The dataset is loaded and preprocessed in multiple steps. First, unnecessary columns are removed (patient identifiers, diagnosis label, and unnamed columns). Missing values are handled using domain-appropriate strategies: the 'Marriage Status' column is imputed with the median value from its distribution, and the 'Fast Food' column is imputed with the mode value (1). The processed feature matrix contains both discrete features (like Blood Group, Cycle type) and continuous features (Age, Weight, BMI, hormone levels, etc.). A baseline evaluation is performed by training eight different classifiers on all 39 features to establish performance benchmarks. Random Forest emerges as the best-performing classifier. The genetic algorithm for feature selection is then implemented using Random Forest as the fitness evaluator. An initial population of 80 chromosomes is randomly generated with approximately 30% features disabled. For each of 5 generations, the fitness evaluation involves training the Random Forest model on the selected feature subset and measuring accuracy on a held-out test set. The population is sorted by fitness scores, selecting the top 64 chromosomes as parents. Crossover combines parent chromosomes by splitting at the midpoint and creating child chromosomes from concatenated segments. Mutation randomly flips approximately 20% of feature bits to maintain genetic diversity. The best chromosome and its fitness score are tracked across generations to monitor convergence.",
+    "answer": "Preprocessing handled missing values in the PCOS dataset. Baseline accuracy using all 39 features with a Random Forest classifier: 0.889706 (88.97%). After applying a genetic-algorithm-based feature selection over 5 generations, the per-generation accuracies shown are: Generation 1 = 0.904412 (90.44%), Generation 2 = 0.904412 (90.44%), Generation 3 = 0.904412 (90.44%), Generation 4 = 0.904412 (90.44%), and Generation 5 = 0.919118 (91.91%). The best accuracy achieved is 0.919118 (91.91%) in Generation 5, an absolute increase of 0.029412 (2.94 percentage points) and a relative improvement of approximately 3.31% over the baseline. The plot reflects a largely flat accuracy for generations 1\u20134 with a jump at generation 5, indicating the GA found a better feature subset by the final generation.",
+    "confidence": 4.0,
+    "notebook": "genetic-algorithm-for-feature-selection.ipynb",
+    "id": 5918,
+    "figure": "<image_id:2>",
+    "dataset_size_mb": 0.036499977111816004,
+    "dataset": "debasisdotcom/parkinson-disease-detection",
+    "selected_for": [
+      "domain:Data Analysis"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Deep Learning",
+    "task_type": "Model Evaluation & Selection, Model Training & Optimization",
+    "language": "Python",
+    "question": "Using the raw medical insurance dataset, build preprocessing pipelines for both scaled and tree-based models, perform RandomizedSearchCV with 5-fold cross-validation for eight regressors (LinearRegression, RandomForestRegressor, GradientBoostingRegressor, SVR, ElasticNet, KNeighborsRegressor, HistGradientBoostingRegressor, HuberRegressor), identify the top three by cross-validated MSE, then construct a stacking regressor from these three and evaluate it via cross-validation and a final hold-out test set.",
+    "reasoning": "Begin by loading the dataset and defining features (numeric and categorical) and target. Set up two preprocessing strategies: one that scales numeric features and one that passes them through for tree-based models, with categorical features one-hot encoded in both. For each of the eight candidate regressors, create a pipeline combining the appropriate preprocessing with the model. Define a hyperparameter search space per model and use RandomizedSearchCV with 5-fold cross-validation and a negative MSE scorer to find the best configuration for each. Rank models by their best cross-validated MSE to select the top three performers. Build a stacking regressor using these three tuned pipelines as base estimators and an ElasticNet as the final estimator. Evaluate the stack via cross-validated RMSE, MAE, and R\u00b2 to obtain mean and variability, and perform a hold-out test evaluation to report final generalization metrics.",
+    "answer": "Top-3 models by CV-MSE (higher is better because scores are negative MSE, so less negative is better):\n1) gbr  CV-MSE: -20438835.5307  Params: {'m__subsample': 0.6, 'm__n_estimators': 300, 'm__min_samples_leaf': 10, 'm__max_features': None, 'm__max_depth': 2, 'm__learning_rate': 0.03}\n2) rfr  CV-MSE: -20758604.9154  Params: {'m__n_estimators': 600, 'm__min_samples_leaf': 10, 'm__max_features': 1.0, 'm__max_depth': 16}\n3) hgb  CV-MSE: -20936313.6545  Params: {'m__min_samples_leaf': 50, 'm__max_leaf_nodes': 127, 'm__max_depth': None, 'm__learning_rate': 0.05}\n\nStacking regressor evaluation:\n- 5-fold CV (test) metrics (mean \u00b1 std): RMSE = 4580.7054 \u00b1 313.1346; MAE = 2510.1011 \u00b1 135.6703; R\u00b2 = 0.8524 \u00b1 0.0329\n- Hold-out test metrics: RMSE = 4329.3421; MAE = 2386.1427; R\u00b2 = 0.8793",
+    "confidence": 4.0,
+    "notebook": "medical-insurance-cost-eda-and-predictive-models.ipynb",
+    "id": 6428,
+    "figure": null,
+    "dataset_size_mb": 0.053050994873046,
+    "dataset": "mosapabdelghany/medical-insurance-cost-dataset",
+    "selected_for": [
+      "domain:Deep Learning"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Domain-Specific Applications",
+    "task_type": "Pattern & Anomaly Detection, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Given a food nutrition dataset with food item names containing descriptive text about preparation methods and ingredients, how can word cloud visualizations be used to identify common patterns and characteristics within food subsets, and what do these visualizations reveal about foods containing specific keywords such as 'cooked', 'cheese', or 'chicken'?",
+    "reasoning": "First, a word cloud should be generated from the combined text of all food names in the dataset to visualize the overall frequency and importance of words across the entire dataset. The resulting visualization will show the most common descriptors prominently larger and more centered. Then, for each of the most common food descriptors identified earlier (cooked, raw, cheese, chicken, beef, canned, pork, soup, dried, beans), the dataset should be filtered to include only foods containing that descriptor. For each subset, the food names should be combined into a single text string. A word cloud should be generated for each subset to show which other descriptors or ingredients frequently appear alongside the target descriptor. This creates 10 additional word clouds that reveal patterns such as cooking methods most commonly paired with certain ingredients, or ingredient combinations that appear together in the dataset.",
+    "answer": "The overall word cloud visualization of all food names reveals the relative importance of different descriptors, with the largest words representing the most frequently occurring food characteristics in the dataset. Generating word clouds for each of the top 10 most common descriptors produces subset visualizations showing: (1) foods labeled 'cooked' frequently appear with other preparation descriptors and proteins, (2) 'cheese' products show prominence of dairy-related terms and dairy preparation methods, (3) 'chicken' products cluster with various cooking methods and complementary proteins, and similarly for beef, pork, and other protein sources. These visualizations reveal that the dataset is organized with substantial structural redundancy in how foods are named and categorized, with foods typically described by multiple characteristics (cooking method + primary ingredient + form/type). The word clouds effectively show both the overall food landscape and specific subcategory characteristics. <image_id:0> <image_id:2> <image_id:3> <image_id:4> <image_id:5> <image_id:6> <image_id:7> <image_id:8> <image_id:9> <image_id:10> <image_id:11>",
+    "confidence": 4.0,
+    "notebook": "food-nutrition-eda-and-correlation-analysis.ipynb",
+    "id": 6471,
+    "figure": "<image_id:0> <image_id:2> <image_id:3> <image_id:4> <image_id:5> <image_id:6> <image_id:7> <image_id:8> <image_id:9> <image_id:10> <image_id:11>",
+    "dataset_size_mb": 1.077873229980468,
+    "dataset": "shrutisaxena/food-nutrition-dataset",
+    "selected_for": [
+      "domain:Domain-Specific Applications"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Feature Engineering & Preparation, Statistical Testing & Inference",
+    "language": "Python",
+    "question": "Given the healthy lifestyle cities data with multiple health and lifestyle indicators, what is the correlation structure between happiness levels and other features, and which factors most strongly influence population happiness across these cities?",
+    "reasoning": "First, the dataset must be cleaned and prepared with all missing values handled and numeric types correctly assigned. A correlation matrix should be computed for all numeric features in the dataset. The correlation values with the target variable (Happiness levels) should be sorted in descending order to identify which features have positive and negative associations with happiness. Strong positive correlations indicate features that tend to increase when happiness increases, while strong negative correlations indicate features that decrease as happiness increases. The correlation matrix should be visualized as a heatmap to show multicollinearity relationships between features. Features should be ranked by absolute correlation strength to identify the top positive and negative predictors of happiness.",
+    "answer": "Happiness levels show the following correlation with other features (sorted by strength): Cost of bottle water (+0.813), Life expectancy (+0.725), Obesity levels (+0.446), Latitude (+0.315), Gym membership cost (+0.297), Take-out places (+0.033), Outdoor activities (-0.138), Sunshine hours (-0.339), Longitude (-0.423), Annual hours worked (-0.725), Pollution index (-0.746). The strongest positive correlors with happiness are cost of living (water cost and life expectancy), indicating developed countries with higher living standards have happier populations. The strongest negative correlators are pollution index and annual work hours, showing cleaner air and fewer working hours correlate with higher happiness. The correlation matrix reveals multicollinearity patterns, particularly between life expectancy, obesity levels, and work hours. <image_id:1>",
+    "confidence": 4.0,
+    "notebook": "healthy-lifestyle-eda-mini-ml.ipynb",
+    "id": 6713,
+    "figure": "<image_id:1>",
+    "dataset_size_mb": 0.0031747817993160003,
+    "dataset": "prasertk/healthy-lifestyle-cities-report-2021",
+    "selected_for": [
+      "task_type:Feature Engineering & Preparation, Statistical Testing & Inference"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Feature Engineering & Preparation",
+    "language": "Python",
+    "question": "Starting from the cleaned diabetes dataset, how can you create meaningful categorical features by combining age and glucose information, apply categorical encoding techniques, and standardize all numerical features to prepare for machine learning model training?",
+    "reasoning": "First, the cleaned dataset must be prepared. New categorical features should be created by combining age groups (mature: 21-49, senior: 50+) with glucose levels (normal: <70, normal: 70-100, hidden diabetes: 100-125, diabetes: >125) to capture meaningful health risk combinations. Additionally, BMI categories (Underweight, Healthy, Overweight, Obese) and glucose categories should be derived based on standard medical classifications. Next, interaction features should be created by multiplying related numerical variables (e.g., Glucose \u00d7 Insulin, Glucose \u00d7 Pregnancies). The dataset structure should then be reassessed to identify all categorical columns. Binary columns should be label-encoded while multi-class categorical features should be one-hot encoded with drop_first=True to avoid multicollinearity. Finally, all numerical features should be standardized using RobustScaler to ensure they have comparable scales, which is important for distance-based algorithms and regularization-based models.",
+    "answer": "Feature engineering created new categorical features including NEW_AGE_CAT (mature/senior), NEW_BMI (Underweight/Healthy/Overweight/Obese), NEW_GLUCOSE (Normal/Prediabetes/Diabetes), NEW_AGE_BMI_NOM (8 combinations capturing age-BMI interaction), and NEW_AGE_GLUCOSE_NOM (8 combinations capturing age-glucose interaction). Interaction features NEW_GLUCOSE*INSULIN and NEW_GLUCOSE*PREGNANCIES were created. The dataset grew from 9 to 17 features after engineering. Binary encoding was applied to NEW_AGE_CAT. One-hot encoding was applied to 5 categorical columns (NEW_AGE_BMI_NOM, NEW_AGE_GLUCOSE_NOM, NEW_INSULIN_SCORE, NEW_BMI, NEW_GLUCOSE) with drop_first=True. RobustScaler standardization was applied to 10 numerical features. Final dataset shape: (768, 26) with 7 categorical and 10 numerical columns after all transformations.",
+    "confidence": 4.0,
+    "notebook": "diabetes-eda-ml-prediction.ipynb",
+    "id": 6799,
+    "figure": null,
+    "dataset_size_mb": 0.045537948608398,
+    "dataset": "zohrehtofighizavareh/diabetes-dataset",
+    "selected_for": [
+      "task_type:Feature Engineering & Preparation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Data Ingestion & Integration, Data Preparation & Wrangling",
+    "language": "Python",
+    "question": "I have the Kaggle world cities dataset (worldcities.csv). After selecting the relevant columns (id, city_ascii, country, lat, lng, population), renaming city_ascii to city and lng to lon, removing rows with missing population, and deduplicating by the composite key (city, country) keeping the largest population per pair, how many rows had missing population and how many duplicate (city, country) pairs remain afterward?",
+    "reasoning": "Begin by loading the dataset and subsetting to the key columns to focus on location and population. Rename columns for clarity. Assess data completeness by identifying entries where population is missing and count them. For meaningful aggregation at the city\u2013country level, sort by population descending so that the first occurrence per (city, country) retains the largest population. Remove rows with missing population, then drop duplicates on the (city, country) pair, keeping the first (largest population) instance. Finally, verify the number of duplicates remaining after this deduplication.",
+    "answer": "Missing population entries: 725. Duplicate (city, country) pairs remaining after deduplication: 0.",
+    "confidence": 4.0,
+    "notebook": "programaci-n-b-sica-para-la-ciencia-de-datos.ipynb",
+    "id": 6822,
+    "figure": null,
+    "dataset_size_mb": 4.861811637878418,
+    "dataset": "okfn/world-cities",
+    "selected_for": [
+      "task_type:Data Ingestion & Integration, Data Preparation & Wrangling"
+    ]
+  },
+  {
+    "data_type": "text data",
+    "domain": "Deep Learning, Natural Language Processing",
+    "task_type": "Model Evaluation & Selection, Model Training & Optimization",
+    "language": "Python",
+    "question": "Given a financial sentiment analysis dataset with raw cleaned text and sentiment labels, how can fine-tuning a pre-trained RoBERTa transformer model improve sentiment classification performance compared to traditional machine learning approaches, and what is the final accuracy achieved after 5 epochs of fine-tuning?",
+    "reasoning": "First, the dataset must be loaded and preprocessed by cleaning the text and encoding labels, but without applying stemming and lemmatization since transformer models can learn from minimally processed text. The dataset is then split into three parts: training (72% after accounting for test and validation splits), validation (20% of training data), and test (10% of original data) using stratified sampling to preserve class distribution. A tokenizer from the pre-trained RoBERTa model must be used to convert text into tokens with padding and truncation to a maximum length of 128 tokens. DataLoaders are created for batch processing with batch sizes of 32. The pre-trained RoBERTa-base model is loaded with a sequence classification head configured for 3 output labels. The model is fine-tuned using the AdamW optimizer with a learning rate of 3e-5, epsilon of 1e-8, and a linear learning rate scheduler with 10 warmup steps over 5 epochs. During training, the model learns to adapt the pre-trained weights to the financial sentiment task. After each epoch, validation accuracy is computed. The training process leverages GPU acceleration through the Accelerate library for efficient distributed training.",
+    "answer": "After fine-tuning RoBERTa for 5 epochs on the financial sentiment analysis task, the validation accuracy improved progressively: Epoch 0: 83.30%, Epoch 1: 85.07%, Epoch 2: 85.18%, Epoch 3: 85.70%, Epoch 4: 86.22%. The final validation accuracy after 5 epochs is 86.22% (0.8622). This represents a significant improvement compared to the best traditional machine learning model (Support Vector Machine at 75.21%). The RoBERTa model achieves approximately 11 percentage points higher accuracy than the best traditional ML approach, demonstrating the superior capability of transformer-based language models for sentiment classification tasks in the financial domain.",
+    "confidence": 4.0,
+    "notebook": "bert-s-a-stock-market-guru-86-22-huggingface.ipynb",
+    "id": 7000,
+    "figure": null,
+    "dataset_size_mb": 0.710598945617675,
+    "dataset": "sbhatti/financial-sentiment-analysis",
+    "selected_for": [
+      "domain:Deep Learning, Natural Language Processing"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Domain-Specific Applications, Time Series",
+    "task_type": "Data Preparation & Wrangling",
+    "language": "Python",
+    "question": "Using the EPL 2019\u20132020 match-level dataset (epl2020.csv), compute each team\u2019s points from their last six matches, convert this to points per game, and project their final season totals to 38 matches by applying this recent rate to the remaining fixtures. Based on this projection, who are the predicted champions, Champions League qualifiers, Europa League qualifiers, and relegated teams, and what are their projected point totals?",
+    "reasoning": "From the raw data, order each team\u2019s matches chronologically and select the six most recent. Sum wins and draws in those matches to compute points over six games, then divide by six for points per game. Using the current league table (points and matches played), calculate remaining matches as 38 minus played. Project each team\u2019s final points by adding the product of recent points per game and remaining matches to their current points, rounding appropriately as defined in the procedure. Rank teams by projected points and identify the champions (top), Champions League qualifiers (top four), Europa League qualifiers (next three per the projection\u2019s listing), and relegated teams (bottom three), noting any ambiguity due to equal point totals and absence of goal difference in the projection.",
+    "answer": "Projected outcomes: Champions: Liverpool (104). Champions League: Man City (74), Leicester (65), Chelsea (62). Europa League: Sheffield United (61), Man United (61), Arsenal (60). Relegated: Norwich (27), Aston Villa (32), and either West Ham (33) or Watford (33) due to identical projected points and no projected goal difference to break the tie.",
+    "confidence": 4.0,
+    "notebook": "epl-19-20-predicted-final-positions.ipynb",
+    "id": 7046,
+    "figure": null,
+    "dataset_size_mb": 3.646149635314941,
+    "dataset": "idoyo92/epl-stats-20192020",
+    "selected_for": [
+      "domain:Domain-Specific Applications, Time Series"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Model Evaluation",
+    "task_type": "Model Evaluation & Selection, Reporting & Interpretation",
+    "language": "Python",
+    "question": "Using SHAP (SHapley Additive exPlanations) values from the optimal Random Forest COVID-19 prediction model, how do individual features contribute to specific predictions for true positives, true negatives, false positives, and false negatives, and what are the overall feature importance patterns when aggregated across all test samples?",
+    "reasoning": "First, the optimal Random Forest model (with best hyperparameters from the previous modeling phase) must be used to generate predictions on the test set. A TreeExplainer is initialized with the trained Random Forest model to compute SHAP values, which decompose each prediction into contributions from each feature. The expected value (base probability of positive class) serves as the starting point for all predictions. For individual predictions, decision plots are created that show how each feature's SHAP value pushes the prediction from the base value toward the final prediction. These plots are generated for different prediction types: true positives (correct positive predictions), true negatives (correct negative predictions), false positives (incorrect positive predictions), and false negatives (incorrect negative predictions). For true positives, the reasoning path should show which features had the strongest influence in driving the prediction toward infected status. For true negatives, the inverse pattern is expected. For prediction errors (false positives and false negatives), the analysis reveals what feature combinations or values led the model astray. Additionally, dependence plots are created for important features, showing the relationship between feature values and their SHAP values across all samples, with color coding indicating interaction with other features. Finally, a summary plot aggregates SHAP values for all features across all test samples, showing the distribution of impact for each feature and ranking features by importance.",
+    "answer": "Base / per-sample behavior: The per-sample SHAP waterfall plots use a base probability very close to 0.5 (vertical decision threshold) and show how individual features move the prediction above or below that threshold. True positives: The example TP plots show that Leukocytes is the single largest driver pushing the prediction toward the infected class, with Platelets frequently the next largest contributor. The exact ordering of other features varies by patient (i.e., patient-specific patterns). True negative: The TN example shows has_disease = 1 producing a large negative SHAP contribution that overcomes blood-feature-driven signals and brings the prediction below the threshold. False positives and false negatives: The FP example(s) show the model producing a positive prediction even though some features that would normally indicate health do not offset other positive drivers \u2014 in other words, the model can over-weight combinations of features and produce FPs. The FN example(s) show Platelets and Red Blood Cells among features giving negative contributions that pull the prediction below threshold despite the true infection label. Dependence / aggregated patterns: - Platelets dependence plot shows a non-linear relationship: relatively low platelet values correspond to positive SHAP values (increase predicted infection probability), while higher platelet values correspond to neutral/negative SHAP values (decrease predicted infection probability). - Has_disease dependence plot shows a strong negative effect when has_disease == 1 (patients with other disease are pushed toward not infected). - Leukocytes dependence plot mirrors Platelets in direction: lower leukocyte values are associated with positive SHAP (higher predicted infection risk). - Monocytes show an increasing SHAP effect with higher monocyte values (higher monocytes \u2192 more positive SHAP). - Patient age quantile shows a small upward trend (older quantiles tend to produce slightly more positive SHAP contributions) but with substantial scatter. Summary plot / overall importance: The global summary dot plot shows Leukocytes and Platelets produce the largest-magnitude SHAP values (i.e., they are the most influential features across the test set), with has_disease and Eosinophils also contributing noticeably; the remaining features exhibit smaller impacts. False negatives collectively do not share a single uniform SHAP pattern \u2014 some are close to the decision threshold, others are driven below threshold by several negative contributions, indicating multiple failure modes rather than one systematic cause.",
+    "confidence": 4.0,
+    "notebook": "covid-19-optimizing-recall-with-smote.ipynb",
+    "id": 7122,
+    "figure": "<image_id:5> <image_id:6> <image_id:7> <image_id:8> <image_id:9> <image_id:10> <image_id:11> <image_id:12> <image_id:13> <image_id:14> <image_id:15> <image_id:16>",
+    "dataset_size_mb": 1.553665161132812,
+    "dataset": "S\u00edrio-Libanes/covid19",
+    "selected_for": [
+      "task_type:Model Evaluation & Selection, Reporting & Interpretation",
+      "domain:Model Evaluation"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Data Analysis",
+    "task_type": "Data Preparation & Wrangling, Exploratory Data Analysis",
+    "language": "Python",
+    "question": "Compare the performance of the initial Random Forest model trained on the full imputed dataset (5644 records with 37 features) versus the final optimized model trained on the cleaned and reduced dataset (602 records with 13 features after SMOTE), analyzing how data quality improvements and feature reduction impact model performance metrics.",
+    "reasoning": "First, the initial modeling attempt uses the full dataset where missing blood variables are imputed using Linear Regression based on patient age. The model shows severe limitations: it achieves 90.43% accuracy but only 4.46% recall with very high false negative rate (107 false negatives vs 5 true positives). An analysis of the regression-based imputation reveals high heteroskedasticity in the relationship between age and blood variables (Hematocrit and Leukocytes examples show high scatter around the regression line), indicating that imputation by age is unreliable and introduces noise. The second modeling approach uses a carefully curated dataset: rows are filtered to include only those with complete blood variable data (602 of 5644 records), features are reduced from 37 to 13 through correlation analysis and redundancy removal, and SMOTE is applied to address class imbalance. This model achieves 91.73% accuracy with 64.71% recall on an initial Random Forest without hyperparameter tuning, and 90.91% accuracy with 70.59% recall after GridSearch optimization. Comparative analysis should quantify the improvement from recall of 4.46% to 70.59%, examine how the simple Random Forest model with SMOTE (no tuning) achieves 64.71% recall without GridSearch, and assess the trade-offs between dataset size reduction (602 vs 5644 records) and predictive quality improvement.",
+    "answer": "The initial Random Forest model on the full 5644-record dataset with regression-imputed missing values achieves very poor performance: 90.43% Accuracy, 4.46% Recall, 0.52 AUC, and 0.044 KS statistic. The confusion matrix shows 1016 true negatives, 1 false positive, 107 false negatives, and 5 true positives - the model essentially predicts all samples as negative. This failure is attributed to poor quality imputation, where 62% of blood variables are filled using unreliable age-based linear regression with high heteroskedasticity. The filtering to 602 records with complete blood data eliminates 89.3% of rows but dramatically improves data quality. A simple Random Forest model with SMOTE on this cleaned dataset achieves 92.35% Accuracy, 64.71% Recall, 0.804 AUC, and 0.609 KS statistic - a 14.5x improvement in Recall. This improvement occurs with just 100 estimators and no hyperparameter tuning, demonstrating that data quality matters more than model complexity for this problem. After GridSearch optimization with 300 iterations and 5-fold cross-validation, the final model achieves 90.91% Accuracy, 70.59% Recall, 0.824 AUC, and 0.648 KS - a further 1.14x recall improvement over the non-tuned version. Feature reduction from 37 to 13 features (removing redundant blood measurements through correlation analysis) does not decrease performance; instead, it likely reduces overfitting and improves generalization. The critical insight is that the 89.3% reduction in dataset size and aggressive feature engineering produced a model with 15.8x better recall and dramatically improved AUC (0.52 to 0.824) compared to the initial approach. The strategy of dropping unreliable data rather than imputing it proved far superior to attempting to salvage the full dataset through regression-based imputation.",
+    "confidence": 4.0,
+    "notebook": "covid-19-optimizing-recall-with-smote.ipynb",
+    "id": 7123,
+    "figure": null,
+    "dataset_size_mb": 1.553665161132812,
+    "dataset": "S\u00edrio-Libanes/covid19",
+    "selected_for": [
+      "task_type:Data Preparation & Wrangling, Exploratory Data Analysis"
+    ]
+  },
+  {
+    "data_type": "tabular data",
+    "domain": "Pattern Mining & Association",
+    "task_type": "Exploratory Data Analysis, Feature Engineering & Preparation",
+    "language": "Python",
+    "question": "Analyzing the correlation structure of developer productivity metrics, identify which pairs of variables show the strongest positive and negative linear relationships, and explain how these correlations might inform our understanding of developer productivity patterns.",
+    "reasoning": "First, the dataset should be loaded to ensure all numerical variables are available for analysis. A correlation matrix should be computed across all numerical features to quantify pairwise linear relationships. The correlation values should be visualized using a heatmap with appropriate color coding to highlight strong positive correlations (values close to +1), strong negative correlations (values close to -1), and weak correlations (values close to 0). The heatmap should be carefully examined to identify the strongest correlations in both directions. Positive correlations would indicate variables that tend to increase together, potentially revealing complementary behaviors or reinforcing mechanisms in productivity. Negative correlations would indicate inverse relationships where increases in one variable associate with decreases in another, revealing potential trade-offs or competing factors. The interpretation should consider whether correlations are meaningful in the context of developer productivity and behavior.",
+    "answer": "The heatmap shows the pairwise Pearson correlations among the developer productivity variables. The strongest positive linear relationship is between hours_coding and coffee_intake_mg (\u22480.89). Other relatively strong positive correlations are coffee_intake_mg vs task_success (\u22480.70), hours_coding vs commits (\u22480.65), and hours_coding vs task_success (\u22480.62). Moderate positives include ai_usage_hours vs hours_coding (\u22480.57) and coffee_intake_mg vs commits (\u22480.56); ai_usage_hours vs commits is only moderate (\u22480.37). The strongest negative relationship is sleep_hours vs cognitive_load (\u2248-0.73). Additional negative relationships of note are sleep_hours vs bugs_reported (\u2248-0.38) and smaller negatives such as cognitive_load vs task_success (\u2248-0.20) and bugs_reported vs task_success (\u2248-0.18). Several pairs (e.g., distractions with commits or task_success) are near zero and show little linear association. Implications: high hours_coding is closely associated with higher coffee intake and with more commits and task success in this dataset, while greater sleep is associated with much lower cognitive load and fewer reported bugs. AI usage shows moderate positive associations with coding time and some productivity metrics but not as strongly as hours_coding or coffee intake. Causality cannot be inferred from these correlations, and many relationships are weak, so interpret patterns cautiously.",
+    "confidence": 4.0,
+    "notebook": "ai-developer-prod-eda-model-clf-reg-cls.ipynb",
+    "id": 7790,
+    "figure": "<image_id:2>",
+    "dataset_size_mb": 0.014617919921875002,
+    "dataset": "atharvasoundankar/ai-developer-productivity-dataset",
+    "selected_for": [
+      "domain:Pattern Mining & Association"
+    ]
+  }
+]
