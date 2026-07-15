@@ -8,6 +8,18 @@ pushing the tag runs the publish workflow (see CONTRIBUTING.md). Add entries to
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-07-14
+
+### Added
+
+- A DSAEval benchmark suite (`evals/run_dsaeval.py`, `evals/run_dsaeval_hard.py`):
+  baseline vs Lemma, headless Claude Code, real Kaggle datasets, graded by
+  DSAEval's own unmodified judge rubric. `evals/select_dsaeval_hard_tasks.py`
+  deterministically rebuilds the 34-task hard set from DSAEval's own data, so
+  the selection is reproducible rather than asserted. See the README's
+  Benchmarks section and `evals/runs/` for every model answer and judge
+  verdict.
+
 ### Changed
 
 - Surface configuration now selects only the lazy-attachment preference. All

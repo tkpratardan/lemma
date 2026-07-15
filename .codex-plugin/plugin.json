@@ -1,6 +1,6 @@
 {
   "name": "lemma",
-  "version": "3.1.2",
+  "version": "4.0.1",
   "description": "Senior data-scientist mode for AI agents, plus live-notebook tools. Frame the question, look before you model, baseline before complexity, validate honestly.",
   "author": {
     "name": "tkpratardan",
@@ -21,9 +21,13 @@
   "mcpServers": {
     "lemma": {
       "command": "node",
-      "args": ["bin/lemma-mcp.mjs"],
+      "args": [
+        "bin/lemma-mcp.mjs"
+      ],
       "cwd": ".",
-      "env": { "LEMMA_NO_MCP_INSTRUCTIONS": "1" }
+      "env": {
+        "LEMMA_NO_MCP_INSTRUCTIONS": "1"
+      }
     }
   },
   "hooks": "./hooks/codex-hooks.json",

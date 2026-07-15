@@ -1,6 +1,6 @@
 {
   "name": "lemma-core",
-  "version": "3.1.2",
+  "version": "4.0.1",
   "description": "Lemma MCP core (TypeScript) — entry point, shared utilities, and adapters.",
   "private": true,
   "license": "MIT",

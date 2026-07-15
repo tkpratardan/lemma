@@ -1,6 +1,6 @@
 {
   "name": "lemma",
-  "version": "3.1.2",
+  "version": "4.0.1",
   "description": "Senior data-scientist mode for AI agents, plus live-notebook tools. Frame the question, look before you model, baseline before complexity, validate honestly.",
   "keywords": [
     "data-science",
