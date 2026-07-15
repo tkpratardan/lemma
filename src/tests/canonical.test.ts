@@ -9,8 +9,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { JupyterlabHandlers } from '../adapters/jupyterlab/tools.js';
 import type { PyCharmAllHandlers } from '../adapters/pycharm/tools.js';
 import { imageBlock, text } from '../utils/response.js';
-import { changedVariables, registerCanonicalTools } from './canonical.js';
-import { TaskStore } from './taskState.js';
+import { changedVariables, registerCanonicalTools } from '../mcp/canonical.js';
+import { TaskStore } from '../mcp/taskState.js';
 
 function handlers(): JupyterlabHandlers {
   return {

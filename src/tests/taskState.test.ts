@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { TaskGateError, TaskStore } from './taskState.js';
+import { TaskGateError, TaskStore } from '../mcp/taskState.js';
 
 function fixture() {
   const base = mkdtempSync(join(tmpdir(), 'lemma-task-state-'));

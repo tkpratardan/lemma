@@ -6,6 +6,6 @@
     "noEmit": true,
     "typeRoots": ["./src/node_modules/@types"]
   },
-  "include": ["src/mcp/**/*", "src/utils/**/*", "src/adapters/**/*"],
+  "include": ["src/mcp/**/*", "src/utils/**/*", "src/adapters/**/*", "src/tests/**/*"],
   "exclude": ["src/node_modules", "src/dist"]
 }

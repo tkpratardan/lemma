@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { cleanRunSummary } from './tools.js';
+import { cleanRunSummary } from '../adapters/notebook/tools.js';
 
 test('clean run success omits per-cell output', () => {
   assert.equal(

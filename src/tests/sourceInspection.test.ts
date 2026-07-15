@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { sourceInspectionCode } from './sourceInspection.js';
+import { sourceInspectionCode } from '../mcp/sourceInspection.js';
 
 function embeddedConfig(code: string): Record<string, unknown> {
   const matched = code.match(/_lemma_json\.loads\(("(?:\\.|[^"\\])*")\)/);

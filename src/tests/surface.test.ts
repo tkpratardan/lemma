@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { resolvePreferredSurface } from './surface.js';
+import { resolvePreferredSurface } from '../mcp/surface.js';
 
 test('preferred surface flag takes precedence over environment', () => {
   assert.equal(resolvePreferredSurface(['node', 'server', '--surface=jupyter'], { LEMMA_SURFACE: 'vscode' }), 'jupyter');

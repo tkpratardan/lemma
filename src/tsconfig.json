@@ -11,6 +11,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["mcp", "utils", "adapters"],
+  "include": ["mcp", "utils", "adapters", "tests"],
   "exclude": ["node_modules", "dist"]
 }
