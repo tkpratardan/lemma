@@ -75,6 +75,8 @@ Headless Claude Code on [DSAEval](https://github.com/AMA-CMFAI/DSAEval): the sam
 
 Take the hardest task from every DSAEval task type and domain: baseline is confidently wrong more than half the time. Lemma cuts that to 1 in 7, for 1.23x the cost. Time doesn't cost extra: infact a touch faster here despite doing more work. Give both arms a clean single-answer question instead, one with no room for rigor to pay off, and they tie at 100%. Her overhead buys nothing there.
 
+> **Note:** Not a random sample. We took DSAEval's 20 most common `task_type` labels and 20 most common `domain` labels, and kept the single hardest task in each of those 40 buckets. "Hardest" is a proxy: the combined length of the question and DSAEval's own reference reasoning, which stands in for how many steps and constraints a task has. That reasoning is the worked solution, DSAEval's answer key, and it never reaches the agent; only the judge sees it, after the agent has already answered. Two guardrails on top: skip anything DSAEval's own confidence score rated below 3, and skip datasets over 10MB for faster inference. Task and domain buckets overlap, so after dedup 34 tasks are selected. [`select_dsaeval_hard_tasks.py`](evals/select_dsaeval_hard_tasks.py) rebuilds that selection from DSAEval's own data.
+
 Every script, every model answer, and the judge's full verdict on every task sits in [`evals/`](evals/). Evaluate on [`run_dsaeval_hard.py`](evals/run_dsaeval_hard.py) or a simpler tasks in [`evals/run_dsaeval.py`](evals/run_dsaeval.py).
 
 ## What Ships

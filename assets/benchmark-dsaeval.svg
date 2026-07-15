@@ -1,6 +1,6 @@
 <svg viewBox="0 0 970 430" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
-  <title>Baseline vs Lemma on 34 hard DSAEval tasks: accuracy, confident-wrong rate, cost per task, and time per task</title>
-  <text x="485" y="24" font-size="15" font-weight="600" fill="#8b949e" text-anchor="middle">Baseline vs Lemma, 34 hard DSAEval tasks (judge-graded, Consistency-gated)</text>
+  <title>Baseline vs Lemma on DSAEval tasks: accuracy, confident-wrong rate, cost per task, and time per task</title>
+  <text x="485" y="24" font-size="15" font-weight="600" fill="#8b949e" text-anchor="middle">Baseline vs Lemma, DSAEval tasks (judge-graded, Consistency-gated)</text>
 
   <rect x="395" y="38" width="12" height="12" rx="2" fill="#8b949e"/><text x="412" y="48" font-size="12" fill="#8b949e">baseline</text>
   <rect x="485" y="38" width="12" height="12" rx="2" fill="#008300"/><text x="502" y="48" font-size="12" fill="#8b949e">lemma</text>
