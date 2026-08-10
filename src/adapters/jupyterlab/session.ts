@@ -396,6 +396,13 @@ export class JupyterLabSession {
     return renderForAgent({ source: src, outputs, executionCount, error, cellType: 'code' });
   }
 
+  // Runs through the kernel directly, bypassing the ynotebook cell model, so
+  // scratch checks never land as a cell in the notebook.
+  async probe(code: string, timeoutMs = 120000): Promise<string> {
+    const { outputs, executionCount, error } = await this._drainExecute(code, timeoutMs);
+    return renderForAgent({ source: code, outputs, executionCount, error, cellType: 'code' });
+  }
+
   async saveNotebook(): Promise<void> {
     const base = this.serverSettings.baseUrl.replace(/\/+$/, '');
     const token = this.serverSettings.token;

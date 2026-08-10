@@ -2,7 +2,7 @@
   "name": "lemma-datascience",
   "displayName": "Lemma: Live Notebook Tools",
   "description": "Lets AI agents edit and execute the notebook open in your VS Code editor, natively.",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "publisher": "tkpratardan",
   "license": "MIT",
   "icon": "icon.png",

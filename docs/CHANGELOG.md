@@ -8,6 +8,29 @@ pushing the tag runs the publish workflow (see CONTRIBUTING.md). Add entries to
 
 ## [Unreleased]
 
+## [4.0.2] - 2026-08-10
+
+### Added
+
+- A canonical `probe` action for short environment checks that executes code
+  against the active kernel without adding a durable notebook cell.
+
+### Changed
+
+- Simplified the README and removed personified product language.
+- Bumped the VS Code extension to 1.2.14 and aligned its package metadata with
+  the repository's MIT license.
+
+### Fixed
+
+- VS Code notebook mutations now run sequentially, so overlapping edit
+  confirmations cannot replace each other's controls, close the wrong diff,
+  or resolve cell indexes against pending changes. Long-running confirmations
+  also survive HTTP request timeouts and disconnected callers.
+- DSAEval benchmark runs now prevent agents from reading ground-truth files.
+  The corrected hard-set baseline is 38.2% accuracy and 61.8%
+  confident-wrong; Lemma remains at 84.8% and 15.2%, respectively.
+
 ## [4.0.1] - 2026-07-14
 
 ### Added

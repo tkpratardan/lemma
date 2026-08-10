@@ -193,8 +193,8 @@ def is_correct(pred, truth) -> bool:
         pn, tn = float(p), float(t)
     except ValueError:
         return False
-    # ponytail: 1% relative tolerance instead of a judge model; swap in
-    # each benchmark's official scorer for publication-grade numbers.
+    # 1% relative tolerance instead of a judge model; swap in each
+    # benchmark's official scorer for publication-grade numbers.
     return abs(pn - tn) <= abs(tn) * 0.01
 
 

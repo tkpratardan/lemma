@@ -22,19 +22,19 @@
 
 ## Why Lemma?
 
-You know her. Hand her a notebook and she looks before she types: what the data says, why it matters, what to try next. Build her into your agent.
+Lemma gives AI agents a structured way to work with notebooks: inspect the data, understand what it means, and decide what to try next.
 
 * **Without Lemma:** your agent edits `.ipynb` JSON blind, reruns the whole notebook to check one value, and trusts whatever it remembers a cell printing.
 * **With Lemma:** your agent works in a live Jupyter kernel, reads the actual data state, sets seeds, validates assumptions, and leaves an ordered notebook that reruns clean.
 
-Lemma is an MCP server, so any client that speaks MCP can run her, in an editor, a terminal, or a managed notebook environment. Hosts that also support hooks and skills get her full persona and skill set, not just the tools.
+Lemma is an MCP server, so any client that speaks MCP can use it in an editor, a terminal, or a managed notebook environment. Hosts that also support hooks and skills get the accompanying data science instructions and skills, not just the tools.
 
 ## What ships
 
 Each configured agent gets three things:
 
-1. **The persona.** A seasoned data scientist's judgment, delivered through whichever channel the host honors natively: MCP instructions, session-start hook, context file, or steering file.
-2. **Live notebook tools.** Five MCP actions (`connect`, `read`, `run`, `edit`, `inspect`) drive a live notebook in VS Code/Cursor, PyCharm/DataSpell, or JupyterLab, so the agent reads what is in the kernel, not what it remembers.
+1. **Data science instructions.** Analysis practices and validation checks, delivered through whichever channel the host honors natively: MCP instructions, session-start hook, context file, or steering file.
+2. **Live notebook tools.** Six MCP actions (`connect`, `read`, `run`, `edit`, `inspect`, `probe`) drive a live notebook in VS Code/Cursor, PyCharm/DataSpell, or JupyterLab, so the agent reads what is in the kernel, not what it remembers.
 3. **Ten skills.** One per kind of question an analysis can be, from wrangling messy sources to reviewing someone else's result.
 
 Some hosts have no global path for an always-on ruleset. For a host-native guarantee there, copy the matching rules file into your project: [`.cursor/rules/lemma-datascience.mdc`](.cursor/rules/lemma-datascience.mdc) (Cursor), [`.windsurf/rules/lemma.md`](.windsurf/rules/lemma.md) (Windsurf), [`.github/copilot-instructions.md`](.github/copilot-instructions.md) (Copilot), or [`AGENTS.md`](AGENTS.md) (anything else). All are generated from `AGENTS.md`; copy as-is, hand edits get overwritten.
@@ -94,7 +94,7 @@ Or use the host's own mechanism: `claude plugin uninstall lemma@lemma` in Claude
 
 ## Benchmarks
 
-Headless Claude Code on [DSAEval](https://github.com/AMA-CMFAI/DSAEval): the same agent, with and without her. Real questions, real Kaggle datasets, and DSAEval's own judge rubric (Haiku), untouched. DSAEval wires its own agents with custom notebook-editing tools; those are not used here.
+Headless Claude Code on [DSAEval](https://github.com/AMA-CMFAI/DSAEval): the same agent, with and without Lemma. Real questions, real Kaggle datasets, and DSAEval's own judge rubric (Haiku), untouched. DSAEval wires its own agents with custom notebook-editing tools; those are not used here.
 
 <p align="center">
   <img src="assets/benchmark-dsaeval.svg" width="970" alt="Bar chart comparing baseline and Lemma on accuracy, confident-wrong rate, cost per task, and time per task">

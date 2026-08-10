@@ -9,8 +9,9 @@ Lemma exposes one notebook action interface on every surface. The server dispatc
 | `run` | Append and execute a durable cell, rerun one cell, or run all cells |
 | `edit` | Replace, insert, delete, or add Markdown, optionally executing a code edit |
 | `inspect` | Inspect a variable or one/batched source inventory/schema/head/profile request |
+| `probe` | Run a short environment check without adding a durable notebook cell |
 
-The default server exposes exactly these five analysis actions. Set
+The default server exposes exactly these six analysis actions. Set
 `LEMMA_AUDIT_TOOLS=1` to additionally expose `checkpoint`,
 `verify_clean_run`, and `publish_answer` for workflows that explicitly need an
 evidence ledger UI, a clean-run action, or an audit receipt. Set
@@ -19,8 +20,8 @@ adapter-prefixed tools.
 
 ## Runtime contract
 
-Start with the analysis action the work needs. `read`, `run`, `edit`, and
-`inspect` lazily attach to the preferred surface and open a project-scoped
+Start with the analysis action the work needs. `read`, `run`, `edit`, `inspect`,
+and `probe` lazily attach to the preferred surface and open a project-scoped
 evidence ledger without resetting the kernel. If the surface or notebook is
 ambiguous, the action returns a bounded recovery message; use `connect` once
 with explicit details. `connect(surface="jupyter|pycharm|vscode")` can switch
@@ -33,6 +34,10 @@ automatically records notebook identity, inspections, executed cell ids and
 hashes, bounded output summaries, errors, sources, and recognizable artifacts.
 Optional audit metadata can add facts, assumptions, and risks. The server does
 not impose stages, action limits, or a required publication call.
+
+Use `probe` only for disposable environment checks such as paths, package
+versions, and quick lookups. Analysis results belong in `run` so they remain in
+the notebook's evidence trail.
 
 The passive ledger never serializes conversation history or arbitrary kernel
 variables. With audit tools enabled, `checkpoint(record={...})` can preserve

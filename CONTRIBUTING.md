@@ -53,9 +53,8 @@ once the test suite is in better shape).
 Claude Code, Codex, Copilot, Antigravity/`agy`, Gemini CLI, and OpenClaw all
 install lemma as a plugin pointed directly at this GitHub repo — for those,
 **the version bump + tag + push below is the actual release action**, not
-`npm publish` (per `~/src/ponytail`'s own manifests: version stays pinned and
-bumped every release across all three, not omitted for commit-SHA tracking —
-a skipped bump means those hosts see no update, same as today). `npm publish`
+`npm publish` (plugin hosts track the pinned version in the manifests, not
+commit SHAs — a skipped bump means those hosts see no update). `npm publish`
 still matters for the legacy `npm install -g @tkpratardan/lemma` path and for
 hosts with no plugin route (Cursor, VS Code, Windsurf, Claude Desktop, which
 read the installed npm package directly).

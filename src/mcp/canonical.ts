@@ -46,6 +46,7 @@ interface ConnectArgs {
 interface SurfaceAdapter extends NotebookHandlers {
   surface: Surface;
   connect(args: ConnectArgs): Promise<TextResult>;
+  probe(args: { code: string }): Promise<TextResult>;
 }
 
 export interface CanonicalDependencies {
@@ -464,6 +465,12 @@ function createVscodeAdapter(editorFinder: typeof findEditor): SurfaceAdapter {
       const result = await current.editor.inspect(current.path, name);
       return text(result.output ?? '[no output]');
     },
+    async probe({ code }) {
+      const current = requireConnection();
+      if (typeof current === 'string') return text(current);
+      const result = await current.editor.probe(current.path, code);
+      return text(result.output ?? '[no output]');
+    },
     async editCell({ index, source }) {
       const current = requireConnection();
       if (typeof current === 'string') return text(current);
@@ -875,6 +882,33 @@ export function registerCanonicalTools(server: McpServer, dependencies: Canonica
           returnOutput: return_output,
           imageIndex: image_index,
           source: mode === 'append' ? source : mode === 'cell' ? selectedCell(before, index)?.source : undefined,
+        });
+      } catch (error) {
+        return blocked(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    'probe',
+    {
+      description:
+        'Runs code, returns output, no cell added. Environment checks only (paths, versions, ' +
+        'quick lookups) — real results belong in run so they stay in the evidence trail.',
+      inputSchema: {
+        source: z.string().describe('Code to execute and discard.'),
+      },
+    },
+    async ({ source }) => {
+      try {
+        const adapter = await ensureReady();
+        store.noteAction('probe');
+        store.assertCanExecute();
+        const result = await adapter.probe({ code: source });
+        return jsonText({
+          output: truncate(resultText(result), 1600),
+          surface: adapter.surface,
+          ...taskEnvelope(),
         });
       } catch (error) {
         return blocked(error);

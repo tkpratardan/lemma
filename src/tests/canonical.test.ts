@@ -22,6 +22,7 @@ function handlers(): JupyterlabHandlers {
     editAndRun: async () => text('cell 0 edited+ran'),
     runAllCells: async () => text('ran 1/1 code cells'),
     inspectVariable: async () => text('value'),
+    probe: async () => text('probed'),
     editCell: () => text('edited'),
     insertCell: () => text('inserted'),
     deleteCell: () => text('deleted'),
@@ -43,7 +44,7 @@ function connectArguments(
   };
 }
 
-test('default canonical registration exposes only the five analysis tools', () => {
+test('default canonical registration exposes only the six analysis tools', () => {
   const base = mkdtempSync(join(tmpdir(), 'lemma-canonical-'));
   try {
     const server = new McpServer({ name: 'test', version: '0.0.0' });
@@ -59,6 +60,7 @@ test('default canonical registration exposes only the five analysis tools', () =
       'connect',
       'edit',
       'inspect',
+      'probe',
       'read',
       'run',
     ]);
@@ -81,7 +83,7 @@ test('audit lifecycle tools are available only when explicitly enabled', () => {
       (server as unknown as { _registeredTools: Record<string, unknown> })._registeredTools
     ).sort();
     assert.deepEqual(registered, [
-      'checkpoint', 'connect', 'edit', 'inspect', 'publish_answer', 'read', 'run', 'verify_clean_run',
+      'checkpoint', 'connect', 'edit', 'inspect', 'probe', 'publish_answer', 'read', 'run', 'verify_clean_run',
     ]);
   } finally {
     rmSync(base, { recursive: true, force: true });
@@ -264,6 +266,47 @@ test('run returns its execution result and compact state delta in one response',
     assert.equal('instruction' in finalized, false);
     assert.equal('next' in finalized, false);
     assert.ok((finalizedBlock.text ?? '').length < 500);
+  } finally {
+    await client.close();
+    await server.close();
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('probe executes and returns output without adding a notebook cell', async () => {
+  const base = mkdtempSync(join(tmpdir(), 'lemma-canonical-probe-'));
+  let addAndRunCalls = 0;
+  const fake: PyCharmAllHandlers = {
+    ...handlers(),
+    connect: async () => text('connected to test notebook'),
+    status: () => text('connected'),
+    executeCell: async () => text('unused'),
+    insertCell: () => text('inserted'),
+    addAndRun: async () => {
+      addAndRunCalls += 1;
+      return text('cell 0 added+ran');
+    },
+    probe: async ({ code }) => text(`probed: ${code}`),
+  };
+  const server = new McpServer({ name: 'test', version: '0.0.0' });
+  registerCanonicalTools(server, {
+    preferredSurface: 'pycharm',
+    pycharm: fake,
+    taskStore: new TaskStore('/workspace/example', base),
+  });
+  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+  const client = new Client({ name: 'test-client', version: '0.0.0' });
+  try {
+    await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
+    const response = await client.callTool({
+      name: 'probe',
+      arguments: { source: 'import sys; sys.version' },
+    });
+    const block = (response as { content: Array<{ type: string; text?: string }> }).content[0];
+    const body = JSON.parse(block.text ?? '{}');
+    assert.equal(body.output, 'probed: import sys; sys.version');
+    assert.equal(body.surface, 'pycharm');
+    assert.equal(addAndRunCalls, 0, 'probe must not add a durable cell');
   } finally {
     await client.close();
     await server.close();

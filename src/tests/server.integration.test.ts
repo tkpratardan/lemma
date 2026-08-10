@@ -21,6 +21,7 @@ test('shipped MCP bundle advertises only the canonical action interface', async 
       'connect',
       'edit',
       'inspect',
+      'probe',
       'read',
       'run',
     ]);

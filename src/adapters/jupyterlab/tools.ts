@@ -37,7 +37,11 @@ export function shutdownJupyterlabSession(): void {
 
 // The shared verb contract lives in adapters/notebook/tools.ts, which
 // registers these once as notebook_* with a surface flag instead of twice.
-export type JupyterlabHandlers = NotebookHandlers;
+// probe is the one verb outside that contract: pycharm's handlers define it
+// the same way, for the same reason (a discardable, no-cell execution).
+export interface JupyterlabHandlers extends NotebookHandlers {
+  probe(args: { code: string }): Promise<ReturnType<typeof text>>;
+}
 
 export function createJupyterlabHandlers(): JupyterlabHandlers {
   return {
@@ -119,6 +123,12 @@ export function createJupyterlabHandlers(): JupyterlabHandlers {
       const s = requireSession();
       if (typeof s === 'string') return text(s);
       return text(await s.inspectVariable(name));
+    },
+
+    async probe({ code }) {
+      const s = requireSession();
+      if (typeof s === 'string') return text(s);
+      return text(await s.probe(code));
     },
 
     editCell({ index, source }) {

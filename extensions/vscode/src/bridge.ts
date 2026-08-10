@@ -161,14 +161,14 @@ async function confirmEdit(
     }
     const accepted = decision === 'accept' || decision === 'always';
 
-    // Close by URI scheme, not focus, so an unrelated tab is never closed by
-    // accident; no-op if the user already closed it (won the race above).
+    // Close this confirm's own tab only; a scheme-wide match would close a
+    // concurrent confirm's diff, which its tab-close watcher reads as Discard.
     for (const group of vscode.window.tabGroups.all) {
       for (const tab of group.tabs) {
         const input = tab.input;
         if (
           input instanceof vscode.TabInputTextDiff &&
-          (input.original.scheme === 'lemma-diff' || input.modified.scheme === 'lemma-diff')
+          input.modified.toString() === newUri.toString()
         ) {
           await vscode.window.tabGroups.close(tab, /* preserveFocus */ true);
           break;
@@ -310,6 +310,24 @@ const ROUTES: Record<string, Handler> = {
   },
 };
 
+const READ_ONLY = new Set(['GET /read', 'GET /state', 'POST /output', 'POST /inspect']);
+
+// Mutations run one at a time: overlapping edits raced the confirm gate —
+// each clobbered the other's status-bar buttons, closed the other's diff tab,
+// and resolved cell indexes a pending revert was about to shift.
+let mutationChain: Promise<unknown> = Promise.resolve();
+
+function dispatch(routeKey: string, handler: Handler, body: any, doc: vscode.NotebookDocument): Promise<unknown> {
+  if (READ_ONLY.has(routeKey)) {
+    return Promise.resolve(handler(body, doc));
+  }
+  const run = mutationChain.then(() => handler(body, doc));
+  mutationChain = run.catch(() => {
+    /* error already surfaced to this run's caller */
+  });
+  return run;
+}
+
 function cellSource(doc: vscode.NotebookDocument, index: number): string {
   return index >= 0 && index < doc.cellCount ? doc.cellAt(index).document.getText() : '';
 }
@@ -360,6 +378,11 @@ export class NotebookBridge {
     );
     this.server = http.createServer(async (req, res) => {
       const send = (code: number, obj: unknown) => {
+        // The caller may have aborted while a confirm sat open; writing to
+        // the dead socket would throw out of the catch below.
+        if (res.destroyed || res.writableEnded) {
+          return;
+        }
         res.writeHead(code, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(obj));
       };
@@ -373,7 +396,8 @@ export class NotebookBridge {
       if (req.method === 'GET' && url.pathname === '/open') {
         return send(200, { notebooks: vscode.workspace.notebookDocuments.map((d) => d.uri.fsPath) });
       }
-      const handler = ROUTES[`${req.method} ${url.pathname}`];
+      const routeKey = `${req.method} ${url.pathname}`;
+      const handler = ROUTES[routeKey];
       if (!handler) {
         return send(404, { error: 'no such route' });
       }
@@ -384,11 +408,15 @@ export class NotebookBridge {
       try {
         const doc = await resolveNotebook(notebookPath);
         const body = req.method === 'POST' ? await readBody(req) : {};
-        send(200, await handler(body, doc));
+        send(200, await dispatch(routeKey, handler, body, doc));
       } catch (e: unknown) {
         send(400, { error: errorMessage(e) });
       }
     });
+    // A confirm can sit unanswered past Node's default 5-minute
+    // requestTimeout, which destroys the socket under it and leaves the
+    // dialog's buttons answering a caller that is gone.
+    this.server.requestTimeout = 0;
     // Port 0 → OS picks a free port; the discovery file carries the real one.
     this.server.listen(0, '127.0.0.1', () => this.writeDiscovery());
   }

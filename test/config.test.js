@@ -17,6 +17,6 @@ test('editor-specific plugin configs prefer the VS Code surface', () => {
   assert.ok(copilot.mcpServers.lemma.args.includes('--surface=vscode'));
   assert.ok(gemini.mcpServers.lemma.args.includes('--surface=vscode'));
   assert.deepEqual(gemini.mcpServers.lemma.includeTools, [
-    'connect', 'read', 'run', 'edit', 'inspect',
+    'connect', 'read', 'run', 'edit', 'inspect', 'probe',
   ]);
 });

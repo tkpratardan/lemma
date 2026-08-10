@@ -58024,6 +58024,12 @@ var JupyterLabSession = class _JupyterLabSession {
     const { outputs, executionCount, error: error51 } = await this._drainExecute(src, 3e4);
     return renderForAgent({ source: src, outputs, executionCount, error: error51, cellType: "code" });
   }
+  // Runs through the kernel directly, bypassing the ynotebook cell model, so
+  // scratch checks never land as a cell in the notebook.
+  async probe(code, timeoutMs = 12e4) {
+    const { outputs, executionCount, error: error51 } = await this._drainExecute(code, timeoutMs);
+    return renderForAgent({ source: code, outputs, executionCount, error: error51, cellType: "code" });
+  }
   async saveNotebook() {
     const base = this.serverSettings.baseUrl.replace(/\/+$/, "");
     const token = this.serverSettings.token;
@@ -58212,6 +58218,11 @@ ${cell ? renderForAgent(cell) : "[no output]"}`);
       const s = requireSession();
       if (typeof s === "string") return text(s);
       return text(await s.inspectVariable(name2));
+    },
+    async probe({ code }) {
+      const s = requireSession();
+      if (typeof s === "string") return text(s);
+      return text(await s.probe(code));
     },
     editCell({ index, source }) {
       const s = requireSession();
@@ -60371,6 +60382,12 @@ ${outputs}`);
       const result = await current.editor.inspect(current.path, name2);
       return text(result.output ?? "[no output]");
     },
+    async probe({ code }) {
+      const current = requireConnection();
+      if (typeof current === "string") return text(current);
+      const result = await current.editor.probe(current.path, code);
+      return text(result.output ?? "[no output]");
+    },
     async editCell({ index, source }) {
       const current = requireConnection();
       if (typeof current === "string") return text(current);
@@ -60734,6 +60751,30 @@ function registerCanonicalTools(server2, dependencies) {
           returnOutput: return_output,
           imageIndex: image_index,
           source: mode === "append" ? source : mode === "cell" ? selectedCell(before, index)?.source : void 0
+        });
+      } catch (error51) {
+        return blocked(error51);
+      }
+    }
+  );
+  server2.registerTool(
+    "probe",
+    {
+      description: "Runs code, returns output, no cell added. Environment checks only (paths, versions, quick lookups) \u2014 real results belong in run so they stay in the evidence trail.",
+      inputSchema: {
+        source: external_exports.string().describe("Code to execute and discard.")
+      }
+    },
+    async ({ source }) => {
+      try {
+        const adapter = await ensureReady();
+        store.noteAction("probe");
+        store.assertCanExecute();
+        const result = await adapter.probe({ code: source });
+        return jsonText({
+          output: truncate(resultText(result), 1600),
+          surface: adapter.surface,
+          ...taskEnvelope()
         });
       } catch (error51) {
         return blocked(error51);
