@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "publisher": "tkpratardan",
+  "items": [
+    {
+      "kind": "plugin",
+      "id": "lemma",
+      "name": "Lemma",
+      "version": "4.0.2",
+      "description": "Senior data-scientist mode for AI agents, plus live-notebook tools. Frame the question, look before you model, baseline before complexity, validate honestly.",
+      "path": ".",
+      "icon": "assets/lemma_icon.png"
+    }
+  ]
+}
